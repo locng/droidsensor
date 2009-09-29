@@ -6,11 +6,10 @@
     <string name="button_bind">すれ違い通信を開始します</string>
     <string name="button_unbind">すれ違い通信を終了します</string>
     
-
     <string name="template_status">. @$id とすれちがったなう$tags</string>
     
     <string name="template_status_other">$id とすれちがったなう$tags</string>
-    
+
     <string name="property_server_url">http://droidsensor.appspot.com/api</string>
     
     <!-- new  -->
@@ -18,6 +17,6 @@
     <string name="menu_stop_discover">すれ違い通信を終了</string>
     <string name="menu_settings">設定</string>
     
-    <string name="default_message">MENU &gt; Discover　ですれ違い通信を開始します</string>
+    <string name="default_message">[MENU] &gt; [すれ違い通信を開始]　で通信を開始します</string>
     
 </resources>

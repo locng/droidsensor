@@ -67,6 +67,7 @@ abstract class TwitterUtils {
 		}
 
 		Twitter twitter = new Twitter(twitterId, twitterPassword);
+		String forNotify;
 
 		try {
 
@@ -79,16 +80,18 @@ abstract class TwitterUtils {
 				text = text.replace("$name", name);
 			}
 
+			forNotify = text;
+
 			if (template.contains("$tags")) {
 
 				text = text.replace("$tags", (tags.startsWith(" ") ? "" : " ")
 						+ tags);
+				forNotify = forNotify.replace("$tags", "");
 			}
 
-			// Status status = twitter.updateStatus(text);
 			twitter.updateStatus(text);
-			// Toast.
-			return text;
+
+			return forNotify;
 
 		} catch (TwitterException e) {
 
