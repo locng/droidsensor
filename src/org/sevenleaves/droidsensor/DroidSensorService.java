@@ -86,16 +86,16 @@ public class DroidSensorService extends Service {
 
 			String templateOther = getString(R.string.template_status_other);
 
-			String tweet = TwitterUtils.tweetDeviceFound(device, twitterId,
+			String tweeted = TwitterUtils.tweetDeviceFound(device, twitterId,
 					twitterPassword, url, template, templateOther, allDevices,
 					"#droidsensor");
 
-			if (tweet == null) {
+			if (tweeted == null) {
 
 				return;
 			}
 
-			showMessageToStatusBar(tweet);
+			showMessageToStatusBar(tweeted);
 		}
 
 		public void remoteDeviceDisappeared(RemoteBluetoothDevice remoteDevice) {
@@ -213,16 +213,16 @@ public class DroidSensorService extends Service {
 		_notificationManager.notify(R.string.service_name, notification);
 	}
 
-	private void showMessageToStatusBar(String message) {
+	private void showMessageToStatusBar(String tweeted) {
 
 		Notification notification = new Notification(R.drawable.notify,
-				message, System.currentTimeMillis());
+				tweeted, System.currentTimeMillis());
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 				new Intent(DroidSensorService.this, DroidSensorActivity.class),
 				0);
-		notification.setLatestEventInfo(DroidSensorService.this, message,
-				message, contentIntent);
+		notification.setLatestEventInfo(DroidSensorService.this, tweeted,
+				tweeted, contentIntent);
 		_notificationManager.notify(R.string.app_name, notification);
 	}
 

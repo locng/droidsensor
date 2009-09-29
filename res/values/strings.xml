@@ -7,9 +7,9 @@
     <string name="button_unbind">Stop Service</string>
     
     
-    <string name="template_status">I nearly ran into \@$id now.$tags</string>
+    <string name="template_status">Comming across \@$id .$tags</string>
     
-    <string name="template_status_other">I nearly ran into $id now.$tags</string>
+    <string name="template_status_other">Comming across $id .$tags</string>
     
 	<string name="property_server_url">http://droidsensor.appspot.com/api</string>
     
