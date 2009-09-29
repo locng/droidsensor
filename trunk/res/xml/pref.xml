@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:key="com_google_appengine_droidsensor">
+
+	<PreferenceCategory android:title="Twitter account Settings">
+
+		<EditTextPreference android:key="droidsensor_twitter_id"
+			android:title="Twitter ID" android:inputType="textAutoCorrect" />
+
+		<EditTextPreference android:key="droidsensor_twitter_password"
+			android:title="Twitter Password" android:inputType="textPassword" />
+
+	</PreferenceCategory>
+
+	<PreferenceCategory android:title="Discovery Settings">
+
+		<CheckBoxPreference android:key="droidsensor_discovery_all_bluetooth_devices"
+			android:title="All Bluetooth devices" />
+
+	</PreferenceCategory>
+
+	<!-- 
+	<PreferenceCategory android:title="Notification Settings">
+
+		<CheckBoxPreference android:key="droidsensor_notification_vibration"
+			android:title="Vibration" />
+
+		<CheckBoxPreference android:key="droidsensor_notification_led_flash"
+			android:title="LED Flash" />
+
+	</PreferenceCategory>
+	-->
+	
+</PreferenceScreen>
+
+
+
+	<!--
+		<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="fill_parent"> <TextView
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:text="@string/hello" />
+
+		<Button android:id="@+id/button_bind"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/button_bind" /> <Button
+		android:id="@+id/button_unbind" android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/button_unbind" /> <Button
+		android:id="@+id/button_call" android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/button_call" /> <Button
+		android:id="@+id/button_discoverable"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/button_discoverable" /> <Button
+		android:id="@+id/button_undiscoverable"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/button_undiscoverble" /> </LinearLayout>
+	-->
