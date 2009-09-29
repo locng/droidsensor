@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="app_name">Droid Sensor</string>
+    <string name="service_name">Droid Sensor</string>
+    <string name="button_bind">Start Service</string>
+    <string name="button_unbind">Stop Service</string>
+    
+    
+    <string name="template_status">I nearly ran into \@$id now.$tags</string>
+    
+    <string name="template_status_other">I nearly ran into $id now.$tags</string>
+    
+	<string name="property_server_url">http://droidsensor.appspot.com/api</string>
+    
+    <!-- new -->
+    <string name="menu_discover">Start Discover</string>
+    <string name="menu_stop_discover">Stop Discover</string>
+    <string name="menu_settings">Settings</string>
+    
+    <string name="default_message">MENU &gt; Start Discover</string>
+</resources>
