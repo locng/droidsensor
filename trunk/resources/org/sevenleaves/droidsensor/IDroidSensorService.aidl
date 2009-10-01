@@ -5,5 +5,5 @@ interface IDroidSensorService {
 
 	boolean isStarted();
 	
-	boolean stopScanning();	
+	void stopService();	
 }

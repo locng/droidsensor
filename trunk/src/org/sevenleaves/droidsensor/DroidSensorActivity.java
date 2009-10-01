@@ -9,22 +9,21 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+/**
+ * TODO プログレスのキャンセル処理.
+ * @author smasui@gmail.com
+ *
+ */
 public class DroidSensorActivity extends ListActivity {
-
-	private static final Intent SERVICE_INTENT = new Intent(
-			IDroidSensorService.class.getName());
-
-	private volatile IDroidSensorService _service;
 
 	private OptionsMenuHelper _menuHelper;
 
@@ -32,59 +31,7 @@ public class DroidSensorActivity extends ListActivity {
 
 	private Handler _handler = new Handler();
 
-	private Runnable _bindCallback = new Runnable() {
-
-		public void run() {
-
-			SharedPreferences preferences = PreferenceManager
-					.getDefaultSharedPreferences(DroidSensorActivity.this);
-			String twitterId = preferences.getString("droidsensor_twitter_id",
-					"");
-			String twitterPassword = preferences.getString(
-					"droidsensor_twitter_password", "");
-
-			boolean verified = TwitterUtils.verifyCredentials(twitterId,
-					twitterPassword);
-
-			_progressDialog.dismiss();
-
-			if (!verified) {
-
-				Runnable alert = new Runnable() {
-					
-					public void run() {
-
-						AlertDialog alertDialog = new AlertDialog.Builder(
-								DroidSensorActivity.this).setTitle(
-								"Authentication failed.").setPositiveButton(
-								"Open Settings", new OnClickListener() {
-
-									public void onClick(DialogInterface dialog,
-											int which) {
-
-										Intent settings = new Intent(
-												MainPreferenceActivity.class.getName());
-										startActivity(settings);
-									}
-								}).create();
-						alertDialog.show();
-					}
-				};
-
-				_handler.post(alert);
-				
-				return;
-			}
-
-			if (_service == null) {
-
-				bindService(SERVICE_INTENT, _serviceConnection,
-						BIND_AUTO_CREATE);
-			}
-
-			startService(SERVICE_INTENT);
-		}
-	};
+	private IDroidSensorService _service;
 
 	private ServiceConnection _serviceConnection = new ServiceConnection() {
 
@@ -96,6 +43,49 @@ public class DroidSensorActivity extends ListActivity {
 		public void onServiceDisconnected(ComponentName name) {
 
 			_service = null;
+		}
+	};
+	private Runnable _bindCallback = new Runnable() {
+
+		public void run() {
+
+			DroidSensorSettings s = DroidSensorSettings
+					.getInstance(DroidSensorActivity.this);
+			boolean verified = TwitterUtils.verifyCredentials(s.getTwitterId(),
+					s.getTwitterPassword());
+			_progressDialog.dismiss();
+
+			if (!verified) {
+
+				Runnable alert = new Runnable() {
+
+					public void run() {
+
+						AlertDialog alertDialog = new AlertDialog.Builder(
+								DroidSensorActivity.this).setTitle(
+								"Authentication failed.").setPositiveButton(
+								"Open Settings", new OnClickListener() {
+
+									public void onClick(DialogInterface dialog,
+											int which) {
+
+										Intent settings = new Intent(
+												MainPreferenceActivity.class
+														.getName());
+										startActivity(settings);
+									}
+								}).create();
+						alertDialog.show();
+					}
+				};
+
+				_handler.post(alert);
+
+				return;
+			}
+
+			Intent si = new Intent(IDroidSensorService.class.getName());
+			startService(si);
 		}
 	};
 
@@ -111,6 +101,8 @@ public class DroidSensorActivity extends ListActivity {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.droid_sensor);
+		Intent bi = new Intent(IDroidSensorService.class.getName());
+		bindService(bi, _serviceConnection, BIND_AUTO_CREATE);
 
 		// ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
 		// android.R.layout.simple_list_item_1, new String[] { "Led Zeppelin",
@@ -118,32 +110,6 @@ public class DroidSensorActivity extends ListActivity {
 		// "The Black Crowes" });
 		//	        
 		// setListAdapter(adapter);
-
-		onResume();
-	}
-
-	@Override
-	protected void onResume() {
-
-		super.onResume();
-
-		if (_service == null) {
-
-			bindService(SERVICE_INTENT, _serviceConnection, BIND_AUTO_CREATE);
-		}
-	}
-
-	@Override
-	protected void onPause() {
-
-		if (_service != null) {
-
-			unbindService(_serviceConnection);
-			// 何故だかServiceConnection#onDisconnectedに来ないので、ここでnull
-			_service = null;
-		}
-
-		super.onPause();
 	}
 
 	// @Override
@@ -156,29 +122,40 @@ public class DroidSensorActivity extends ListActivity {
 	// Toast.LENGTH_LONG).show();
 	// }
 
-	private boolean isServiceScanning() {
+	private boolean isServiceStarted() {
 
 		try {
 
-			if (_service.isStarted()) {
-
-				return true;
-			}
+			return _service.isStarted();
 		} catch (RemoteException e) {
 
 			return false;
 		}
-
-		return false;
 	}
 
-	private void startScanning() {
+	private ProgressDialog createProgressDialog(OnClickListener cancelListener) {
 
-		_progressDialog = new ProgressDialog(DroidSensorActivity.this);
-		_progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		//_progressDialog.setCancelable(false);
-		_progressDialog.setTitle("Processing...");
-		_progressDialog.setMessage("Verify Credentials");
+		ProgressDialog dialog = new ProgressDialog(DroidSensorActivity.this);
+		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		//dialog.setCancelable(false);
+		//dialog.setCancelable(true);
+		dialog.setTitle("Processing...");
+		dialog.setMessage("Verify Credentials");
+		//dialog.setButton("Cancel", cancelListener);
+
+		return dialog;
+	}
+
+	private void startService() {
+
+		_progressDialog = createProgressDialog(new OnClickListener() {
+
+			public void onClick(DialogInterface dialog, int which) {
+
+				dialog.cancel();
+			}
+		});
+
 		_progressDialog.show();
 
 		new Thread() {
@@ -191,21 +168,15 @@ public class DroidSensorActivity extends ListActivity {
 		}.start();
 	}
 
-	private void stopScanning() {
+	private void stopService() {
 
+		Log.d("DroidSensorAcivity", "stopService");
 		try {
 
-			_service.stopScanning();
-
-			if (_service != null) {
-
-				unbindService(_serviceConnection);
-				// 何故だかServiceConnection#onDisconnectedに来ないので、ここでnull
-				_service = null;
-			}
+			_service.stopService();
 		} catch (RemoteException e) {
 
-			showError(e.getMessage());
+			_service = null;
 		}
 	}
 
@@ -213,21 +184,21 @@ public class DroidSensorActivity extends ListActivity {
 
 		public void onSelected(MenuItem item) {
 
-			boolean scanning = isServiceScanning();
+			boolean scanning = isServiceStarted();
 
 			if (scanning) {
 
-				stopScanning();
+				stopService();
 
 				return;
 			}
 
-			startScanning();
+			startService();
 		}
 
 		public void onOpend(MenuItem item) {
 
-			boolean scanning = isServiceScanning();
+			boolean scanning = isServiceStarted();
 
 			if (scanning) {
 
@@ -251,6 +222,7 @@ public class DroidSensorActivity extends ListActivity {
 		}
 
 		public void onOpend(MenuItem item) {
+
 			;// nop
 		}
 	};
@@ -294,4 +266,10 @@ public class DroidSensorActivity extends ListActivity {
 
 		return true;
 	}
+
+	protected void onDestroy() {
+
+		super.onDestroy();
+		unbindService(_serviceConnection);
+	};
 }
