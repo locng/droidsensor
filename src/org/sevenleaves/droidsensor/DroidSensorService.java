@@ -17,15 +17,18 @@ import org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStubFactory;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothSettings;
 import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
 
+import twitter4j.TwitterException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 public class DroidSensorService extends Service implements
 		BluetoothDeviceListener {
@@ -40,6 +43,8 @@ public class DroidSensorService extends Service implements
 
 	private static final Set<String> DEVICES = Collections
 			.synchronizedSet(new LinkedHashSet<String>());
+
+	private Handler _handler = new Handler();
 
 	private final IDroidSensorService.Stub _binder = new IDroidSensorService.Stub() {
 
@@ -222,7 +227,7 @@ public class DroidSensorService extends Service implements
 	public void onRemoteDeviceDisappeared(Context context, String address) {
 
 		DEVICES.remove(address);
-		//showDeviceDisappeared(address);
+		// showDeviceDisappeared(address);
 	}
 
 	private boolean isDiscoverable(BluetoothServiceStub bluetooth) {
@@ -257,10 +262,27 @@ public class DroidSensorService extends Service implements
 
 		DroidSensorSettings s = DroidSensorSettings.getInstance(context);
 
-		String tweeted = TwitterUtils.tweetDeviceFound(device,
-				s.getTwitterId(), s.getTwitterPassword(), s.getApiUrl(), s
-						.getUserTemplate(), s.getDeviceTemplate(), s
-						.isAllBluetoothDevices(), "#droidsensor");
+		String tweeted;
+
+		try {
+
+			tweeted = TwitterUtils.tweetDeviceFound(device, s.getTwitterId(), s
+					.getTwitterPassword(), s.getApiUrl(), s.getUserTemplate(),
+					s.getDeviceTemplate(), s.isAllBluetoothDevices(),
+					"#droidsensor");
+		} catch (TwitterException e) {
+
+			// _handler.post(new Runnable() {
+			//
+			// public void run() {
+			//
+			// Toast.makeText(DroidSensorService.this, "tweet failed",
+			// Toast.LENGTH_SHORT).show();
+			// }
+			// });
+
+			return;
+		}
 
 		if (tweeted == null) {
 
