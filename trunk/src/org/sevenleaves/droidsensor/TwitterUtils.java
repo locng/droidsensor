@@ -2,6 +2,8 @@ package org.sevenleaves.droidsensor;
 
 import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
 
+import android.util.Log;
+
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
@@ -47,7 +49,7 @@ abstract class TwitterUtils {
 	public static String tweetDeviceFound(RemoteBluetoothDevice device,
 			String twitterId, String twitterPassword, String apiUrl,
 			String userTemplate, String deviceTemplate, boolean allDevices,
-			String tags) {
+			String tags) throws TwitterException {
 
 		String address = device.getAddress();
 
@@ -75,36 +77,28 @@ abstract class TwitterUtils {
 		Twitter twitter = new Twitter(twitterId, twitterPassword);
 		String forNotify;
 
-		try {
+		String text = template.replace("$id", id);
 
-			String text = template.replace("$id", id);
+		// apiの回数制限により、使わない。
+		// if (template.contains("$name")) {
+		//
+		// User user = twitter.showUser(id);
+		// String name = user.getName();
+		// text = text.replace("$name", name);
+		// }
 
-			// apiの回数制限により、使わない。
-			// if (template.contains("$name")) {
-			//
-			// User user = twitter.showUser(id);
-			// String name = user.getName();
-			// text = text.replace("$name", name);
-			// }
+		forNotify = text;
 
-			forNotify = text;
+		if (userTemplate.contains("$tags")) {
 
-			if (userTemplate.contains("$tags")) {
-
-				text = text.replace("$tags", (tags.startsWith(" ") ? "" : " ")
-						+ tags);
-				forNotify = forNotify.replace("$tags", "");
-			}
-
-			twitter.updateStatus(text);
-
-			return forNotify;
-
-		} catch (TwitterException e) {
-
-			throw new RuntimeException(e);
+			text = text.replace("$tags", (tags.startsWith(" ") ? "" : " ")
+					+ tags);
+			forNotify = forNotify.replace("$tags", "");
 		}
 
+		twitter.updateStatus(text);
+
+		return forNotify;
 	}
 
 }
