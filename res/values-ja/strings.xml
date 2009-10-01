@@ -6,9 +6,9 @@
     <string name="button_bind">すれ違い通信を開始します</string>
     <string name="button_unbind">すれ違い通信を終了します</string>
     
-    <string name="template_status">. @$id とすれちがったなう$tags</string>
+    <string name="template_user">. @$id とすれちがったなう$tags</string>
     
-    <string name="template_status_other">$id とすれちがったなう$tags</string>
+    <string name="template_device">$id とすれちがったなう$tags</string>
 
     <string name="property_server_url">http://droidsensor.appspot.com/api</string>
     

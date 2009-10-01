@@ -1,20 +1,45 @@
 package org.sevenleaves.droidsensor;
 
-import it.gerdavax.android.bluetooth.RemoteBluetoothDevice;
+import static org.sevenleaves.droidsensor.ServiceUtils.callLater;
+import static org.sevenleaves.droidsensor.ServiceUtils.cancelImmediatly;
+import static org.sevenleaves.droidsensor.ServiceUtils.isActionContinue;
+import static org.sevenleaves.droidsensor.ServiceUtils.isStopAction;
+import static org.sevenleaves.droidsensor.ServiceUtils.sleep;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.sevenleaves.droidsensor.bluetooth.BluetoothBroadcastReceiver;
+import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceListener;
+import org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStub;
+import org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStubFactory;
+import org.sevenleaves.droidsensor.bluetooth.BluetoothSettings;
+import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
+import android.util.Log;
 
-public class DroidSensorService extends Service {
+public class DroidSensorService extends Service implements
+		BluetoothDeviceListener {
+
+	private static final long INTERVAL_SECONDS = 30L;
+
+	private static final long SLEEP_SECONDS = 30L;
+
+	private static final BluetoothSettings SETTINGS = new BluetoothSettings();
+
+	private volatile boolean _started;
+
+	private static final Set<String> DEVICES = Collections
+			.synchronizedSet(new LinkedHashSet<String>());
 
 	private final IDroidSensorService.Stub _binder = new IDroidSensorService.Stub() {
 
@@ -23,151 +48,65 @@ public class DroidSensorService extends Service {
 			return _started;
 		}
 
-		public boolean stopScanning() throws RemoteException {
+		public void stopService() throws RemoteException {
 
-			_started = false;
-			DroidSensorService.this.stopSelf();
-
-			return true;
+			DroidSensorService.this.stopService();
 		}
 	};
 
-	private LocalBluetoothDeviceListener _listener = new LocalBluetoothDeviceListener() {
+	private void showNotification() {
 
-		public void scanStarted() {
-		}
-
-		public void scanCompleted(ArrayList<String> devices) {
-		}
-
-		public void remoteDeviceUpdate(RemoteBluetoothDevice device) {
-		}
-
-		public void remoteDeviceFound(RemoteBluetoothDevice device) {
-
-			try {
-
-				if (!_bluetooth.isEnabled()) {
-
-					return;
-				}
-
-				// すれ違い通信という名目のため、自分も検出可能モードでなければ通知しないよ。
-				if (_bluetooth.getScanMode() != 0x3) {
-
-					return;
-				}
-
-			} catch (Exception e) {
-
-				showError(e.getLocalizedMessage());
-
-				return;
-			}
-
-			SharedPreferences preferences = PreferenceManager
-					.getDefaultSharedPreferences(DroidSensorService.this);
-			String twitterId = preferences.getString("droidsensor_twitter_id",
-					"");
-			boolean allDevices = preferences.getBoolean(
-					"droidsensor_discovery_all_bluetooth_devices", false);
-
-			String twitterPassword = preferences.getString(
-					"droidsensor_twitter_password", "");
-
-			// boolean vibration =
-			// preferences.getBoolean("droidsensor_vibration",
-			// false);
-			// boolean ledFlash =
-			// preferences.getBoolean("droidsensor_led_flash",
-			// false);
-			String url = getString(R.string.property_server_url);
-			String template = getString(R.string.template_status);
-
-			String templateOther = getString(R.string.template_status_other);
-
-			String tweeted = TwitterUtils.tweetDeviceFound(device, twitterId,
-					twitterPassword, url, template, templateOther, allDevices,
-					"#droidsensor");
-
-			if (tweeted == null) {
-
-				return;
-			}
-
-			showMessageToStatusBar(tweeted);
-		}
-
-		public void remoteDeviceDisappeared(RemoteBluetoothDevice remoteDevice) {
-		}
-
-		public void enabled() {
-
-			try {
-
-				if (_bluetooth.isScanning()) {
-
-					_bluetooth.stopScanning();
-				}
-
-				if (_bluetooth.isPeriodicScanning()) {
-
-					_bluetooth.stopPeriodicScanning();
-				}
-
-				_bluetooth.setScanMode(0x3);
-				_bluetooth.setDiscoverableTimeout(0);
-				_bluetooth.periodicScan();
-				registerTwitterId();
-			} catch (Exception e) {
-
-				showError(e.getMessage());
-			}
-		}
-
-		public void disabled() {
-		}
-	};
-
-	private void registerTwitterId() {
-
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(DroidSensorService.this);
-		String twitterId = preferences.getString("droidsensor_twitter_id", "");
-
-		putTwitterId(twitterId);
+		Notification notification = new Notification(R.drawable.notify,
+				getString(R.string.app_name), System.currentTimeMillis());
+		notification.flags = Notification.FLAG_ONGOING_EVENT;
+		// notification.flags = Notification.FLAG_AUTO_CANCEL;
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+				new Intent(this, DroidSensorActivity.class), 0);
+		notification.setLatestEventInfo(this, getString(R.string.app_name),
+				"Service started", contentIntent);
+		NotificationManager notificationManager = ServiceUtils
+				.getNotificationManager(this);
+		notificationManager.notify(R.string.service_name, notification);
 	}
 
-	private void putTwitterId(String twitterId) {
+	public void showDeviceFound(String tweeted) {
 
-		String url = getString(R.string.property_server_url);
-		String address;
-
-		try {
-
-			address = _bluetooth.getAddress();
-		} catch (Exception e) {
-
-			showError(e.getLocalizedMessage());
-
-			return;
-		}
-
-		DroidSensorUtils.putTwitterId(url, address, twitterId);
-
+		Notification notification = new Notification(R.drawable.notify,
+				tweeted, System.currentTimeMillis());
+		notification.flags = Notification.FLAG_ONGOING_EVENT;
+		// notification.flags = Notification.FLAG_AUTO_CANCEL;
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+				new Intent(this, DroidSensorActivity.class), 0);
+		notification.setLatestEventInfo(this, getString(R.string.app_name),
+				tweeted, contentIntent);
+		NotificationManager notificationManager = ServiceUtils
+				.getNotificationManager(this);
+		notificationManager.notify(R.string.service_name, notification);
 	}
 
-	private LocalBluetoothDeviceWrapper _bluetooth;
+	public void showDeviceDisappeared(String address) {
 
-	private boolean _started;
+		String message = address + " was disappeared.";
 
-	private boolean _previousEnabled;
+		Notification notification = new Notification(R.drawable.notify,
+				message, System.currentTimeMillis());
+		notification.flags = Notification.FLAG_ONGOING_EVENT;
+		// notification.flags = Notification.FLAG_AUTO_CANCEL;
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+				new Intent(this, DroidSensorActivity.class), 0);
+		notification.setLatestEventInfo(this, getString(R.string.app_name),
+				message, contentIntent);
+		NotificationManager notificationManager = ServiceUtils
+				.getNotificationManager(this);
+		notificationManager.notify(R.string.service_name, notification);
+	}
 
-	private int _previousScanMode;
+	private void hideNotification() {
 
-	private int _previousDiscoverableTimeout;
-
-	private NotificationManager _notificationManager;
+		NotificationManager notificationManager = ServiceUtils
+				.getNotificationManager(this);
+		notificationManager.cancel(R.string.service_name);
+	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -178,154 +117,169 @@ public class DroidSensorService extends Service {
 	@Override
 	public void onCreate() {
 
+		Log.d("DroidSensorService", "service create");
+
 		super.onCreate();
-		_notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+	}
+
+	public void stopService() {
+
+		Log.d("DroidSensorService", "stopService");
+		cancelImmediatly(this, DroidSensorService.class);
+		stopSelf();
+
+		try {
+
+			BluetoothBroadcastReceiver receiver = BluetoothBroadcastReceiver
+					.getInstance();
+			receiver.unregisterSelf(this, SETTINGS);
+		} catch (Exception e) {
+			// nop.
+		}
+
+		hideNotification();
+
+		_started = false;
 	}
 
 	@Override
 	public void onStart(Intent intent, int startId) {
 
-		if (_started) {
-
-			return;
-		}
-
-		startStatus();
-		_started = true;
-
 		super.onStart(intent, startId);
 
-		initBluetooth();
-		savePreviousSettings();
-		updateSettingsForDiscoverable();
-	}
+		if (isStopAction(intent)) {
 
-	private void startStatus() {
+			if (_started) {
 
-		Notification notification = new Notification(R.drawable.notify,
-				getString(R.string.app_name), System.currentTimeMillis());
-		// notification.flags = Notification.FLAG_AUTO_CANCEL;
-		notification.flags = Notification.FLAG_ONGOING_EVENT;
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(this, DroidSensorActivity.class), 0);
-		notification.setLatestEventInfo(this, getString(R.string.app_name),
-				"service start", contentIntent);
-		_notificationManager.notify(R.string.service_name, notification);
-	}
-
-	private void showMessageToStatusBar(String tweeted) {
-
-		Notification notification = new Notification(R.drawable.notify,
-				tweeted, System.currentTimeMillis());
-		notification.flags = Notification.FLAG_AUTO_CANCEL;
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(DroidSensorService.this, DroidSensorActivity.class),
-				0);
-		notification.setLatestEventInfo(DroidSensorService.this, tweeted,
-				tweeted, contentIntent);
-		_notificationManager.notify(R.string.app_name, notification);
-	}
-
-	private void stopStatus() {
-
-		Notification notification = new Notification(R.drawable.notify,
-				getString(R.string.app_name), System.currentTimeMillis());
-		notification.flags = Notification.FLAG_AUTO_CANCEL;
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(this, DroidSensorActivity.class), 0);
-		notification.setLatestEventInfo(this, getString(R.string.app_name),
-				"service stop", contentIntent);
-		_notificationManager.notify(R.string.app_name, notification);
-	}
-
-	private void savePreviousSettings() {
-
-		try {
-
-			_previousEnabled = _bluetooth.isEnabled();
-			_previousScanMode = _bluetooth.getScanMode();
-			_previousDiscoverableTimeout = _bluetooth.getDiscoverableTimeout();
-
-		} catch (Exception e) {
-
-			showError(e.getLocalizedMessage());
-		}
-	}
-
-	private void loadPreviousSettings() {
-
-		try {
-
-			_bluetooth.stopPeriodicScanning();
-			_bluetooth.setScanMode(_previousScanMode);
-			_bluetooth.setDiscoverableTimeout(_previousDiscoverableTimeout);
-			_bluetooth.setEnabled(_previousEnabled);
-			_bluetooth.close(DroidSensorService.this);
-		} catch (Exception e) {
-
-			showError(e.getLocalizedMessage());
-		}
-	}
-
-	private void updateSettingsForDiscoverable() {
-
-		try {
-
-			if (!_bluetooth.isEnabled()) {
-
-				_bluetooth.setEnabled(true);
-
-				return;
+				stopService();
 			}
-
-			_listener.enabled();
-
-		} catch (Exception e) {
-
-			showError(e.getLocalizedMessage());
-		}
-	}
-
-	private void showError(String message) {
-
-		// Toast.makeText(DroidSensorService.this, message, Toast.LENGTH_LONG)
-		// .show();
-	}
-
-	private void initBluetooth() {
-
-		try {
-
-			_bluetooth = LocalBluetoothDeviceWrapper
-					.createInstance(DroidSensorService.this);
-		} catch (Exception e) {
-
-			showError(e.getLocalizedMessage());
 
 			return;
 		}
 
-		_bluetooth.setListener(_listener);
+		if (isActionContinue(intent)) {
+
+			_started = true;
+
+			BluetoothBroadcastReceiver receiver = BluetoothBroadcastReceiver
+					.getInstance();
+			receiver.registerSelf(this, SETTINGS);
+
+			if (ServiceUtils.isStartService(intent)) {
+
+				showNotification();
+			}
+
+			receiver.addListener(this);
+
+			sleep(SLEEP_SECONDS, new Runnable() {
+
+				public void run() {
+
+					Log.d("DroidSensorService", "running");
+
+					if (_started) {
+
+						callLater(DroidSensorService.this,
+								IDroidSensorService.class, INTERVAL_SECONDS);
+					}
+
+					// stopSelf();
+				}
+			});
+		}
 	}
 
 	@Override
 	public void onDestroy() {
 
-		// putTwitterId("");
-		// stopStatus();
-		_notificationManager.cancel(R.string.service_name);
-		_notificationManager.cancel(R.string.app_name);
-
-		_started = false;
-		loadPreviousSettings();
+		Log.d("DroidSensorService", "service destroy");
 
 		super.onDestroy();
+
+		DEVICES.clear();
+
+		try {
+
+			BluetoothBroadcastReceiver receiver = BluetoothBroadcastReceiver
+					.getInstance();
+			receiver.unregisterSelf(this, SETTINGS);
+		} catch (Exception e) {
+			// nop.
+		}
+
+		hideNotification();
 	}
 
-	@Override
-	public boolean onUnbind(Intent intent) {
+	public void onDisabled(Context context) {
 
-		return super.onUnbind(intent);
+	}
+
+	public void onEnabled(Context context) {
+
+	}
+
+	public void onRemoteDeviceDisappeared(Context context, String address) {
+
+		DEVICES.remove(address);
+		//showDeviceDisappeared(address);
+	}
+
+	private boolean isDiscoverable(BluetoothServiceStub bluetooth) {
+
+		boolean res = (bluetooth.getScanMode() == BluetoothServiceStub.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+
+		return res;
+	}
+
+	public void onRemoteDeviceFound(Context context,
+			RemoteBluetoothDevice device) {
+
+		String address = device.getAddress();
+
+		if (DEVICES.contains(address)) {
+
+			return;
+		}
+
+		DEVICES.add(address);
+
+		BluetoothServiceStub bluetooth = BluetoothServiceStubFactory
+				.createBluetoothServiceStub(this);
+
+		// すれ違い通信という名目のため、自分も検出可能モードでなければ通知しないよ。
+		if (!isDiscoverable(bluetooth)) {
+
+			return;
+		}
+
+		Log.d("DroidSensorService", device.getAddress() + " found.");
+
+		DroidSensorSettings s = DroidSensorSettings.getInstance(context);
+
+		String tweeted = TwitterUtils.tweetDeviceFound(device,
+				s.getTwitterId(), s.getTwitterPassword(), s.getApiUrl(), s
+						.getUserTemplate(), s.getDeviceTemplate(), s
+						.isAllBluetoothDevices(), "#droidsensor");
+
+		if (tweeted == null) {
+
+			return;
+		}
+
+		showDeviceFound(tweeted);
+	}
+
+	public void onScanModeConnectable(Context context) {
+
+	}
+
+	public void onScanModeConnectableDiscoverable(Context context) {
+
+	}
+
+	public void onScanModeNone(Context context) {
+
 	}
 
 }

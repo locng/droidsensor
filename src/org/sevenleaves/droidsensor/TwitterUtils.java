@@ -1,9 +1,9 @@
 package org.sevenleaves.droidsensor;
 
-import it.gerdavax.android.bluetooth.RemoteBluetoothDevice;
+import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
+
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.User;
 
 abstract class TwitterUtils {
 
@@ -46,7 +46,7 @@ abstract class TwitterUtils {
 
 	public static String tweetDeviceFound(RemoteBluetoothDevice device,
 			String twitterId, String twitterPassword, String apiUrl,
-			String template, String templateOther, boolean allDevices,
+			String userTemplate, String deviceTemplate, boolean allDevices,
 			String tags) {
 
 		String address = device.getAddress();
@@ -58,12 +58,18 @@ abstract class TwitterUtils {
 			return null;
 		}
 
-		String fixedTemplate = template;
+		String template = userTemplate;
 
 		if (id == null) {
 
 			id = device.getName();
-			fixedTemplate = templateOther;
+
+			if (id == null) {
+
+				id = "UNKNOWN";
+			}
+
+			template = deviceTemplate;
 		}
 
 		Twitter twitter = new Twitter(twitterId, twitterPassword);
@@ -71,18 +77,19 @@ abstract class TwitterUtils {
 
 		try {
 
-			String text = fixedTemplate.replace("$id", id);
+			String text = template.replace("$id", id);
 
-			if (template.contains("$name")) {
-
-				User user = twitter.showUser(id);
-				String name = user.getName();
-				text = text.replace("$name", name);
-			}
+			// apiの回数制限により、使わない。
+			// if (template.contains("$name")) {
+			//
+			// User user = twitter.showUser(id);
+			// String name = user.getName();
+			// text = text.replace("$name", name);
+			// }
 
 			forNotify = text;
 
-			if (template.contains("$tags")) {
+			if (userTemplate.contains("$tags")) {
 
 				text = text.replace("$tags", (tags.startsWith(" ") ? "" : " ")
 						+ tags);

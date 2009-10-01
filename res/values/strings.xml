@@ -6,10 +6,9 @@
     <string name="button_bind">Start Service</string>
     <string name="button_unbind">Stop Service</string>
     
+    <string name="template_user">Passed by \@$id .$tags</string>
     
-    <string name="template_status">Comming across \@$id .$tags</string>
-    
-    <string name="template_status_other">Comming across $id .$tags</string>
+    <string name="template_device">Passed by $id .$tags</string>
     
 	<string name="property_server_url">http://droidsensor.appspot.com/api</string>
     
