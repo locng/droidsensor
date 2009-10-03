@@ -121,27 +121,4 @@ public abstract class ServiceUtils {
 		AlarmManager alarm = getAlarmManager(service);
 		alarm.cancel(pi);
 	}
-
-	public static void sleep(long seconds, final Runnable callback) {
-
-		final long ms = toMilliSeconds(seconds);
-
-		Thread t = new Thread() {
-
-			@Override
-			public void run() {
-
-				try {
-
-					Thread.sleep(ms);
-					new Thread(callback).start();
-				} catch (InterruptedException e) {
-
-					; // nop
-				}
-			}
-		};
-
-		t.start();
-	}
 }

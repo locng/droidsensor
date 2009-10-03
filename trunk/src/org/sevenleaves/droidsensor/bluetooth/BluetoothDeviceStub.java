@@ -6,7 +6,7 @@ package org.sevenleaves.droidsensor.bluetooth;
  * @author esmasui@gmail.com
  *
  */
-public interface BluetoothServiceStub {
+public interface BluetoothDeviceStub {
 
 	// android.bluetooth.BluetoothDevice(android.bluetooth.IBluetoothDevice);
 	boolean cancelBondProcess(String arg0);

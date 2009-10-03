@@ -2,6 +2,8 @@ package org.sevenleaves.droidsensor.bluetooth;
 
 public class BluetoothDeviceImpl implements BluetoothDevice {
 
+	private BluetoothDeviceStub _stub;
+
 	private String _address;
 
 	private String _name;
@@ -10,13 +12,20 @@ public class BluetoothDeviceImpl implements BluetoothDevice {
 
 	private int _vendorId;
 
-	public BluetoothDeviceImpl() {
-	
+	public BluetoothDeviceImpl(BluetoothDeviceStub stub) {
+
+		_stub = stub;
 	}
-	
-	public BluetoothDeviceImpl(String address) {
-		
+
+	public BluetoothDeviceImpl(BluetoothDeviceStub stub, String address) {
+
+		this(stub);
 		setAddress(address);
+	}
+
+	public BluetoothDeviceStub getStub() {
+
+		return _stub;
 	}
 
 	public void connect() {
@@ -40,6 +49,11 @@ public class BluetoothDeviceImpl implements BluetoothDevice {
 	}
 
 	public String getName() {
+
+		if (_name != null) {
+
+			return _stub.getRemoteName(getAddress());
+		}
 
 		return _name;
 	}

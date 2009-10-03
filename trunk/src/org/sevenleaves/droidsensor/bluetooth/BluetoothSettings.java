@@ -2,23 +2,31 @@ package org.sevenleaves.droidsensor.bluetooth;
 
 public class BluetoothSettings {
 
+	boolean _saved = true;
+
 	boolean _enabled = false;;
 
-	int _scanMode = BluetoothServiceStub.SCAN_MODE_CONNECTABLE;
+	int _scanMode = BluetoothDeviceStub.SCAN_MODE_CONNECTABLE;
 
 	/**
 	 * TODO get default value from system property
 	 */
 	int _discoverableTimeout = 120;
 
-	public void save(BluetoothServiceStub stub) {
+	public void save(BluetoothDeviceStub stub) {
 
+		_saved = true;
 		_enabled = stub.isEnabled();
 		_scanMode = stub.getScanMode();
 		_discoverableTimeout = stub.getDiscoverableTimeout();
 	}
 
-	public void load(BluetoothServiceStub stub) {
+	public void load(BluetoothDeviceStub stub) {
+
+		if (!_saved) {
+
+			return;
+		}
 
 		stub.setScanMode(_scanMode);
 		stub.setDiscoverableTimeout(_discoverableTimeout);

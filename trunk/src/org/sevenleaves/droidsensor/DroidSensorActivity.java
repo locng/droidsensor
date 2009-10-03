@@ -20,8 +20,9 @@ import android.view.MenuItem;
 
 /**
  * TODO プログレスのキャンセル処理.
+ * 
  * @author smasui@gmail.com
- *
+ * 
  */
 public class DroidSensorActivity extends ListActivity {
 
@@ -84,6 +85,9 @@ public class DroidSensorActivity extends ListActivity {
 				return;
 			}
 
+			// Intent si = new Intent(DroidSensorActivity.this,
+			// IDroidSensorService.class);
+			// si.setAction(ServiceUtils.START_ACTION);
 			Intent si = new Intent(IDroidSensorService.class.getName());
 			startService(si);
 		}
@@ -137,11 +141,11 @@ public class DroidSensorActivity extends ListActivity {
 
 		ProgressDialog dialog = new ProgressDialog(DroidSensorActivity.this);
 		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		//dialog.setCancelable(false);
-		//dialog.setCancelable(true);
+		// dialog.setCancelable(false);
+		// dialog.setCancelable(true);
 		dialog.setTitle("Processing...");
 		dialog.setMessage("Verify Credentials");
-		//dialog.setButton("Cancel", cancelListener);
+		// dialog.setButton("Cancel", cancelListener);
 
 		return dialog;
 	}
@@ -162,7 +166,7 @@ public class DroidSensorActivity extends ListActivity {
 
 			public void run() {
 
-				//_handler.post(_bindCallback);
+				// _handler.post(_bindCallback);
 				_bindCallback.run();
 			};
 		}.start();

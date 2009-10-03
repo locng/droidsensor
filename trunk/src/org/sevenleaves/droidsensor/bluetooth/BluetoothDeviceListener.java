@@ -49,7 +49,8 @@ public interface BluetoothDeviceListener {
 	// REMOTE_DEVICE_DISCONNECTED_ACTION
 
 	// REMOTE_NAME_UPDATED_ACTION
-
+	void onRemoteNameUpdated(Context context, RemoteBluetoothDevice device);
+	
 	// REMOTE_NAME_FAILED_ACTION
 
 	// BOND_STATE_CHANGED_ACTION
@@ -69,5 +70,6 @@ public interface BluetoothDeviceListener {
 	static final int UNBOND_REASON_DISCOVERY_IN_PROGRESS = 5;
 	static final int UNBOND_REASON_REMOTE_DEVICE_DOWN = 4;
 	static final int UNBOND_REASON_REMOVED = 6;
+	
 
 }
