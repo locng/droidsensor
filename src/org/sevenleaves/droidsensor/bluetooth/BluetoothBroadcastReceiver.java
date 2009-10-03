@@ -1,24 +1,22 @@
 package org.sevenleaves.droidsensor.bluetooth;
 
+import static org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub.BLUETOOTH_STATE_OFF;
+import static org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub.BLUETOOTH_STATE_ON;
+import static org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub.SCAN_MODE_CONNECTABLE;
+import static org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+import static org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub.SCAN_MODE_NONE;
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.ADDRESS;
+import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.NAME;
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.BLUETOOTH_STATE;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.BLUETOOTH_STATE_CHANGED_ACTION;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.REMOTE_DEVICE_DISAPPEARED_ACTION;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.REMOTE_DEVICE_FOUND_ACTION;
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.RSSI;
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.SCAN_MODE;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.SCAN_MODE_CHANGED_ACTION;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStub.BLUETOOTH_STATE_OFF;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStub.BLUETOOTH_STATE_ON;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStub.SCAN_MODE_CONNECTABLE;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStub.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStub.SCAN_MODE_NONE;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -44,6 +42,8 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 	private List<BluetoothDeviceListener> _listeners;
 
+	private Map<String, RemoteBluetoothDeviceImpl> _devices;
+
 	public static BluetoothBroadcastReceiver getInstance() {
 
 		return SINGLETON;
@@ -55,17 +55,18 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 				.synchronizedMap(new HashMap<String, IntentHandler>());
 		_listeners = Collections
 				.synchronizedList(new ArrayList<BluetoothDeviceListener>());
+		_devices = new ConcurrentHashMap<String, RemoteBluetoothDeviceImpl>();
 		registerHandlers();
 	}
 
-	private void registerHandler(String action, IntentHandler handler) {
+	private void registerHandler(BluetoothIntent intent, IntentHandler handler) {
 
-		_handlerMapping.put(action, handler);
+		_handlerMapping.put(intent.getAction(), handler);
 	}
 
-	private BluetoothServiceStub getStub(Context context) {
+	private BluetoothDeviceStub getStub(Context context) {
 
-		BluetoothServiceStub res = BluetoothServiceStubFactory
+		BluetoothDeviceStub res = BluetoothDeviceStubFactory
 				.createBluetoothServiceStub(context);
 
 		return res;
@@ -80,35 +81,86 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 		}
 	}
 
-	private RemoteBluetoothDevice createRemoteBluetoothDevice(Context context, Intent intent) {
+	private RemoteBluetoothDeviceImpl createRemoteDeviceIfNeccesary(
+			Context context, Intent intent) {
 
 		String address = intent.getStringExtra(ADDRESS);
-		BluetoothServiceStub stub = getStub(context);
-		String name = stub.getRemoteName(address);
 		short rssi = intent.getShortExtra(RSSI, Short.MIN_VALUE);
-		RemoteBluetoothDeviceImpl res = new RemoteBluetoothDeviceImpl(address,
-				rssi);
+
+		if (_devices.containsKey(address)) {
+
+			RemoteBluetoothDeviceImpl res = _devices.get(address);
+			res.setRssi(rssi);
+
+			return res;
+		}
+
+		BluetoothDeviceStub stub = getStub(context);
+		RemoteBluetoothDeviceImpl res = new RemoteBluetoothDeviceImpl(stub,
+				address, rssi);
+
+		return res;
+	}
+
+	private RemoteBluetoothDevice updateRemoteName(Context context,
+			Intent intent) {
+
+		RemoteBluetoothDeviceImpl res = createRemoteDeviceIfNeccesary(context,
+				intent);
+		String name = intent.getStringExtra(NAME);
 		res.setName(name);
+
+		return res;
+	}
+
+	private RemoteBluetoothDevice createRemoteBluetoothDevice(Context context,
+			Intent intent) {
+
+		RemoteBluetoothDeviceImpl res = createRemoteDeviceIfNeccesary(context,
+				intent);
 
 		return res;
 	}
 
 	private void registerHandlers() {
 
-		registerHandler(REMOTE_DEVICE_FOUND_ACTION, new IntentHandler() {
+		registerHandler(BluetoothIntent.REMOTE_DEVICE_FOUND,
+				new IntentHandler() {
 
-			public void handleIntent(final Context context, final Intent intent) {
-				
-				invokeListeners(new ListenerInvoker() {
+					public void handleIntent(final Context context,
+							final Intent intent) {
 
-					public void invokeListenr(BluetoothDeviceListener listener) {
+						invokeListeners(new ListenerInvoker() {
 
-						RemoteBluetoothDevice device = createRemoteBluetoothDevice(context, intent);
-						listener.onRemoteDeviceFound(context, device);
+							public void invokeListenr(
+									BluetoothDeviceListener listener) {
+
+								RemoteBluetoothDevice device = createRemoteBluetoothDevice(
+										context, intent);
+								listener.onRemoteDeviceFound(context, device);
+							}
+						});
 					}
 				});
-			}
-		});
+
+		registerHandler(BluetoothIntent.REMOTE_NAME_UPDATED,
+				new IntentHandler() {
+
+					public void handleIntent(final Context context,
+							final Intent intent) {
+
+						invokeListeners(new ListenerInvoker() {
+
+							public void invokeListenr(
+									BluetoothDeviceListener listener) {
+
+								RemoteBluetoothDevice device = updateRemoteName(
+										context, intent);
+								listener.onRemoteNameUpdated(context, device);
+							}
+						});
+					}
+				});
 
 		// DISCOVERY_COMPLETED_ACTION
 
@@ -119,39 +171,42 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 		// BLUETOOTH_STATE_ON
 		// BLUETOOTH_STATE_TURNING_OFF
 		// BLUETOOTH_STATE_TURNING_ON
-		registerHandler(BLUETOOTH_STATE_CHANGED_ACTION, new IntentHandler() {
+		registerHandler(BluetoothIntent.BLUETOOTH_STATE_CHANGED,
+				new IntentHandler() {
 
-			public void handleIntent(final Context context, final Intent intent) {
+					public void handleIntent(final Context context,
+							final Intent intent) {
 
-				invokeListeners(new ListenerInvoker() {
+						invokeListeners(new ListenerInvoker() {
 
-					public void invokeListenr(BluetoothDeviceListener listener) {
+							public void invokeListenr(
+									BluetoothDeviceListener listener) {
 
-						int bluetoothState = intent.getIntExtra(
-								BLUETOOTH_STATE, -1);
+								int bluetoothState = intent.getIntExtra(
+										BLUETOOTH_STATE, -1);
 
-						switch (bluetoothState) {
+								switch (bluetoothState) {
 
-						case BLUETOOTH_STATE_ON:
+								case BLUETOOTH_STATE_ON:
 
-							startPeriodicDiscovery(context);
-							listener.onEnabled(context);
+									startPeriodicDiscovery(context);
+									listener.onEnabled(context);
 
-							break;
+									break;
 
-						case BLUETOOTH_STATE_OFF:
+								case BLUETOOTH_STATE_OFF:
 
-							listener.onDisabled(context);
+									listener.onDisabled(context);
 
-							break;
+									break;
 
-						default:
-							break;
-						}
+								default:
+									break;
+								}
+							}
+						});
 					}
 				});
-			}
-		});
 
 		// NAME_CHANGED_ACTION
 
@@ -159,7 +214,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 		// SCAN_MODE_CONNECTABLE
 		// SCAN_MODE_CONNECTABLE_DISCOVERABLE
 		// SCAN_MODE_NONE
-		registerHandler(SCAN_MODE_CHANGED_ACTION, new IntentHandler() {
+		registerHandler(BluetoothIntent.SCAN_MODE_CHANGED, new IntentHandler() {
 
 			public void handleIntent(final Context context, final Intent intent) {
 
@@ -203,29 +258,34 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 		// REMOTE_DEVICE_DISAPPEARED_ACTION
 		// void onRemoteDeviceDisappeared(BluetoothDevice device);
-		registerHandler(REMOTE_DEVICE_DISAPPEARED_ACTION, new IntentHandler() {
+		registerHandler(BluetoothIntent.REMOTE_DEVICE_DISAPPEARED,
+				new IntentHandler() {
 
-			public void handleIntent(final Context context, final Intent intent) {
-				
-				final String address = intent.getStringExtra(ADDRESS);
-				
-				invokeListeners(new ListenerInvoker() {
+					public void handleIntent(final Context context,
+							final Intent intent) {
 
-					public void invokeListenr(BluetoothDeviceListener listener) {
+						final String address = intent.getStringExtra(ADDRESS);
 
-						
-						listener.onRemoteDeviceDisappeared(context, address);
+						_devices.remove(address);
+
+						invokeListeners(new ListenerInvoker() {
+
+							public void invokeListenr(
+									BluetoothDeviceListener listener) {
+
+								listener.onRemoteDeviceDisappeared(context,
+										address);
+							}
+						});
 					}
 				});
-			}
-		});
 	}
 
 	@Override
 	public void onReceive(final Context context, final Intent intent) {
 
 		Log.d("BluetoothBroadcastReceiver", intent.getAction());
-		
+
 		String action = intent.getAction();
 
 		if (!_handlerMapping.containsKey(action)) {
@@ -239,11 +299,10 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 	public synchronized void addListener(BluetoothDeviceListener listener) {
 
-		// if (_listeners.contains(listener)) {
-		//
-		// return;
-		// }
-		_listeners.clear();
+		if (_listeners.contains(listener)) {
+
+			return;
+		}
 
 		_listeners.add(listener);
 	}
@@ -253,14 +312,9 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 		_listeners.remove(listener);
 	}
 
-	// public boolean isRegisterd() {
-	//
-	// return _registerd;
-	// }
-
 	private void startPeriodicDiscovery(Context context) {
 
-		BluetoothServiceStub stub = getStub(context);
+		BluetoothDeviceStub stub = getStub(context);
 
 		// if(stub.isDiscovering()){
 		//			
@@ -282,6 +336,11 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 			stub.setDiscoverableTimeout(0);
 		}
 
+		if (stub.isDiscovering()) {
+
+			stub.cancelDiscovery();
+		}
+
 		if (!stub.isPeriodicDiscovery()) {
 
 			stub.startPeriodicDiscovery();
@@ -293,7 +352,8 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 		Log.d("BluetoothBroadcastReceiver", "unregister receiver");
 
-		BluetoothServiceStub stub = getStub(context);
+		BluetoothDeviceStub stub = getStub(context);
+		stub.stopPeriodicDiscovery();
 
 		try {
 
@@ -310,7 +370,20 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 	public synchronized void registerSelf(Context context,
 			BluetoothSettings settings) {
 
-		BluetoothServiceStub stub = getStub(context);
+		BluetoothDeviceStub stub = getStub(context);
+
+		// if (_registered) {
+		//
+		// if (stub.isEnabled()) {
+		//
+		// startPeriodicDiscovery(context);
+		//
+		// return;
+		// }
+		//
+		// return;
+		// }
+
 		IntentFilter filter = new IntentFilter();
 
 		for (String action : _handlerMapping.keySet()) {
@@ -320,16 +393,18 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 		try {
 
-			Log.d("BluetoothBroadcastReceiver", "unregister receiver");
-			
+			Log.d("BluetoothBroadcastReceiver", "unregister receiver:"
+					+ this.toString());
+
 			context.unregisterReceiver(this);
 		} catch (Exception e) {
 
 			// 登録されてなければ例外を吐くので、その時に登録.
 			// という良くないやり方。
-			
-			Log.d("BluetoothBroadcastReceiver", "registerReceiver");
-			
+
+			Log.d("BluetoothBroadcastReceiver", "register receiver:"
+					+ this.toString());
+
 			context.registerReceiver(this, filter);
 
 			if (stub.isEnabled()) {

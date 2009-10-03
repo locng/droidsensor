@@ -3,7 +3,6 @@ package org.sevenleaves.droidsensor;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class DroidSensorSettings {
 
@@ -24,6 +23,8 @@ public class DroidSensorSettings {
 	private String _userTemplate;
 
 	private String _deviceTemplate;
+
+	private String _tags;
 
 	private static final DroidSensorSettings SINGLETON = new DroidSensorSettings();
 
@@ -55,11 +56,12 @@ public class DroidSensorSettings {
 		_apiUrl = context.getString(R.string.property_server_url);
 		_userTemplate = context.getString(R.string.template_user);
 		_deviceTemplate = context.getString(R.string.template_device);
+		_tags = context.getString(R.string.tags);
 	}
 
 	@Override
 	public String toString() {
-	
+
 		StringBuilder b = new StringBuilder();
 		b.append("twitterId=");
 		b.append(_twitterId);
@@ -79,10 +81,10 @@ public class DroidSensorSettings {
 		b.append("deviceTemplate=");
 		b.append(_deviceTemplate);
 		String res = b.toString();
-		
+
 		return res;
 	}
-	
+
 	public String getTwitterId() {
 
 		return _twitterId;
@@ -143,4 +145,13 @@ public class DroidSensorSettings {
 		_deviceTemplate = deviceTemplate;
 	}
 
+	public String getTags() {
+		
+		return _tags;
+	}
+
+	public void setTags(String tags) {
+		
+		_tags = tags;
+	}
 }

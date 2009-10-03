@@ -5,20 +5,27 @@ public class RemoteBluetoothDeviceImpl extends BluetoothDeviceImpl implements
 
 	private short _rssi;
 
-	public RemoteBluetoothDeviceImpl() {
-	
-	}
-	
-	public RemoteBluetoothDeviceImpl(String address, short rssi) {
+	private int _deviceClass;
 
-		super(address);
-		_rssi = rssi;
+	public RemoteBluetoothDeviceImpl(BluetoothDeviceStub stub, String address) {
+
+		super(stub, address);
 	}
 
+	public RemoteBluetoothDeviceImpl(BluetoothDeviceStub stub) {
 
+		super(stub);
+	}
+
+	public RemoteBluetoothDeviceImpl(BluetoothDeviceStub stub, String address,
+			short rssi) {
+
+		super(stub, address);
+		setRssi(rssi);
+	}
 
 	public void setRssi(short rssi) {
-		
+
 		_rssi = rssi;
 	}
 
@@ -27,4 +34,13 @@ public class RemoteBluetoothDeviceImpl extends BluetoothDeviceImpl implements
 		return _rssi;
 	}
 
+	public int getDeviceClass() {
+
+		return _deviceClass;
+	}
+
+	public void setDeviceClass(int deviceClass) {
+
+		_deviceClass = deviceClass;
+	}
 }

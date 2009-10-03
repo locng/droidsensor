@@ -2,13 +2,13 @@ package org.sevenleaves.droidsensor.bluetooth;
 
 import android.content.Context;
 
-public abstract class BluetoothServiceStubFactory {
+public abstract class BluetoothDeviceStubFactory {
 
 	private static final String SERVICE_NAME = "bluetooth";
 
-	private static BluetoothServiceStub CACHED_INSTANCE;
+	private static BluetoothDeviceStub CACHED_INSTANCE;
 
-	public static synchronized BluetoothServiceStub createBluetoothServiceStub(
+	public static synchronized BluetoothDeviceStub createBluetoothServiceStub(
 			Context context) {
 
 		if (CACHED_INSTANCE != null) {
@@ -17,8 +17,8 @@ public abstract class BluetoothServiceStubFactory {
 		}
 
 		Object bluetoothService = context.getSystemService(SERVICE_NAME);
-		BluetoothServiceStub res = DelegatingProxyFactory.createProxy(
-				BluetoothServiceStub.class, bluetoothService);
+		BluetoothDeviceStub res = DelegatingProxyFactory.createProxy(
+				BluetoothDeviceStub.class, bluetoothService);
 
 		if (CACHED_INSTANCE == null) {
 

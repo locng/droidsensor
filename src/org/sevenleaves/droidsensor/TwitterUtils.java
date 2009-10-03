@@ -2,8 +2,6 @@ package org.sevenleaves.droidsensor;
 
 import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
 
-import android.util.Log;
-
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
@@ -46,21 +44,26 @@ abstract class TwitterUtils {
 		}
 	}
 
+	/**
+	 * @param device
+	 * @param settings
+	 * @return
+	 * @throws TwitterException
+	 */
 	public static String tweetDeviceFound(RemoteBluetoothDevice device,
-			String twitterId, String twitterPassword, String apiUrl,
-			String userTemplate, String deviceTemplate, boolean allDevices,
-			String tags) throws TwitterException {
+			DroidSensorSettings settings) throws TwitterException {
 
 		String address = device.getAddress();
 
-		String id = DroidSensorUtils.getTwitterId(apiUrl, address);
+		String id = DroidSensorUtils
+				.getTwitterId(settings.getApiUrl(), address);
 
-		if (!allDevices && id == null) {
+		if (!settings.isAllBluetoothDevices() && id == null) {
 
 			return null;
 		}
 
-		String template = userTemplate;
+		String template = settings.getUserTemplate();
 
 		if (id == null) {
 
@@ -68,13 +71,14 @@ abstract class TwitterUtils {
 
 			if (id == null) {
 
-				id = "UNKNOWN";
+				return null;
 			}
 
-			template = deviceTemplate;
+			template = settings.getDeviceTemplate();
 		}
 
-		Twitter twitter = new Twitter(twitterId, twitterPassword);
+		Twitter twitter = new Twitter(settings.getTwitterId(), settings
+				.getTwitterPassword());
 		String forNotify;
 
 		String text = template.replace("$id", id);
@@ -89,10 +93,11 @@ abstract class TwitterUtils {
 
 		forNotify = text;
 
-		if (userTemplate.contains("$tags")) {
+		if (template.contains("$tags")) {
 
-			text = text.replace("$tags", (tags.startsWith(" ") ? "" : " ")
-					+ tags);
+			text = text.replace("$tags",
+					(settings.getTags().startsWith(" ") ? "" : " ")
+							+ settings.getTags());
 			forNotify = forNotify.replace("$tags", "");
 		}
 

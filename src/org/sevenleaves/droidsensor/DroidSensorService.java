@@ -4,7 +4,6 @@ import static org.sevenleaves.droidsensor.ServiceUtils.callLater;
 import static org.sevenleaves.droidsensor.ServiceUtils.cancelImmediatly;
 import static org.sevenleaves.droidsensor.ServiceUtils.isActionContinue;
 import static org.sevenleaves.droidsensor.ServiceUtils.isStopAction;
-import static org.sevenleaves.droidsensor.ServiceUtils.sleep;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -12,8 +11,8 @@ import java.util.Set;
 
 import org.sevenleaves.droidsensor.bluetooth.BluetoothBroadcastReceiver;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceListener;
-import org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStub;
-import org.sevenleaves.droidsensor.bluetooth.BluetoothServiceStubFactory;
+import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub;
+import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStubFactory;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothSettings;
 import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
 
@@ -24,18 +23,17 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import android.widget.Toast;
 
 public class DroidSensorService extends Service implements
 		BluetoothDeviceListener {
 
-	private static final long INTERVAL_SECONDS = 30L;
+	private static final long INTERVAL_SECONDS = 60L;
 
-	private static final long SLEEP_SECONDS = 30L;
+	private BluetoothBroadcastReceiver _receiver = BluetoothBroadcastReceiver
+			.getInstance();
 
 	private static final BluetoothSettings SETTINGS = new BluetoothSettings();
 
@@ -43,8 +41,6 @@ public class DroidSensorService extends Service implements
 
 	private static final Set<String> DEVICES = Collections
 			.synchronizedSet(new LinkedHashSet<String>());
-
-	private Handler _handler = new Handler();
 
 	private final IDroidSensorService.Stub _binder = new IDroidSensorService.Stub() {
 
@@ -166,32 +162,20 @@ public class DroidSensorService extends Service implements
 
 			_started = true;
 
-			BluetoothBroadcastReceiver receiver = BluetoothBroadcastReceiver
-					.getInstance();
-			receiver.registerSelf(this, SETTINGS);
-
 			if (ServiceUtils.isStartService(intent)) {
 
+				_receiver.addListener(this);
+				_receiver.registerSelf(this, SETTINGS);
 				showNotification();
 			}
 
-			receiver.addListener(this);
+			Log.d("DroidSensorService", "running");
 
-			sleep(SLEEP_SECONDS, new Runnable() {
+			if (_started) {
 
-				public void run() {
-
-					Log.d("DroidSensorService", "running");
-
-					if (_started) {
-
-						callLater(DroidSensorService.this,
-								IDroidSensorService.class, INTERVAL_SECONDS);
-					}
-
-					// stopSelf();
-				}
-			});
+				callLater(DroidSensorService.this, IDroidSensorService.class,
+						INTERVAL_SECONDS);
+			}
 		}
 	}
 
@@ -206,9 +190,7 @@ public class DroidSensorService extends Service implements
 
 		try {
 
-			BluetoothBroadcastReceiver receiver = BluetoothBroadcastReceiver
-					.getInstance();
-			receiver.unregisterSelf(this, SETTINGS);
+			_receiver.unregisterSelf(this, SETTINGS);
 		} catch (Exception e) {
 			// nop.
 		}
@@ -222,6 +204,12 @@ public class DroidSensorService extends Service implements
 
 	public void onEnabled(Context context) {
 
+		BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+				.createBluetoothServiceStub(this);
+		DroidSensorSettings settings = DroidSensorSettings.getInstance(this);
+		String address = stub.getAddress();
+		DroidSensorUtils.putTwitterId(settings.getApiUrl(), address, settings
+				.getTwitterId());
 	}
 
 	public void onRemoteDeviceDisappeared(Context context, String address) {
@@ -230,14 +218,14 @@ public class DroidSensorService extends Service implements
 		// showDeviceDisappeared(address);
 	}
 
-	private boolean isDiscoverable(BluetoothServiceStub bluetooth) {
+	private boolean isDiscoverable(BluetoothDeviceStub bluetooth) {
 
-		boolean res = (bluetooth.getScanMode() == BluetoothServiceStub.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+		boolean res = (bluetooth.getScanMode() == BluetoothDeviceStub.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
 
 		return res;
 	}
 
-	public void onRemoteDeviceFound(Context context,
+	public void onRemoteNameUpdated(Context context,
 			RemoteBluetoothDevice device) {
 
 		String address = device.getAddress();
@@ -247,49 +235,67 @@ public class DroidSensorService extends Service implements
 			return;
 		}
 
-		DEVICES.add(address);
+		onRemoteDeviceFound(context, device);
+	}
 
-		BluetoothServiceStub bluetooth = BluetoothServiceStubFactory
-				.createBluetoothServiceStub(this);
+	public void onRemoteDeviceFound(final Context context,
+			final RemoteBluetoothDevice device) {
 
-		// すれ違い通信という名目のため、自分も検出可能モードでなければ通知しないよ。
-		if (!isDiscoverable(bluetooth)) {
+		new Thread() {
+			@Override
+			public void run() {
 
-			return;
-		}
+				String address = device.getAddress();
 
-		Log.d("DroidSensorService", device.getAddress() + " found.");
+				if (DEVICES.contains(address)) {
 
-		DroidSensorSettings s = DroidSensorSettings.getInstance(context);
+					return;
+				}
 
-		String tweeted;
+				BluetoothDeviceStub bluetooth = BluetoothDeviceStubFactory
+						.createBluetoothServiceStub(DroidSensorService.this);
 
-		try {
+				// すれ違い通信という名目のため、自分も検出可能モードでなければ通知しないよ。
+				if (!isDiscoverable(bluetooth)) {
 
-			tweeted = TwitterUtils.tweetDeviceFound(device, s.getTwitterId(), s
-					.getTwitterPassword(), s.getApiUrl(), s.getUserTemplate(),
-					s.getDeviceTemplate(), s.isAllBluetoothDevices(),
-					"#droidsensor");
-		} catch (TwitterException e) {
+					return;
+				}
 
-			// _handler.post(new Runnable() {
-			//
-			// public void run() {
-			//
-			// Toast.makeText(DroidSensorService.this, "tweet failed",
-			// Toast.LENGTH_SHORT).show();
-			// }
-			// });
+				DroidSensorSettings settings = DroidSensorSettings
+						.getInstance(context);
 
-			return;
-		}
+				String tweeted;
 
-		if (tweeted == null) {
+				try {
 
-			return;
-		}
+					tweeted = TwitterUtils.tweetDeviceFound(device, settings);
+				} catch (TwitterException e) {
 
-		showDeviceFound(tweeted);
+					// _handler.post(new Runnable() {
+					//
+					// public void run() {
+					//
+					// Toast.makeText(DroidSensorService.this, "tweet failed",
+					// Toast.LENGTH_SHORT).show();
+					// }
+					// });
+					Log.e("DroidSensorService", e.getLocalizedMessage());
+					return;
+				}
+
+				if (tweeted == null) {
+
+					return;
+				}
+
+				Log.d("DroidSensorService", device.getAddress() + "("
+						+ device.getName() + ")" + " found.");
+
+				DEVICES.add(address);
+
+				showDeviceFound(tweeted);
+			}
+		}.start();
 	}
 
 	public void onScanModeConnectable(Context context) {

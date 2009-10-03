@@ -10,8 +10,6 @@
     
     <string name="template_device">$id とすれちがったなう$tags</string>
 
-    <string name="property_server_url">http://droidsensor.appspot.com/api</string>
-    
     <!-- new  -->
     <string name="menu_discover">すれ違い通信を開始</string>
     <string name="menu_stop_discover">すれ違い通信を終了</string>

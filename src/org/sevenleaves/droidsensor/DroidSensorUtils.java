@@ -11,7 +11,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.util.Log;
+
 abstract class DroidSensorUtils {
+
+	private static final int RETRY_COUNT = 3;
+
+	private static final long RETRY_INTERVAL = 5;
 
 	public static String encodeString(String str) throws Exception {
 
@@ -40,7 +46,64 @@ abstract class DroidSensorUtils {
 		return res;
 	}
 
-	public static void putTwitterId(String apiUrl, String address, String id) {
+	public static String getTwitterId(String apiUrl, String address) {
+
+		String res = null;
+
+		for (int i = 0; i < RETRY_COUNT; ++i) {
+
+			try {
+
+				res = getTwitterIdInternal(apiUrl, address);
+
+				break;
+			} catch (Exception e) {
+
+				Log.d("DroidSensorUtils", "retry to get twitter id");
+
+				try {
+
+					Thread.sleep(RETRY_INTERVAL * 1000L);
+				} catch (InterruptedException ie) {
+					// nop.
+				}
+			}
+		}
+
+		return res;
+	}
+
+	public static boolean putTwitterId(String apiUrl, String address, String id) {
+
+		boolean res = false;
+
+		for (int i = 0; i < RETRY_COUNT; ++i) {
+
+			try {
+
+				putTwitterIdInternal(apiUrl, address, id);
+
+				res = true;
+
+				break;
+			} catch (Exception e) {
+
+				Log.d("DroidSensorUtils", "retry to put twitter id");
+
+				try {
+
+					Thread.sleep(RETRY_INTERVAL * 1000L);
+				} catch (InterruptedException ie) {
+					// nop.
+				}
+			}
+		}
+
+		return res;
+	}
+
+	public static void putTwitterIdInternal(String apiUrl, String address,
+			String id) {
 
 		HttpClient client = new DefaultHttpClient();
 
@@ -74,29 +137,17 @@ abstract class DroidSensorUtils {
 						+ status.getStatusCode());
 			}
 
-			// HttpEntity entity = response.getEntity();
-			// InputStream inputStream = entity.getContent();
-			//
-			// byte[] buf = new byte[1024];
-			// ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-			// int len = -1;
-			//
-			// for (; (len = inputStream.read(buf)) != -1;) {
-			//
-			// baos.write(buf, 0, len);
-			// }
-			//
-			// String name = new String(baos.toByteArray(), "utf-8");
-
 			return;
 		} catch (Exception e) {
+
+			request.abort();
 
 			throw new RuntimeException(e);
 		}
 
 	}
 
-	public static String getTwitterId(String apiUrl, String address) {
+	public static String getTwitterIdInternal(String apiUrl, String address) {
 
 		HttpClient client = new DefaultHttpClient();
 
@@ -146,6 +197,8 @@ abstract class DroidSensorUtils {
 
 			return name;
 		} catch (Exception e) {
+
+			request.abort();
 
 			throw new RuntimeException(e);
 		}
