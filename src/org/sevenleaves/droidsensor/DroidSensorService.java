@@ -31,7 +31,7 @@ import android.util.Log;
 public class DroidSensorService extends Service implements
 		BluetoothDeviceListener {
 
-	private static final long INTERVAL_SECONDS = 60L;
+	private static final long INTERVAL_SECONDS = 5L;
 
 	private BluetoothBroadcastReceiver _receiver;
 
@@ -188,6 +188,9 @@ public class DroidSensorService extends Service implements
 					_receiver = BluetoothBroadcastReceiver.getInstance();
 					_receiver.addListener(this);
 					_receiver.registerSelf(this, SETTINGS);
+				} else {
+
+					_receiver.restart(DroidSensorService.this);
 				}
 
 				callLater(DroidSensorService.this, IDroidSensorService.class,
