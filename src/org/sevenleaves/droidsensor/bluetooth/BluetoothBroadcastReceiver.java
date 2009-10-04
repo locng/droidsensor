@@ -22,6 +22,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.HandlerThread;
 import android.util.Log;
 
 public class BluetoothBroadcastReceiver extends BroadcastReceiver {
@@ -248,11 +249,12 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 				final int scanMode = intent.getIntExtra(SCAN_MODE, -1);
 
-				if (scanMode != SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+				if (scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 
-					BluetoothDeviceStub stub = BluetoothDeviceStubFactory
-							.createBluetoothServiceStub(context);
-					stub.setScanMode(0x3);
+					startDiscovery(context);
+				} else {
+
+					stopDiscovery(context);
 				}
 
 				invokeListeners(new ListenerInvoker() {
@@ -319,7 +321,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(final Context context, final Intent intent) {
 
-		Log.d("BluetoothBroadcastReceiver", intent.getAction());
+		// Log.d("BluetoothBroadcastReceiver", intent.getAction());
 
 		final String action = intent.getAction();
 
@@ -328,7 +330,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 			return;
 		}
 
-		new Thread("DroidSensorServiceThread") {
+		new HandlerThread("BluetoothBroadcastReceiver") {
 
 			@Override
 			public void run() {
@@ -357,14 +359,65 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 	private void startDiscovery(Context context) {
 
-		BluetoothDeviceStub stub = getStub(context);
+		final BluetoothDeviceStub stub = getStub(context);
 
 		if (stub.getScanMode() != SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 
-			stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+			new HandlerThread("BluetoothBroadcastReceiver") {
+
+				@Override
+				public void run() {
+
+					stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);					
+				};
+			}.start();
+			
+			return;
 		}
 
-		stub.startDiscovery();
+		new HandlerThread("BluetoothBroadcastReceiver") {
+
+			@Override
+			public void run() {
+
+				stub.startPeriodicDiscovery();
+			};
+		}.start();
+
+		
+		
+
+		// new HandlerThread("BluetoothBroadcastReceiver") {
+		//
+		// @Override
+		// public void run() {
+		//
+		// stub.startPeriodicDiscovery();
+		// };
+		// }.start();
+	}
+
+	private void stopDiscovery(Context context) {
+
+		final BluetoothDeviceStub stub = getStub(context);
+
+		new HandlerThread("BluetoothBroadcastReceiver") {
+
+			@Override
+			public void run() {
+
+				stub.stopPeriodicDiscovery();
+				stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+			};
+		}.start();
+
+		// new HandlerThread("BluetoothBroadcastReceiver") {
+		//
+		// @Override
+		// public void run() {
+
+		// };
+		// }.start();
 	}
 
 	public synchronized void unregisterSelf(Context context,
