@@ -190,7 +190,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 								case BLUETOOTH_STATE_ON:
 
 									listener.onEnabled(context);
-									startPeriodicDiscovery(context);
+									startDiscovery(context);
 
 									break;
 
@@ -218,6 +218,9 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 			public void handleIntent(final Context context, final Intent intent) {
 
+				final BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+						.createBluetoothServiceStub(context);
+
 				invokeListeners(new ListenerInvoker() {
 
 					public void invokeListenr(BluetoothDeviceListener listener) {
@@ -228,11 +231,28 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 						case SCAN_MODE_CONNECTABLE:
 
+							if (stub.isPeriodicDiscovery()) {
+
+								stub.stopPeriodicDiscovery();
+							}
+
+							stub.setScanMode(0x3);
+							
 							listener.onScanModeConnectable(context);
 
 							break;
 
 						case SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+
+							// if (stub.isDiscovering()) {
+							//
+							// stub.cancelDiscovery();
+							// }
+
+							// if (!stub.isPeriodicDiscovery()) {
+
+							stub.startPeriodicDiscovery();
+							// }
 
 							listener.onScanModeConnectableDiscoverable(context);
 
@@ -240,6 +260,13 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 						case SCAN_MODE_NONE:
 
+							if (stub.isPeriodicDiscovery()) {
+
+								stub.stopPeriodicDiscovery();
+							}
+
+							stub.setScanMode(0x3);
+							
 							listener.onScanModeNone(context);
 
 							break;
@@ -312,39 +339,23 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 		_listeners.remove(listener);
 	}
 
-	private void startPeriodicDiscovery(Context context) {
+	private void startDiscovery(Context context) {
+
+		Log.d("BluetoothBroadcastReceiver", "startDiscovery");
 
 		BluetoothDeviceStub stub = getStub(context);
-
-		// if(stub.isDiscovering()){
-		//			
-		// stub.cancelDiscovery();
-		// }
-		//		
-		// if(stub.isPeriodicDiscovery()){
-		//			
-		// stub.stopPeriodicDiscovery();
-		// }
-
-		if (stub.getScanMode() != SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-
-			stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
-		}
-
-		if (stub.getDiscoverableTimeout() > 0) {
-
-			stub.setDiscoverableTimeout(0);
-		}
 
 		if (stub.isDiscovering()) {
 
 			stub.cancelDiscovery();
 		}
 
-		if (!stub.isPeriodicDiscovery()) {
+		if (stub.getScanMode() != SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 
-			stub.startPeriodicDiscovery();
+			stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
 		}
+
+		Log.d("BluetoothBroadcastReceiver", "startDiscovery");
 	}
 
 	public synchronized void unregisterSelf(Context context,
@@ -408,18 +419,22 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 			invokeListeners(new ListenerInvoker() {
 
-				public void invokeListenr(
-						BluetoothDeviceListener listener) {
+				public void invokeListenr(BluetoothDeviceListener listener) {
 
 					listener.onEnabled(context);
 				}
 			});
-			
-			startPeriodicDiscovery(context);
+
+			startDiscovery(context);
 
 			return;
 		}
 
 		stub.enable();
+	}
+
+	public void restart(Context context) {
+
+		startDiscovery(context);
 	}
 }

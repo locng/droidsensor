@@ -39,4 +39,19 @@ public class BluetoothSettings {
 			stub.disable();
 		}
 	}
+
+	public boolean isEnabled() {
+
+		return _enabled;
+	}
+
+	public int getScanMode() {
+
+		return _scanMode;
+	}
+
+	public int getDiscoverableTimeout() {
+
+		return _discoverableTimeout;
+	}
 }
