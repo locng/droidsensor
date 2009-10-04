@@ -32,8 +32,7 @@ public class DroidSensorService extends Service implements
 
 	private static final long INTERVAL_SECONDS = 60L;
 
-	private BluetoothBroadcastReceiver _receiver = BluetoothBroadcastReceiver
-			.getInstance();
+	private BluetoothBroadcastReceiver _receiver;
 
 	private static final BluetoothSettings SETTINGS = new BluetoothSettings();
 
@@ -46,7 +45,7 @@ public class DroidSensorService extends Service implements
 
 		public boolean isStarted() throws RemoteException {
 
-			return _started;
+			return _receiver != null;
 		}
 
 		public void stopService() throws RemoteException {
@@ -131,9 +130,7 @@ public class DroidSensorService extends Service implements
 
 		try {
 
-			BluetoothBroadcastReceiver receiver = BluetoothBroadcastReceiver
-					.getInstance();
-			receiver.unregisterSelf(this, SETTINGS);
+			_receiver.unregisterSelf(this, SETTINGS);
 		} catch (Exception e) {
 			// nop.
 		}
@@ -164,14 +161,19 @@ public class DroidSensorService extends Service implements
 
 			if (ServiceUtils.isStartService(intent)) {
 
-				_receiver.addListener(this);
-				_receiver.registerSelf(this, SETTINGS);
 				showNotification();
 			}
 
 			Log.d("DroidSensorService", "running");
 
 			if (_started) {
+
+				if (_receiver == null) {
+
+					_receiver = BluetoothBroadcastReceiver.getInstance();
+					_receiver.addListener(this);
+					_receiver.registerSelf(this, SETTINGS);
+				}
 
 				callLater(DroidSensorService.this, IDroidSensorService.class,
 						INTERVAL_SECONDS);
