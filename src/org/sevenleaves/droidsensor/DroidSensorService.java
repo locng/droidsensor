@@ -24,6 +24,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -38,6 +39,8 @@ public class DroidSensorService extends Service implements
 
 	private volatile boolean _started;
 
+	private RemoteCallbackList<IDroidSensorCallbackListener> _listeners = new RemoteCallbackList<IDroidSensorCallbackListener>();
+
 	private static final Set<String> DEVICES = Collections
 			.synchronizedSet(new LinkedHashSet<String>());
 
@@ -51,6 +54,18 @@ public class DroidSensorService extends Service implements
 		public void stopService() throws RemoteException {
 
 			DroidSensorService.this.stopService();
+		}
+
+		public void addListener(IDroidSensorCallbackListener listener)
+				throws RemoteException {
+
+			_listeners.register(listener);
+		}
+
+		public void removeListener(IDroidSensorCallbackListener listener)
+				throws RemoteException {
+
+			_listeners.unregister(listener);
 		}
 	};
 
