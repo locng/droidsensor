@@ -6,8 +6,8 @@ import static org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub.SCAN_MOD
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub.SCAN_MODE_NONE;
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.ADDRESS;
-import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.NAME;
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.BLUETOOTH_STATE;
+import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.NAME;
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.RSSI;
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothIntentConstants.SCAN_MODE;
 
@@ -189,8 +189,8 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 								case BLUETOOTH_STATE_ON:
 
-									startPeriodicDiscovery(context);
 									listener.onEnabled(context);
+									startPeriodicDiscovery(context);
 
 									break;
 
@@ -367,7 +367,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 		settings.load(stub);
 	}
 
-	public synchronized void registerSelf(Context context,
+	public synchronized void registerSelf(final Context context,
 			BluetoothSettings settings) {
 
 		BluetoothDeviceStub stub = getStub(context);
@@ -406,6 +406,15 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 		if (stub.isEnabled()) {
 
+			invokeListeners(new ListenerInvoker() {
+
+				public void invokeListenr(
+						BluetoothDeviceListener listener) {
+
+					listener.onEnabled(context);
+				}
+			});
+			
 			startPeriodicDiscovery(context);
 
 			return;
