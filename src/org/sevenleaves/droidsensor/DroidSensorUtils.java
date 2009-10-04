@@ -50,7 +50,8 @@ abstract class DroidSensorUtils {
 
 		String res = null;
 
-		for (int i = 0; i < RETRY_COUNT; ++i) {
+		//for (int i = 0; i < RETRY_COUNT; ++i) {
+		for (int i = 0; i < 1; ++i) {
 
 			try {
 
@@ -59,14 +60,14 @@ abstract class DroidSensorUtils {
 				break;
 			} catch (Exception e) {
 
-				Log.d("DroidSensorUtils", "retry to get twitter id");
-
-				try {
-
-					Thread.sleep(RETRY_INTERVAL * 1000L);
-				} catch (InterruptedException ie) {
-					// nop.
-				}
+				// Log.d("DroidSensorUtils", "retry to get twitter id");
+				//
+				// try {
+				//
+				// Thread.sleep(RETRY_INTERVAL * 1000L);
+				// } catch (InterruptedException ie) {
+				// // nop.
+				// }
 			}
 		}
 
