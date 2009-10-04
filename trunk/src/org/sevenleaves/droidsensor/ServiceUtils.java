@@ -31,7 +31,8 @@ public abstract class ServiceUtils {
 
 	public static boolean isStartService(Intent intent) {
 
-		return isActionMatches(intent, IDroidSensorService.class.getName());
+		return isActionMatches(intent, IDroidSensorService.class.getName())
+				|| isActionMatches(intent, DroidSensorService.class.getName());
 	}
 
 	public static boolean isStopAction(Intent intent) {
