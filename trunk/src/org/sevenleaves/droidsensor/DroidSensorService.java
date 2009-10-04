@@ -31,7 +31,7 @@ import android.util.Log;
 public class DroidSensorService extends Service implements
 		BluetoothDeviceListener {
 
-	private static final long INTERVAL_SECONDS = 5L;
+	private static final long INTERVAL_SECONDS = 120L;
 
 	private BluetoothBroadcastReceiver _receiver;
 
@@ -39,9 +39,9 @@ public class DroidSensorService extends Service implements
 
 	private volatile boolean _started;
 
-	private RemoteCallbackList<IDroidSensorCallbackListener> _listeners = new RemoteCallbackList<IDroidSensorCallbackListener>();
+	private final RemoteCallbackList<IDroidSensorCallbackListener> _listeners = new RemoteCallbackList<IDroidSensorCallbackListener>();
 
-	private static final Set<String> DEVICES = Collections
+	private final Set<String> _devices = Collections
 			.synchronizedSet(new LinkedHashSet<String>());
 
 	private final IDroidSensorService.Stub _binder = new IDroidSensorService.Stub() {
@@ -188,12 +188,11 @@ public class DroidSensorService extends Service implements
 					_receiver = BluetoothBroadcastReceiver.getInstance();
 					_receiver.addListener(this);
 					_receiver.registerSelf(this, SETTINGS);
-				} else {
-
-					_receiver.restart(DroidSensorService.this);
 				}
 
-				callLater(DroidSensorService.this, IDroidSensorService.class,
+				// callLater(DroidSensorService.this, IDroidSensorService.class,
+				// INTERVAL_SECONDS);
+				callLater(DroidSensorService.this, DroidSensorService.class,
 						INTERVAL_SECONDS);
 			}
 		}
@@ -206,7 +205,7 @@ public class DroidSensorService extends Service implements
 
 		super.onDestroy();
 
-		DEVICES.clear();
+		_devices.clear();
 
 		try {
 
@@ -234,7 +233,7 @@ public class DroidSensorService extends Service implements
 
 	public void onRemoteDeviceDisappeared(Context context, String address) {
 
-		DEVICES.remove(address);
+		_devices.remove(address);
 		// showDeviceDisappeared(address);
 	}
 
@@ -250,7 +249,7 @@ public class DroidSensorService extends Service implements
 
 		String address = device.getAddress();
 
-		if (DEVICES.contains(address)) {
+		if (_devices.contains(address)) {
 
 			return;
 		}
@@ -261,61 +260,54 @@ public class DroidSensorService extends Service implements
 	public void onRemoteDeviceFound(final Context context,
 			final RemoteBluetoothDevice device) {
 
-		new Thread() {
-			@Override
-			public void run() {
+		String address = device.getAddress();
 
-				String address = device.getAddress();
+		if (_devices.contains(address)) {
 
-				if (DEVICES.contains(address)) {
+			return;
+		}
 
-					return;
-				}
+		BluetoothDeviceStub bluetooth = BluetoothDeviceStubFactory
+				.createBluetoothServiceStub(DroidSensorService.this);
 
-				BluetoothDeviceStub bluetooth = BluetoothDeviceStubFactory
-						.createBluetoothServiceStub(DroidSensorService.this);
+		// すれ違い通信という名目のため、自分も検出可能モードでなければ通知しないよ。
+		if (!isDiscoverable(bluetooth)) {
 
-				// すれ違い通信という名目のため、自分も検出可能モードでなければ通知しないよ。
-				if (!isDiscoverable(bluetooth)) {
+			return;
+		}
 
-					return;
-				}
+		DroidSensorSettings settings = DroidSensorSettings.getInstance(context);
 
-				DroidSensorSettings settings = DroidSensorSettings
-						.getInstance(context);
+		String tweeted;
 
-				String tweeted;
+		try {
 
-				try {
+			tweeted = TwitterUtils.tweetDeviceFound(device, settings);
+		} catch (TwitterException e) {
 
-					tweeted = TwitterUtils.tweetDeviceFound(device, settings);
-				} catch (TwitterException e) {
+			// _handler.post(new Runnable() {
+			//
+			// public void run() {
+			//
+			// Toast.makeText(DroidSensorService.this, "tweet failed",
+			// Toast.LENGTH_SHORT).show();
+			// }
+			// });
+			Log.e("DroidSensorService", e.getLocalizedMessage());
+			return;
+		}
 
-					// _handler.post(new Runnable() {
-					//
-					// public void run() {
-					//
-					// Toast.makeText(DroidSensorService.this, "tweet failed",
-					// Toast.LENGTH_SHORT).show();
-					// }
-					// });
-					Log.e("DroidSensorService", e.getLocalizedMessage());
-					return;
-				}
+		if (tweeted == null) {
 
-				if (tweeted == null) {
+			return;
+		}
 
-					return;
-				}
+		Log.d("DroidSensorService", device.getAddress() + "("
+				+ device.getName() + ")" + " found.");
 
-				Log.d("DroidSensorService", device.getAddress() + "("
-						+ device.getName() + ")" + " found.");
+		_devices.add(address);
 
-				DEVICES.add(address);
-
-				showDeviceFound(tweeted);
-			}
-		}.start();
+		showDeviceFound(tweeted);
 	}
 
 	public void onScanModeConnectable(Context context) {

@@ -164,6 +164,30 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 		// DISCOVERY_COMPLETED_ACTION
 
+		registerHandler(BluetoothIntent.DISCOVERY_COMPLETED,
+				new IntentHandler() {
+
+					public void handleIntent(final Context context,
+							final Intent intent) {
+
+						BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+								.createBluetoothServiceStub(context);
+
+						if (!stub.isDiscovering()) {
+
+							stub.startDiscovery();
+						}
+
+						invokeListeners(new ListenerInvoker() {
+
+							public void invokeListenr(
+									BluetoothDeviceListener listener) {
+
+							}
+						});
+					}
+				});
+
 		// DISCOVERY_STARTED_ACTION
 
 		// BLUETOOTH_STATE_CHANGED_ACTION
@@ -177,20 +201,24 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 					public void handleIntent(final Context context,
 							final Intent intent) {
 
+						final int bluetoothState = intent.getIntExtra(
+								BLUETOOTH_STATE, -1);
+
+						if (bluetoothState == BLUETOOTH_STATE_ON) {
+
+							startDiscovery(context);
+						}
+
 						invokeListeners(new ListenerInvoker() {
 
 							public void invokeListenr(
 									BluetoothDeviceListener listener) {
-
-								int bluetoothState = intent.getIntExtra(
-										BLUETOOTH_STATE, -1);
 
 								switch (bluetoothState) {
 
 								case BLUETOOTH_STATE_ON:
 
 									listener.onEnabled(context);
-									startDiscovery(context);
 
 									break;
 
@@ -218,41 +246,28 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 			public void handleIntent(final Context context, final Intent intent) {
 
-				final BluetoothDeviceStub stub = BluetoothDeviceStubFactory
-						.createBluetoothServiceStub(context);
+				final int scanMode = intent.getIntExtra(SCAN_MODE, -1);
+
+				if (scanMode != SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+
+					BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+							.createBluetoothServiceStub(context);
+					stub.setScanMode(0x3);
+				}
 
 				invokeListeners(new ListenerInvoker() {
 
 					public void invokeListenr(BluetoothDeviceListener listener) {
 
-						int scanMode = intent.getIntExtra(SCAN_MODE, -1);
-
 						switch (scanMode) {
 
 						case SCAN_MODE_CONNECTABLE:
 
-							if (stub.isPeriodicDiscovery()) {
-
-								stub.stopPeriodicDiscovery();
-							}
-
-							stub.setScanMode(0x3);
-							
 							listener.onScanModeConnectable(context);
 
 							break;
 
 						case SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-
-							// if (stub.isDiscovering()) {
-							//
-							// stub.cancelDiscovery();
-							// }
-
-							// if (!stub.isPeriodicDiscovery()) {
-
-							stub.startPeriodicDiscovery();
-							// }
 
 							listener.onScanModeConnectableDiscoverable(context);
 
@@ -260,13 +275,6 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 						case SCAN_MODE_NONE:
 
-							if (stub.isPeriodicDiscovery()) {
-
-								stub.stopPeriodicDiscovery();
-							}
-
-							stub.setScanMode(0x3);
-							
 							listener.onScanModeNone(context);
 
 							break;
@@ -313,15 +321,23 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 		Log.d("BluetoothBroadcastReceiver", intent.getAction());
 
-		String action = intent.getAction();
+		final String action = intent.getAction();
 
 		if (!_handlerMapping.containsKey(action)) {
 
 			return;
 		}
 
-		IntentHandler handler = _handlerMapping.get(action);
-		handler.handleIntent(context, intent);
+		new Thread("DroidSensorServiceThread") {
+
+			@Override
+			public void run() {
+
+				IntentHandler handler = _handlerMapping.get(action);
+				handler.handleIntent(context, intent);
+
+			}
+		}.start();
 	}
 
 	public synchronized void addListener(BluetoothDeviceListener listener) {
@@ -341,21 +357,14 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 	private void startDiscovery(Context context) {
 
-		Log.d("BluetoothBroadcastReceiver", "startDiscovery");
-
 		BluetoothDeviceStub stub = getStub(context);
-
-		if (stub.isDiscovering()) {
-
-			stub.cancelDiscovery();
-		}
 
 		if (stub.getScanMode() != SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 
 			stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
 		}
 
-		Log.d("BluetoothBroadcastReceiver", "startDiscovery");
+		stub.startDiscovery();
 	}
 
 	public synchronized void unregisterSelf(Context context,
@@ -364,7 +373,6 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 		Log.d("BluetoothBroadcastReceiver", "unregister receiver");
 
 		BluetoothDeviceStub stub = getStub(context);
-		stub.stopPeriodicDiscovery();
 
 		try {
 
@@ -431,10 +439,5 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 		}
 
 		stub.enable();
-	}
-
-	public void restart(Context context) {
-
-		startDiscovery(context);
 	}
 }
