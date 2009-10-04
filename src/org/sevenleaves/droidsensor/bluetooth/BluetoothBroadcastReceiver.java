@@ -391,26 +391,17 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 			filter.addAction(action);
 		}
 
-		try {
+		// 登録されてなければ例外を吐くので、その時に登録.
+		// という良くないやり方。
 
-			Log.d("BluetoothBroadcastReceiver", "unregister receiver:"
-					+ this.toString());
+		Log.d("BluetoothBroadcastReceiver", "register receiver:"
+				+ this.toString());
 
-			context.unregisterReceiver(this);
-		} catch (Exception e) {
+		context.registerReceiver(this, filter);
 
-			// 登録されてなければ例外を吐くので、その時に登録.
-			// という良くないやり方。
+		if (stub.isEnabled()) {
 
-			Log.d("BluetoothBroadcastReceiver", "register receiver:"
-					+ this.toString());
-
-			context.registerReceiver(this, filter);
-
-			if (stub.isEnabled()) {
-
-				settings.save(stub);
-			}
+			settings.save(stub);
 		}
 
 		if (stub.isEnabled()) {
