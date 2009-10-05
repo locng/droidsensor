@@ -12,11 +12,69 @@ public class DroidSensorSettings {
 
 	public static final String ALL_BLUETOOTH_DEVICES = "droidsensor_discovery_all_bluetooth_devices";
 
+	public static final String OPTIONAL_TWITTER_ID = "droidsensor_optional_twitter_id";
+
+	public static final String OPTIONAL_TWITTER_PASSWORD = "droidsensor_optional_twitter_password";
+
+	public static final String DISPATCH_USER = "droidsensor_dispath_user";
+	
+	public static final String DISPATCH_DEVICE = "droidsensor_dispath_device";
+
 	private String _twitterId;
 
 	private String _twitterPassword;
 
 	private boolean _allBluetoothDevices;
+	
+	private String _optionalTwitterId;
+	
+	private String _optionalTwitterPassword;
+	
+	private int _dispatchUser;
+	
+	private int _dispatchDevice;
+	
+	public int getDispatchDevice() {
+		return _dispatchDevice;
+	}
+
+	public void setDispatchDevice(int dispatchDevice) {
+		_dispatchDevice = dispatchDevice;
+	}
+
+	public String getOptionalTwitterId() {
+		return _optionalTwitterId;
+	}
+
+	public void setOptionalTwitterId(String optionalTwitterId) {
+		_optionalTwitterId = optionalTwitterId;
+	}
+
+	public String getOptionalTwitterPassword() {
+		return _optionalTwitterPassword;
+	}
+
+	public void setOptionalTwitterPassword(String optionalTwitterPassword) {
+		_optionalTwitterPassword = optionalTwitterPassword;
+	}
+
+	public int getDispatchUser() {
+		return _dispatchUser;
+	}
+
+	public void setDispatchUser(int dispatchUser) {
+		_dispatchUser = dispatchUser;
+	}
+
+	public int getDispatchPassword() {
+		return _dispatchPassword;
+	}
+
+	public void setDispatchPassword(int dispatchPassword) {
+		_dispatchPassword = dispatchPassword;
+	}
+
+	private int _dispatchPassword;
 
 	private String _apiUrl;
 
@@ -53,6 +111,10 @@ public class DroidSensorSettings {
 		_twitterId = prefs.getString(TWITTER_ID, "");
 		_twitterPassword = prefs.getString(TWITTER_PASSWORD, "");
 		_allBluetoothDevices = prefs.getBoolean(ALL_BLUETOOTH_DEVICES, false);
+		_optionalTwitterId = prefs.getString(OPTIONAL_TWITTER_ID, "");
+		_optionalTwitterPassword = prefs.getString(OPTIONAL_TWITTER_PASSWORD, "");
+		_dispatchUser = prefs.getInt(DISPATCH_USER, 0);
+		_dispatchDevice = prefs.getInt(DISPATCH_DEVICE, 0);
 		_apiUrl = context.getString(R.string.property_server_url);
 		_userTemplate = context.getString(R.string.template_user);
 		_deviceTemplate = context.getString(R.string.template_device);

@@ -25,6 +25,61 @@
     <string name="menu_discover">Start Discover</string>
     <string name="menu_stop_discover">Stop Discover</string>
     <string name="menu_settings">Settings</string>
-    
     <string name="default_message">MENU &gt; Start Discover</string>
+
+    
+    <!-- deplicate -->
+    <string name="advanced_menu_settings">Advanced Settings</string>
+
+	<string name="twitter_id_title">Twitter ID</string>
+	<string name="twitter_id_summary">User ID for Twitter account</string>
+
+	<string name="twitter_password_title">Password</string>
+	<string name="twitter_password_summary">Password for Twitter account</string>
+
+	<string name="all_devices_title">All Bluetooth Devices</string>
+	<string name="all_devices_summary">Tweet all discoverable Bluetooth Device name</string>
+	
+	<string name="second_twitter_id_title">Twitter Id</string>
+	<string name="second_twitter_id_summary">User ID for second Twitter account</string>
+
+	<string name="second_twitter_password_title">Password</string>
+	<string name="second_twitter_password_summary">Password for second Twitter account</string>
+
+    <string name="twitter_list_title">Twitter User</string>
+    <string name="twitter_list_summary">Select account that tweet Twitter user</string>
+    <string name="twitter_list_dialogtitle">Select Account</string>
+    
+    <string-array name="twitter_list_entries">
+        <item>Main Account</item>
+        <item>Optional Account</item>
+        <item>Both</item>
+    </string-array>
+    <string-array name="twitter_list_entryvalues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string name="device_list_title">Device Name</string>
+    <string name="device_list_summary">Select account that tweet Device name</string>
+    <string name="device_list_dialogtitle">Select Account</string>
+    
+    <string-array name="device_list_entries">
+        <item>Main Account</item>
+        <item>Optional Account</item>
+        <item>Both</item>
+        <!-- 
+        <item>Only Notification</item>
+        -->
+    </string-array>
+    <string-array name="device_list_entryvalues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <!-- 
+        <item>3</item>
+        -->
+    </string-array>
+    
 </resources>

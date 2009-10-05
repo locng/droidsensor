@@ -74,6 +74,9 @@ abstract class TwitterUtils {
 				return null;
 			}
 
+			id = id.replace("DCS", "***");
+			id = id.replace("DF", "**");
+			
 			template = settings.getDeviceTemplate();
 		}
 
