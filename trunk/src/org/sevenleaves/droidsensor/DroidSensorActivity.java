@@ -49,7 +49,7 @@ public class DroidSensorActivity extends ListActivity {
 
 	private boolean isOptionalAccountUses(DroidSensorSettings settings) {
 
-		if (settings.getDispatchUser() > 0) {
+		if (settings.getDispatchUser() > 1) {
 
 			return true;
 		}
@@ -59,12 +59,12 @@ public class DroidSensorActivity extends ListActivity {
 			return false;
 		}
 
-		return settings.getDispatchDevice() > 0;
+		return settings.getDispatchDevice() > 1;
 	}
 
 	private boolean isBasicAccountUses(DroidSensorSettings settings) {
 
-		if (settings.getDispatchUser() != 1) {
+		if (settings.getDispatchUser() != 2) {
 
 			return true;
 		}
@@ -74,7 +74,7 @@ public class DroidSensorActivity extends ListActivity {
 			return false;
 		}
 
-		return settings.getDispatchDevice() != 1;
+		return settings.getDispatchDevice() != 2;
 	}
 
 	private Runnable _bindCallback = new Runnable() {
@@ -93,15 +93,14 @@ public class DroidSensorActivity extends ListActivity {
 						.getTwitterPassword());
 			}
 
-			// 連投制限か？ 2回目のverifyが必ずfailする。
-			// boolean optionalAccountUses = isOptionalAccountUses(s);
-			//
-			// if (verified && optionalAccountUses) {
-			//
-			// verified = TwitterUtils
-			// .verifyCredentials(s.getOptionalTwitterId(), s
-			// .getOptionalTwitterPassword());
-			// }
+			boolean optionalAccountUses = isOptionalAccountUses(s);
+
+			if (verified && optionalAccountUses) {
+
+				verified = TwitterUtils
+						.verifyCredentials(s.getOptionalTwitterId(), s
+								.getOptionalTwitterPassword());
+			}
 
 			_progressDialog.dismiss();
 

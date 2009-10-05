@@ -53,12 +53,16 @@
     <string-array name="twitter_list_entries">
         <item>Basic Account</item>
         <item>Optional Account</item>
+        <!-- 
         <item>Both</item>
+        -->
     </string-array>
     <string-array name="twitter_list_entryvalues">
-        <item>0</item>
         <item>1</item>
         <item>2</item>
+        <!-- 
+        <item>2</item>
+        -->
     </string-array>
 
     <string name="device_list_title">Device Name</string>
@@ -68,16 +72,16 @@
     <string-array name="device_list_entries">
         <item>Basic Account</item>
         <item>Optional Account</item>
-        <item>Both</item>
         <!-- 
+        <item>Both</item>
         <item>Only Notification</item>
         -->
     </string-array>
     <string-array name="device_list_entryvalues">
-        <item>0</item>
         <item>1</item>
         <item>2</item>
         <!-- 
+        <item>2</item>
         <item>3</item>
         -->
     </string-array>

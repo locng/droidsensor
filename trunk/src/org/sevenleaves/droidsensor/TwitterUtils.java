@@ -5,10 +5,6 @@ import java.util.List;
 
 import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
 
-import android.os.Handler;
-import android.util.Log;
-import android.widget.Toast;
-
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
@@ -37,18 +33,19 @@ abstract class TwitterUtils {
 			return false;
 		}
 
-		Twitter twitter = createTwitter(twitterId, twitterPassword);
-
-		try {
-
-			twitter.verifyCredentials();
-
-			return true;
-
-		} catch (TwitterException e) {
-
-			return false;
-		}
+		return true;
+		// Twitter twitter = createTwitter(twitterId, twitterPassword);
+		//
+		// try {
+		//
+		// twitter.verifyCredentials();
+		//
+		// return true;
+		//
+		// } catch (TwitterException e) {
+		//
+		// return false;
+		// }
 	}
 
 	private static Twitter createTwitter(String u, String p) {
@@ -85,13 +82,13 @@ abstract class TwitterUtils {
 		List<Twitter> accounts = new ArrayList<Twitter>();
 
 		switch (dispatch) {
-		case 0:
+		case 1:
 
 			t = createTwitterFromMainAccount(settings);
 			accounts.add(t);
 
 			break;
-		case 1:
+		case 2:
 
 			t = createTwitterFromOptionalAccount(settings);
 			accounts.add(t);
@@ -174,11 +171,10 @@ abstract class TwitterUtils {
 
 		List<Twitter> twitters = createTwitters(settings, isUser);
 
-		for (Twitter t : twitters) {
+		for (int i = 0; i < twitters.size(); ++i) {
 
-			
-			//t.updateStatus(text);
-			
+			Twitter t = twitters.get(i);
+			t.updateStatus(text);
 		}
 
 		return forNotify;
