@@ -3,7 +3,7 @@ package org.sevenleaves.droidsensor;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-public class MainPreferenceActivity extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -12,7 +12,4 @@ public class MainPreferenceActivity extends PreferenceActivity {
 
 		addPreferencesFromResource(R.xml.pref);
 	}
-	
-	
-	
 }

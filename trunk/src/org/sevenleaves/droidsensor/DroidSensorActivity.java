@@ -71,7 +71,7 @@ public class DroidSensorActivity extends ListActivity {
 											int which) {
 
 										Intent settings = new Intent(
-												MainPreferenceActivity.class
+												SettingsActivity.class
 														.getName());
 										startActivity(settings);
 									}
@@ -221,7 +221,7 @@ public class DroidSensorActivity extends ListActivity {
 
 		public void onSelected(MenuItem item) {
 
-			Intent intent = new Intent(MainPreferenceActivity.class.getName());
+			Intent intent = new Intent(SettingsActivity.class.getName());
 			startActivity(intent);
 		}
 

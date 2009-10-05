@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: C:\\Users\\smasui\\workspace\\DroidSensor\\resources\\android\\bluetooth\\IBluetoothDeviceCallback.aidl
+ * Original file: C:\\Home\\Projects\\android\\workspace\\DroidSensor\\resources\\android\\bluetooth\\IBluetoothDeviceCallback.aidl
  */
 package android.bluetooth;
 import java.lang.String;
