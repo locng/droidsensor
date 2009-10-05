@@ -92,7 +92,7 @@ public class DroidSensorActivity extends ListActivity {
 				verified = TwitterUtils.verifyCredentials(s.getTwitterId(), s
 						.getTwitterPassword());
 			}
-			
+
 			// 連投制限か？ 2回目のverifyが必ずfailする。
 			// boolean optionalAccountUses = isOptionalAccountUses(s);
 			//
@@ -138,7 +138,7 @@ public class DroidSensorActivity extends ListActivity {
 			// IDroidSensorService.class);
 			// si.setAction(ServiceUtils.START_ACTION);
 			Intent si = new Intent(IDroidSensorService.class.getName());
-			// startService(si);
+			startService(si);
 		}
 	};
 

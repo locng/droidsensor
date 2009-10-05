@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
 
+import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -98,6 +100,7 @@ abstract class TwitterUtils {
 		default:
 
 			t = createTwitterFromMainAccount(settings);
+			accounts.add(t);
 			t = createTwitterFromOptionalAccount(settings);
 			accounts.add(t);
 
@@ -173,7 +176,9 @@ abstract class TwitterUtils {
 
 		for (Twitter t : twitters) {
 
-			t.updateStatus(text);
+			
+			//t.updateStatus(text);
+			
 		}
 
 		return forNotify;
