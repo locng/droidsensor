@@ -46,14 +46,63 @@ public class DroidSensorActivity extends ListActivity {
 			_service = null;
 		}
 	};
+
+	private boolean isOptionalAccountUses(DroidSensorSettings settings) {
+
+		if (settings.getDispatchUser() > 0) {
+
+			return true;
+		}
+
+		if (!settings.isAllBluetoothDevices()) {
+
+			return false;
+		}
+
+		return settings.getDispatchDevice() > 0;
+	}
+
+	private boolean isBasicAccountUses(DroidSensorSettings settings) {
+
+		if (settings.getDispatchUser() != 1) {
+
+			return true;
+		}
+
+		if (!settings.isAllBluetoothDevices()) {
+
+			return false;
+		}
+
+		return settings.getDispatchDevice() != 1;
+	}
+
 	private Runnable _bindCallback = new Runnable() {
 
 		public void run() {
 
 			DroidSensorSettings s = DroidSensorSettings
 					.getInstance(DroidSensorActivity.this);
-			boolean verified = TwitterUtils.verifyCredentials(s.getTwitterId(),
-					s.getTwitterPassword());
+			boolean verified = true;
+
+			boolean basicAccountUses = isBasicAccountUses(s);
+
+			if (basicAccountUses) {
+
+				verified = TwitterUtils.verifyCredentials(s.getTwitterId(), s
+						.getTwitterPassword());
+			}
+			
+			// 連投制限か？ 2回目のverifyが必ずfailする。
+			// boolean optionalAccountUses = isOptionalAccountUses(s);
+			//
+			// if (verified && optionalAccountUses) {
+			//
+			// verified = TwitterUtils
+			// .verifyCredentials(s.getOptionalTwitterId(), s
+			// .getOptionalTwitterPassword());
+			// }
+
 			_progressDialog.dismiss();
 
 			if (!verified) {
@@ -89,7 +138,7 @@ public class DroidSensorActivity extends ListActivity {
 			// IDroidSensorService.class);
 			// si.setAction(ServiceUtils.START_ACTION);
 			Intent si = new Intent(IDroidSensorService.class.getName());
-			startService(si);
+			// startService(si);
 		}
 	};
 

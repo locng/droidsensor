@@ -278,11 +278,28 @@ public class DroidSensorService extends Service implements
 
 		DroidSensorSettings settings = DroidSensorSettings.getInstance(context);
 
+		String id = DroidSensorUtils
+				.getTwitterId(settings.getApiUrl(), address);
+
+		if (!settings.isAllBluetoothDevices() && id == null) {
+
+			_devices.add(address);
+
+			return;
+		}
+
+		String deviceName = device.getName();
+
+		if (id == null && deviceName == null) {
+
+			return;
+		}
+
 		String tweeted;
 
 		try {
 
-			tweeted = TwitterUtils.tweetDeviceFound(device, settings);
+			tweeted = TwitterUtils.tweetDeviceFound(device, id, settings);
 		} catch (TwitterException e) {
 
 			// _handler.post(new Runnable() {
