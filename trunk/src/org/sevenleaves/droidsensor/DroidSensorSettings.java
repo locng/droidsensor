@@ -16,24 +16,24 @@ public class DroidSensorSettings {
 
 	public static final String OPTIONAL_TWITTER_PASSWORD = "droidsensor_optional_twitter_password";
 
-	public static final String DISPATCH_USER = "droidsensor_dispath_user";
-	
-	public static final String DISPATCH_DEVICE = "droidsensor_dispath_device";
+	public static final String DISPATCH_USER = "droidsensor_dispatch_user";
+
+	public static final String DISPATCH_DEVICE = "droidsensor_dispatch_device";
 
 	private String _twitterId;
 
 	private String _twitterPassword;
 
 	private boolean _allBluetoothDevices;
-	
+
 	private String _optionalTwitterId;
-	
+
 	private String _optionalTwitterPassword;
-	
+
 	private int _dispatchUser;
-	
+
 	private int _dispatchDevice;
-	
+
 	public int getDispatchDevice() {
 		return _dispatchDevice;
 	}
@@ -105,6 +105,14 @@ public class DroidSensorSettings {
 		return res;
 	}
 
+	private int getInt(SharedPreferences prefs, String key, int defaultValue) {
+
+		String v = prefs.getString(key, Integer.toString(defaultValue));
+		int i = Integer.parseInt(v);
+
+		return i;
+	}
+
 	public synchronized void refresh(Context context) {
 
 		SharedPreferences prefs = getSharedPreferences(context);
@@ -112,9 +120,10 @@ public class DroidSensorSettings {
 		_twitterPassword = prefs.getString(TWITTER_PASSWORD, "");
 		_allBluetoothDevices = prefs.getBoolean(ALL_BLUETOOTH_DEVICES, false);
 		_optionalTwitterId = prefs.getString(OPTIONAL_TWITTER_ID, "");
-		_optionalTwitterPassword = prefs.getString(OPTIONAL_TWITTER_PASSWORD, "");
-		_dispatchUser = prefs.getInt(DISPATCH_USER, 0);
-		_dispatchDevice = prefs.getInt(DISPATCH_DEVICE, 0);
+		_optionalTwitterPassword = prefs.getString(OPTIONAL_TWITTER_PASSWORD,
+				"");
+		_dispatchUser = getInt(prefs, DISPATCH_USER, 0);
+		_dispatchDevice = getInt(prefs, DISPATCH_DEVICE, 0);
 		_apiUrl = context.getString(R.string.property_server_url);
 		_userTemplate = context.getString(R.string.template_user);
 		_deviceTemplate = context.getString(R.string.template_device);
@@ -133,6 +142,18 @@ public class DroidSensorSettings {
 		b.append(',');
 		b.append("allBluetoothDevices=");
 		b.append(_allBluetoothDevices);
+		b.append(',');
+		b.append("optionalTwitterId=");
+		b.append(_optionalTwitterId);
+		b.append(',');
+		b.append("optionalTwitterPassword=");
+		b.append(_optionalTwitterPassword);
+		b.append(',');
+		b.append("dispathUser=");
+		b.append(_dispatchUser);
+		b.append(',');
+		b.append("dispatchDevice=");
+		b.append(_dispatchDevice);
 		b.append(',');
 		b.append("apiUrl=");
 		b.append(_apiUrl);
@@ -208,12 +229,12 @@ public class DroidSensorSettings {
 	}
 
 	public String getTags() {
-		
+
 		return _tags;
 	}
 
 	public void setTags(String tags) {
-		
+
 		_tags = tags;
 	}
 }

@@ -1,6 +1,11 @@
 package org.sevenleaves.droidsensor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
+
+import android.util.Log;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -30,7 +35,7 @@ abstract class TwitterUtils {
 			return false;
 		}
 
-		Twitter twitter = new Twitter(twitterId, twitterPassword);
+		Twitter twitter = createTwitter(twitterId, twitterPassword);
 
 		try {
 
@@ -44,6 +49,83 @@ abstract class TwitterUtils {
 		}
 	}
 
+	private static Twitter createTwitter(String u, String p) {
+
+		Twitter t = new Twitter(u, p);
+
+		return t;
+	}
+
+	private static Twitter createTwitterFromMainAccount(
+			DroidSensorSettings settings) {
+
+		String u = settings.getTwitterId();
+		String p = settings.getTwitterPassword();
+		Twitter t = createTwitter(u, p);
+
+		return t;
+	}
+
+	private static Twitter createTwitterFromOptionalAccount(
+			DroidSensorSettings settings) {
+
+		String u = settings.getOptionalTwitterId();
+		String p = settings.getOptionalTwitterPassword();
+		Twitter t = createTwitter(u, p);
+
+		return t;
+	}
+
+	private static List<Twitter> createDispatchTwitters(
+			DroidSensorSettings settings, int dispatch) {
+
+		Twitter t;
+		List<Twitter> accounts = new ArrayList<Twitter>();
+
+		switch (dispatch) {
+		case 0:
+
+			t = createTwitterFromMainAccount(settings);
+			accounts.add(t);
+
+			break;
+		case 1:
+
+			t = createTwitterFromOptionalAccount(settings);
+			accounts.add(t);
+
+			break;
+		default:
+
+			t = createTwitterFromMainAccount(settings);
+			t = createTwitterFromOptionalAccount(settings);
+			accounts.add(t);
+
+			break;
+		}
+
+		return accounts;
+	}
+
+	private static List<Twitter> createTwitters(DroidSensorSettings settings,
+			boolean isUser) {
+
+		List<Twitter> accounts;
+
+		if (isUser) {
+
+			int d = settings.getDispatchUser();
+			accounts = createDispatchTwitters(settings, d);
+
+			return accounts;
+		}
+
+		int d = settings.getDispatchDevice();
+		accounts = createDispatchTwitters(settings, d);
+
+		return accounts;
+	}
+
 	/**
 	 * @param device
 	 * @param settings
@@ -51,40 +133,23 @@ abstract class TwitterUtils {
 	 * @throws TwitterException
 	 */
 	public static String tweetDeviceFound(RemoteBluetoothDevice device,
-			DroidSensorSettings settings) throws TwitterException {
-
-		String address = device.getAddress();
-
-		String id = DroidSensorUtils
-				.getTwitterId(settings.getApiUrl(), address);
-
-		if (!settings.isAllBluetoothDevices() && id == null) {
-
-			return null;
-		}
+			String id, DroidSensorSettings settings) throws TwitterException {
 
 		String template = settings.getUserTemplate();
 
-		if (id == null) {
+		String target = id;
+		boolean isUser = true;
 
-			id = device.getName();
+		if (target == null) {
 
-			if (id == null) {
-
-				return null;
-			}
-
-			id = id.replace("DCS", "***");
-			id = id.replace("DF", "**");
-			
+			target = device.getName();
 			template = settings.getDeviceTemplate();
+			isUser = false;
 		}
 
-		Twitter twitter = new Twitter(settings.getTwitterId(), settings
-				.getTwitterPassword());
 		String forNotify;
 
-		String text = template.replace("$id", id);
+		String text = template.replace("$id", target);
 
 		// apiの回数制限により、使わない。
 		// if (template.contains("$name")) {
@@ -104,7 +169,12 @@ abstract class TwitterUtils {
 			forNotify = forNotify.replace("$tags", "");
 		}
 
-		twitter.updateStatus(text);
+		List<Twitter> twitters = createTwitters(settings, isUser);
+
+		for (Twitter t : twitters) {
+
+			t.updateStatus(text);
+		}
 
 		return forNotify;
 	}

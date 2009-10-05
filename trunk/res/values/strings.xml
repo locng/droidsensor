@@ -51,7 +51,7 @@
     <string name="twitter_list_dialogtitle">Select Account</string>
     
     <string-array name="twitter_list_entries">
-        <item>Main Account</item>
+        <item>Basic Account</item>
         <item>Optional Account</item>
         <item>Both</item>
     </string-array>
@@ -66,7 +66,7 @@
     <string name="device_list_dialogtitle">Select Account</string>
     
     <string-array name="device_list_entries">
-        <item>Main Account</item>
+        <item>Basic Account</item>
         <item>Optional Account</item>
         <item>Both</item>
         <!-- 
