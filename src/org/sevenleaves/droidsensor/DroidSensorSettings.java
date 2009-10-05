@@ -122,8 +122,8 @@ public class DroidSensorSettings {
 		_optionalTwitterId = prefs.getString(OPTIONAL_TWITTER_ID, "");
 		_optionalTwitterPassword = prefs.getString(OPTIONAL_TWITTER_PASSWORD,
 				"");
-		_dispatchUser = getInt(prefs, DISPATCH_USER, 0);
-		_dispatchDevice = getInt(prefs, DISPATCH_DEVICE, 0);
+		_dispatchUser = getInt(prefs, DISPATCH_USER, 1);
+		_dispatchDevice = getInt(prefs, DISPATCH_DEVICE, 1);
 		_apiUrl = context.getString(R.string.property_server_url);
 		_userTemplate = context.getString(R.string.template_user);
 		_deviceTemplate = context.getString(R.string.template_device);

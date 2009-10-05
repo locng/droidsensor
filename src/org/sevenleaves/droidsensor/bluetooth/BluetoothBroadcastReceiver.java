@@ -330,7 +330,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 			return;
 		}
 
-		new HandlerThread("BluetoothBroadcastReceiver") {
+		new Thread("BluetoothBroadcastReceiver") {
 
 			@Override
 			public void run() {
@@ -368,10 +368,10 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 				@Override
 				public void run() {
 
-					stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);					
+					stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
 				};
 			}.start();
-			
+
 			return;
 		}
 
@@ -383,9 +383,6 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 				stub.startPeriodicDiscovery();
 			};
 		}.start();
-
-		
-		
 
 		// new HandlerThread("BluetoothBroadcastReceiver") {
 		//

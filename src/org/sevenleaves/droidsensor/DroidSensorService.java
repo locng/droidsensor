@@ -150,6 +150,7 @@ public class DroidSensorService extends Service implements
 			// nop.
 		}
 
+		_receiver = null;
 		hideNotification();
 
 		_started = false;
@@ -233,8 +234,8 @@ public class DroidSensorService extends Service implements
 
 	public void onRemoteDeviceDisappeared(Context context, String address) {
 
+		//TODO ここではフラグをたてるだけで、一定時間たったら消すような処理にすること。
 		_devices.remove(address);
-		// showDeviceDisappeared(address);
 	}
 
 	private boolean isDiscoverable(BluetoothDeviceStub bluetooth) {
@@ -310,7 +311,17 @@ public class DroidSensorService extends Service implements
 			// Toast.LENGTH_SHORT).show();
 			// }
 			// });
-			Log.e("DroidSensorService", e.getLocalizedMessage());
+
+			if (e.getStatusCode() == 401) {
+
+				String error = "Could not authenticate you.";
+				String pref = "Error from Twitter:";
+
+				showDeviceFound(pref + error);
+			}
+
+			Log.e("DroidSensorService", Integer.toString(e.getStatusCode()));
+			// Log.e("DroidSensorService", e.getgetLocalizedMessage());
 			return;
 		}
 

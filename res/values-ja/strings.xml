@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
-    <string name="app_name">すれちがったー</string>
-    <string name="service_name">すれちがったー</string>
-    <string name="button_bind">すれ違い通信を開始します</string>
-    <string name="button_unbind">すれ違い通信を終了します</string>
-    
-    <string name="template_user">. @$id とすれちがったなう$tags</string>
-    
-    <string name="template_device">$id とすれちがったなう$tags</string>
 
-    <!-- new  -->
-    <string name="menu_discover">すれ違い通信を開始</string>
-    <string name="menu_stop_discover">すれ違い通信を終了</string>
-    <string name="menu_settings">設定</string>
-    
-    <string name="default_message">[MENU] &gt; [すれ違い通信を開始]　で通信を開始します</string>
+	<string name="app_name">すれちがったー</string>
+	<string name="service_name">すれちがったー</string>
+	<string name="button_bind">すれ違い通信を開始します</string>
+	<string name="button_unbind">すれ違い通信を終了します</string>
+
+	<string name="template_user">. @$id とすれちがったなう$tags</string>
+
+	<string name="template_device">$id とすれちがったなう$tags</string>
+
+	<!-- new  -->
+	<string name="menu_discover">すれ違い通信を開始</string>
+	<string name="menu_stop_discover">すれ違い通信を終了</string>
+	<string name="menu_settings">設定</string>
+
+	<string name="default_message">[MENU] &gt; [すれ違い通信を開始] で通信を開始します</string>
 
 	<string name="twitter_id_title">Twitter ID</string>
 	<string name="twitter_id_summary">Twitterアカウントのユーザー名</string>
@@ -32,41 +32,44 @@
 	<string name="second_twitter_password_title">Password</string>
 	<string name="second_twitter_password_summary">追加のアカウントのパスワード</string>
 
-    <string name="twitter_list_title">Twitter User</string>
-    <string name="twitter_list_summary">Twitterユーザーとすれ違った時につぶやくアカウント</string>
-    <string name="twitter_list_dialogtitle">Select Account</string>
-    
-    <string-array name="twitter_list_entries">
-        <item>基本のアカウント</item>
-        <item>追加のアカウント</item>
-        <item>両方</item>
-    </string-array>
-    <string-array name="twitter_list_entryvalues">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
+	<string name="twitter_list_title">Twitter User</string>
+	<string name="twitter_list_summary">Twitterユーザーとすれ違った時につぶやくアカウント</string>
+	<string name="twitter_list_dialogtitle">Select Account</string>
 
-    <string name="device_list_title">Device Name</string>
-    <string name="device_list_summary">デバイスとすれ違った時につぶやくアカウント</string>
-    <string name="device_list_dialogtitle">Select Account</string>
-    
-    <string-array name="device_list_entries">
-        <item>基本のアカウント</item>
-        <item>追加のアカウント</item>
-        <item>両方</item>
-        <!-- 
-        <item>Only Notification</item>
-        -->
-    </string-array>
+	<string-array name="twitter_list_entries">
+		<item>基本のアカウント</item>
+		<item>追加のアカウント</item>
+		<!-- 
+		<item>両方</item>
+		-->
+	</string-array>
+	<string-array name="twitter_list_entryvalues">
+		<item>1</item>
+		<item>2</item>
+		<!-- 
+		<item>2</item>
+		-->
+	</string-array>
 
-    <string-array name="device_list_entryvalues">
-        <item>0</item>
-        <item>1</item>
+	<string name="device_list_title">Device Name</string>
+	<string name="device_list_summary">デバイスとすれ違った時につぶやくアカウント</string>
+	<string name="device_list_dialogtitle">Select Account</string>
+
+	<string-array name="device_list_entries">
+		<item>基本のアカウント</item>
+		<item>追加のアカウント</item>
+		<!--
+			<item>両方</item> <item>Only Notification</item>
+		-->
+	</string-array>
+
+	<string-array name="device_list_entryvalues">
+		<item>1</item>
+		<item>2</item>
+		<!-- 
         <item>2</item>
-        <!-- 
         <item>3</item>
         -->
-    </string-array>
-    
+	</string-array>
+
 </resources>

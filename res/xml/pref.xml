@@ -61,7 +61,7 @@
 					android:title="@string/twitter_list_title"
 					android:summary="@string/twitter_list_summary"
 					android:dialogTitle="@string/twitter_list_dialogtitle"
-					android:defaultValue="0"
+					android:defaultValue="1"
 					android:entries="@array/twitter_list_entries"
 					android:entryValues="@array/twitter_list_entryvalues" />
 
@@ -70,7 +70,7 @@
 					android:title="@string/device_list_title"
 					android:summary="@string/device_list_summary"
 					android:dialogTitle="@string/device_list_dialogtitle"
-					android:defaultValue="0"
+					android:defaultValue="1"
 					android:entries="@array/device_list_entries"
 					android:entryValues="@array/device_list_entryvalues" />
 
