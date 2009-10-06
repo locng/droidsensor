@@ -337,7 +337,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(final Context context, final Intent intent) {
 
-		// Log.d("BluetoothBroadcastReceiver", intent.getAction());
+		Log.d("BluetoothBroadcastReceiver", intent.getAction());
 
 		final String action = intent.getAction();
 
@@ -346,7 +346,7 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 			return;
 		}
 
-		new Thread("BluetoothBroadcastReceiver") {
+		new Thread() {
 
 			@Override
 			public void run() {
@@ -360,11 +360,13 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 	public synchronized void addListener(BluetoothDeviceListener listener) {
 
-		if (_listeners.contains(listener)) {
+		// if (_listeners.contains(listener)) {
+		//
+		// return;
+		// }
+		// 　サービスが死んでインスタンスが変わると二重登録されてしまうの巻.
 
-			return;
-		}
-
+		_listeners.clear();
 		_listeners.add(listener);
 	}
 
@@ -379,26 +381,12 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 		if (stub.getScanMode() != SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 
-			new HandlerThread("BluetoothBroadcastReceiver") {
-
-				@Override
-				public void run() {
-
-					stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
-				};
-			}.start();
+			stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
 
 			return;
 		}
 
-		new HandlerThread("BluetoothBroadcastReceiver") {
-
-			@Override
-			public void run() {
-
-				stub.startPeriodicDiscovery();
-			};
-		}.start();
+		stub.startPeriodicDiscovery();
 
 		// new HandlerThread("BluetoothBroadcastReceiver") {
 		//
@@ -414,15 +402,8 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 		final BluetoothDeviceStub stub = getStub(context);
 
-		new HandlerThread("BluetoothBroadcastReceiver") {
-
-			@Override
-			public void run() {
-
-				stub.stopPeriodicDiscovery();
-				stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
-			};
-		}.start();
+		stub.stopPeriodicDiscovery();
+		stub.setScanMode(SCAN_MODE_CONNECTABLE_DISCOVERABLE);
 
 		// new HandlerThread("BluetoothBroadcastReceiver") {
 		//
@@ -488,6 +469,13 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
 
 			settings.save(stub);
 		}
+
+		restart(context);
+	}
+
+	public void restart(final Context context) {
+
+		BluetoothDeviceStub stub = getStub(context);
 
 		if (stub.isEnabled()) {
 

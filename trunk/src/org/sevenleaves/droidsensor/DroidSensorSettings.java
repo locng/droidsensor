@@ -98,6 +98,10 @@ public class DroidSensorSettings {
 
 	private String _deviceTemplate;
 
+	private String _passedDeviceTemplate;
+
+	private String _passedDeviceAgainTemplate;
+
 	private String _tags;
 
 	private static final DroidSensorSettings SINGLETON = new DroidSensorSettings();
@@ -143,45 +147,11 @@ public class DroidSensorSettings {
 		_apiUrl = context.getString(R.string.property_server_url);
 		_userTemplate = context.getString(R.string.template_user);
 		_deviceTemplate = context.getString(R.string.template_device);
+		_passedDeviceTemplate = context
+				.getString(R.string.template_passed_device);
+		_passedDeviceAgainTemplate = context
+				.getString(R.string.template_passed_device_again);
 		_tags = context.getString(R.string.tags);
-	}
-
-	@Override
-	public String toString() {
-
-		StringBuilder b = new StringBuilder();
-		b.append("twitterId=");
-		b.append(_twitterId);
-		b.append(',');
-		b.append("twitterPassword=");
-		b.append(_twitterPassword);
-		b.append(',');
-		b.append("allBluetoothDevices=");
-		b.append(_allBluetoothDevices);
-		b.append(',');
-		b.append("optionalTwitterId=");
-		b.append(_optionalTwitterId);
-		b.append(',');
-		b.append("optionalTwitterPassword=");
-		b.append(_optionalTwitterPassword);
-		b.append(',');
-		b.append("dispathUser=");
-		b.append(_dispatchUser);
-		b.append(',');
-		b.append("dispatchDevice=");
-		b.append(_dispatchDevice);
-		b.append(',');
-		b.append("apiUrl=");
-		b.append(_apiUrl);
-		b.append(',');
-		b.append("userTemplate=");
-		b.append(_userTemplate);
-		b.append(',');
-		b.append("deviceTemplate=");
-		b.append(_deviceTemplate);
-		String res = b.toString();
-
-		return res;
 	}
 
 	public String getTwitterId() {
@@ -242,6 +212,22 @@ public class DroidSensorSettings {
 	public void setDeviceTemplate(String deviceTemplate) {
 
 		_deviceTemplate = deviceTemplate;
+	}
+
+	public String getPassedDeviceTemplate() {
+		return _passedDeviceTemplate;
+	}
+
+	public void setPassedDeviceTemplate(String passedDeviceTemplate) {
+		_passedDeviceTemplate = passedDeviceTemplate;
+	}
+
+	public String getPassedDeviceAgainTemplate() {
+		return _passedDeviceAgainTemplate;
+	}
+
+	public void setPassedDeviceAgainTemplate(String passedDeviceAgainTemplate) {
+		_passedDeviceAgainTemplate = passedDeviceAgainTemplate;
 	}
 
 	public String getTags() {

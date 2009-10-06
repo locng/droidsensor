@@ -163,6 +163,19 @@ abstract class TwitterUtils {
 			isUser = false;
 		}
 
+		if (target != null && target.startsWith("@")) {
+
+			target = target.substring(1);
+			template = settings.getPassedDeviceTemplate();
+
+			if (target.equals(settings.getTwitterId())) {
+
+				template = settings.getPassedDeviceAgainTemplate();
+			}
+
+			isUser = false;
+		}
+
 		String forNotify;
 
 		String text = template.replace("$id", target);
@@ -175,9 +188,21 @@ abstract class TwitterUtils {
 		// text = text.replace("$name", name);
 		// }
 
+		if (text.contains("$device")) {
+
+			String name = device.getName();
+
+			if (name == null) {
+
+				return null;
+			}
+
+			text = text.replace("$device", device.getName());
+		}
+
 		forNotify = text;
 
-		if (template.contains("$tags")) {
+		if (text.contains("$tags")) {
 
 			text = text.replace("$tags",
 					(settings.getTags().startsWith(" ") ? "" : " ")

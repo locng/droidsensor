@@ -244,7 +244,7 @@ public class DroidSensorActivity extends ListActivity {
 			_service.stopService();
 		} catch (RemoteException e) {
 
-			_service = null;
+			; // nop.
 		}
 	}
 

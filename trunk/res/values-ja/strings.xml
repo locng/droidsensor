@@ -9,6 +9,8 @@
 	<string name="template_user">. @$id とすれちがったなう$tags</string>
 
 	<string name="template_device">$id とすれちがったなう$tags</string>
+	<string name="template_passed_device">. @$id がすれちがった$deviceとすれちがったなう$tags</string>
+	<string name="template_passed_device_again">また$deviceとすれちがったなう$tags</string>
 
 	<!-- new  -->
 	<string name="menu_discover">すれ違い通信を開始</string>
