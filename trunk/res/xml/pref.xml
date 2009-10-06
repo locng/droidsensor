@@ -54,7 +54,7 @@
 
 			</PreferenceCategory>
 
-			<PreferenceCategory android:title="Dispatch Settings.">
+			<PreferenceCategory android:title="Dispatch Settings">
 
 				<ListPreference
 					android:key="droidsensor_dispatch_user"
@@ -75,13 +75,20 @@
 					android:entryValues="@array/device_list_entryvalues" />
 
 			</PreferenceCategory>
+
+			<PreferenceCategory android:title="Misc">
+
+				<CheckBoxPreference android:key="droidsensor_toggle_bluetooth"
+					android:title="@string/toggle_bluetooth_title"
+					android:summary="@string/toggle_bluetooth_summary" />
+
+			</PreferenceCategory>
 			
-		</PreferenceScreen>
+		</PreferenceScreen>		
 
 	</PreferenceCategory>
 
-
-	<!-- 
+	
 	<PreferenceCategory android:title="Notification Settings">
 
 		<CheckBoxPreference android:key="droidsensor_notification_vibration"
@@ -91,6 +98,6 @@
 			android:title="LED Flash" />
 
 	</PreferenceCategory>
-	-->
+
 	
 </PreferenceScreen>

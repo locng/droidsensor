@@ -89,4 +89,8 @@
         -->
     </string-array>
     
+    
+	<string name="toggle_bluetooth_title">Toggle Bluetooth</string>
+	<string name="toggle_bluetooth_summary">Toggle bluetooth at constant intervals(for Donut bug)</string>
+    
 </resources>

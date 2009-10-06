@@ -35,6 +35,8 @@ public class DroidSensorSettings {
 	public static final String DISPATCH_USER = "droidsensor_dispatch_user";
 
 	public static final String DISPATCH_DEVICE = "droidsensor_dispatch_device";
+	
+	public static final String TOGGLE_BLUETOOTH = "droidsensor_toggle_bluetooth";
 
 	private String _twitterId;
 
@@ -49,6 +51,8 @@ public class DroidSensorSettings {
 	private int _dispatchUser;
 
 	private int _dispatchDevice;
+	
+	private boolean _toggleBluetooth;
 
 	public int getDispatchDevice() {
 		return _dispatchDevice;
@@ -151,6 +155,8 @@ public class DroidSensorSettings {
 				.getString(R.string.template_passed_device);
 		_passedDeviceAgainTemplate = context
 				.getString(R.string.template_passed_device_again);
+		_toggleBluetooth = prefs.getBoolean(TOGGLE_BLUETOOTH, false);
+		
 		_tags = context.getString(R.string.tags);
 	}
 
@@ -228,6 +234,14 @@ public class DroidSensorSettings {
 
 	public void setPassedDeviceAgainTemplate(String passedDeviceAgainTemplate) {
 		_passedDeviceAgainTemplate = passedDeviceAgainTemplate;
+	}
+
+	public boolean isToggleBluetooth() {
+		return _toggleBluetooth;
+	}
+
+	public void setToggleBluetooth(boolean toggleBluetooth) {
+		_toggleBluetooth = toggleBluetooth;
 	}
 
 	public String getTags() {
