@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <!-- commons -->
-    <!-- 
-    <string name="tags">#dsdebug</string>
-    -->
    	
     <string name="tags">#droidsensor</string>
     
     
+    
 	<string name="property_server_url">http://droidsensor.appspot.com/api</string>
+	
+	<!-- 
+	<string name="property_server_url">http://192.168.0.1:8080/api</string>
+    -->
     
     <!-- i18n -->
     <string name="app_name">Droid Sensor</string>
@@ -20,6 +21,8 @@
     <string name="template_user">Passed by \@$id .$tags</string>
     
 	<string name="template_device">Passed by $id .$tags</string>
+	<string name="template_passed_device">Passed by $device that passed by @$id .$tags</string>
+	<string name="template_passed_device_again">Passed by $device again.$tags</string>
 	    
     <!-- new -->
     <string name="menu_discover">Start Discover</string>

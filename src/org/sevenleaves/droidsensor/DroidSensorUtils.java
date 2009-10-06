@@ -33,12 +33,12 @@ abstract class DroidSensorUtils {
 
 	private static final int RETRY_COUNT = 3;
 
-	private static final long RETRY_INTERVAL = 5;
+	private static final long RETRY_INTERVAL = 3;
 
 	public static String encodeString(String str) throws Exception {
 
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		byte[] input = str.getBytes("utf-8");
+		byte[] input = str.toUpperCase().getBytes("utf-8");
 		md.update(input);
 		byte[] digest = md.digest();
 
@@ -62,7 +62,7 @@ abstract class DroidSensorUtils {
 		return res;
 	}
 
-	public static String getTwitterId(String apiUrl, String address) {
+	public static String getTwitterId(String apiUrl, String address, String user) {
 
 		String res = null;
 
@@ -70,7 +70,7 @@ abstract class DroidSensorUtils {
 
 			try {
 
-				res = getTwitterIdInternal(apiUrl, address);
+				res = getTwitterIdInternal(apiUrl, address, user);
 
 				break;
 			} catch (Exception e) {
@@ -98,7 +98,6 @@ abstract class DroidSensorUtils {
 			try {
 
 				putTwitterIdInternal(apiUrl, address, id);
-
 				res = true;
 
 				break;
@@ -118,7 +117,7 @@ abstract class DroidSensorUtils {
 		return res;
 	}
 
-	public static void putTwitterIdInternal(String apiUrl, String address,
+	public static boolean putTwitterIdInternal(String apiUrl, String address,
 			String id) {
 
 		HttpClient client = new DefaultHttpClient();
@@ -131,7 +130,7 @@ abstract class DroidSensorUtils {
 			encoded = DroidSensorUtils.encodeString(address);
 		} catch (Exception e) {
 
-			throw new RuntimeException(e);
+			return false;
 		}
 
 		HttpGet request = new HttpGet(apiUrl + "?a=" + encoded + "&u=" + id);
@@ -149,21 +148,21 @@ abstract class DroidSensorUtils {
 				// return;
 				// }
 
-				throw new RuntimeException("HTTP_STATUS_CODE is "
-						+ status.getStatusCode());
+				return false;
 			}
 
-			return;
+			return true;
 		} catch (Exception e) {
 
 			request.abort();
 
-			throw new RuntimeException(e);
+			return false;
 		}
 
 	}
 
-	public static String getTwitterIdInternal(String apiUrl, String address) {
+	public static String getTwitterIdInternal(String apiUrl, String address,
+			String user) {
 
 		HttpClient client = new DefaultHttpClient();
 
@@ -175,10 +174,10 @@ abstract class DroidSensorUtils {
 			encoded = DroidSensorUtils.encodeString(address);
 		} catch (Exception e) {
 
-			throw new RuntimeException(e);
+			return null;
 		}
 
-		HttpGet request = new HttpGet(apiUrl + "?a=" + encoded);
+		HttpGet request = new HttpGet(apiUrl + "?a=" + encoded + "&u=@" + user);
 
 		request.setHeader("User-Agent", client.getClass().getSimpleName());
 
@@ -186,15 +185,11 @@ abstract class DroidSensorUtils {
 			HttpResponse response = client.execute(request);
 			StatusLine status = response.getStatusLine();
 
-			if (status.getStatusCode() != 200) {
+			if (status.getStatusCode() != 200 && status.getStatusCode() != 404) {
 
-				if (status.getStatusCode() == 404) {
-
-					return null;
-				}
-
-				throw new RuntimeException("HTTP_STATUS_CODE is "
-						+ status.getStatusCode());
+				return null;
+				// throw new RuntimeException("HTTP_STATUS_CODE is "
+				// + status.getStatusCode());
 			}
 
 			HttpEntity entity = response.getEntity();
@@ -211,12 +206,23 @@ abstract class DroidSensorUtils {
 
 			String name = new String(baos.toByteArray(), "utf-8");
 
+			if (name == null || name.trim().length() == 0) {
+
+				return null;
+			}
+
+			if (status.getStatusCode() == 404) {
+
+				name = "@" + name;
+			}
+
 			return name;
 		} catch (Exception e) {
 
 			request.abort();
 
-			throw new RuntimeException(e);
+			return null;
+			// throw new RuntimeException(e);
 		}
 
 	}

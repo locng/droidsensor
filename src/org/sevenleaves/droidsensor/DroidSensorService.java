@@ -43,11 +43,12 @@ import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 public class DroidSensorService extends Service implements
 		BluetoothDeviceListener {
 
-	private static final long INTERVAL_SECONDS = 120L;
+	private static final long INTERVAL_SECONDS = 10L;
 
 	private BluetoothBroadcastReceiver _receiver;
 
@@ -151,6 +152,7 @@ public class DroidSensorService extends Service implements
 		Log.d("DroidSensorService", "service create");
 
 		super.onCreate();
+		// setForeground(true);
 	}
 
 	public void stopService() {
@@ -176,6 +178,8 @@ public class DroidSensorService extends Service implements
 	public void onStart(Intent intent, int startId) {
 
 		super.onStart(intent, startId);
+
+		Log.d("DroidSensorService", "onStart");
 
 		if (isStopAction(intent)) {
 
@@ -205,7 +209,7 @@ public class DroidSensorService extends Service implements
 
 				// callLater(DroidSensorService.this, IDroidSensorService.class,
 				// INTERVAL_SECONDS);
-				callLater(DroidSensorService.this, DroidSensorService.class,
+				callLater(DroidSensorService.this, IDroidSensorService.class,
 						INTERVAL_SECONDS);
 			}
 		}
@@ -227,7 +231,10 @@ public class DroidSensorService extends Service implements
 			// nop.
 		}
 
-		hideNotification();
+		_receiver = null;
+		_started = false;
+
+		// hideNotification();
 	}
 
 	public void onDisabled(Context context) {
@@ -240,8 +247,26 @@ public class DroidSensorService extends Service implements
 				.createBluetoothServiceStub(this);
 		DroidSensorSettings settings = DroidSensorSettings.getInstance(this);
 		String address = stub.getAddress();
-		DroidSensorUtils.putTwitterId(settings.getApiUrl(), address, settings
-				.getTwitterId());
+
+		try {
+
+			// second-accountは登録しない。(address同じだから)
+
+			boolean succeed = DroidSensorUtils.putTwitterId(settings
+					.getApiUrl(), address, settings.getTwitterId());
+
+			if (succeed) {
+
+				return;
+			}
+		} catch (Exception e) {
+
+			;
+		}
+
+		Toast.makeText(this, getString(R.string.app_name)
+				+ ": service restart.", Toast.LENGTH_LONG);
+		stopService();
 	}
 
 	public void onRemoteDeviceDisappeared(Context context, String address) {
@@ -280,6 +305,13 @@ public class DroidSensorService extends Service implements
 			return;
 		}
 
+		//device-found, name-updateで確実にデバイス名がとれる。
+		//それぞれでtwitterIDを問い合わせると、最後のすれ違いユーザーを自分で上書きしてしまう。
+		if (device.getName() == null) {
+
+			return;
+		}
+
 		BluetoothDeviceStub bluetooth = BluetoothDeviceStubFactory
 				.createBluetoothServiceStub(DroidSensorService.this);
 
@@ -291,8 +323,8 @@ public class DroidSensorService extends Service implements
 
 		DroidSensorSettings settings = DroidSensorSettings.getInstance(context);
 
-		String id = DroidSensorUtils
-				.getTwitterId(settings.getApiUrl(), address);
+		String id = DroidSensorUtils.getTwitterId(settings.getApiUrl(),
+				address, settings.getTwitterId());
 
 		if (!settings.isAllBluetoothDevices() && id == null) {
 
