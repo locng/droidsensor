@@ -76,6 +76,7 @@
 
 			</PreferenceCategory>
 
+			<!-- 
 			<PreferenceCategory android:title="Misc">
 
 				<CheckBoxPreference android:key="droidsensor_toggle_bluetooth"
@@ -83,12 +84,12 @@
 					android:summary="@string/toggle_bluetooth_summary" />
 
 			</PreferenceCategory>
-			
+			-->
 		</PreferenceScreen>		
 
 	</PreferenceCategory>
 
-	
+	<!-- 
 	<PreferenceCategory android:title="Notification Settings">
 
 		<CheckBoxPreference android:key="droidsensor_notification_vibration"
@@ -98,6 +99,6 @@
 			android:title="LED Flash" />
 
 	</PreferenceCategory>
-
+	-->
 	
 </PreferenceScreen>
