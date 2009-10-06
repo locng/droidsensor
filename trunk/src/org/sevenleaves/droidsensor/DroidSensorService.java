@@ -191,17 +191,13 @@ public class DroidSensorService extends Service implements
 
 			_started = true;
 
-			if (ServiceUtils.isStartService(intent)) {
-
-				showNotification();
-			}
-
 			Log.d("DroidSensorService", "running");
 
 			if (_started) {
 
 				if (_receiver == null) {
 
+					showNotification();
 					_receiver = BluetoothBroadcastReceiver.getInstance();
 					_receiver.addListener(this);
 					_receiver.registerSelf(this, SETTINGS);
@@ -250,7 +246,7 @@ public class DroidSensorService extends Service implements
 
 	public void onRemoteDeviceDisappeared(Context context, String address) {
 
-		//TODO ここではフラグをたてるだけで、一定時間たったら消すような処理にすること。
+		// TODO ここではフラグをたてるだけで、一定時間たったら消すような処理にすること。
 		_devices.remove(address);
 	}
 
