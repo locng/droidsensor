@@ -56,6 +56,8 @@ public class DroidSensorService extends Service implements
 
 	private volatile boolean _started;
 
+	private boolean _registered;
+
 	private final RemoteCallbackList<IDroidSensorCallbackListener> _listeners = new RemoteCallbackList<IDroidSensorCallbackListener>();
 
 	private final Set<String> _devices = Collections
@@ -209,7 +211,7 @@ public class DroidSensorService extends Service implements
 
 				// callLater(DroidSensorService.this, IDroidSensorService.class,
 				// INTERVAL_SECONDS);
-				callLater(DroidSensorService.this, IDroidSensorService.class,
+				callLater(DroidSensorService.this, DroidSensorService.class,
 						INTERVAL_SECONDS);
 			}
 		}
@@ -243,6 +245,11 @@ public class DroidSensorService extends Service implements
 
 	public void onEnabled(Context context) {
 
+		if (_registered) {
+
+			return;
+		}
+
 		BluetoothDeviceStub stub = BluetoothDeviceStubFactory
 				.createBluetoothServiceStub(this);
 		DroidSensorSettings settings = DroidSensorSettings.getInstance(this);
@@ -252,10 +259,14 @@ public class DroidSensorService extends Service implements
 
 			// second-accountは登録しない。(address同じだから)
 
+			Log.d("DroidSensorService", "register twitter ID");
+
 			boolean succeed = DroidSensorUtils.putTwitterId(settings
 					.getApiUrl(), address, settings.getTwitterId());
 
 			if (succeed) {
+
+				_registered = true;
 
 				return;
 			}
@@ -305,8 +316,8 @@ public class DroidSensorService extends Service implements
 			return;
 		}
 
-		//device-found, name-updateで確実にデバイス名がとれる。
-		//それぞれでtwitterIDを問い合わせると、最後のすれ違いユーザーを自分で上書きしてしまう。
+		// device-found, name-updateで確実にデバイス名がとれる。
+		// それぞれでtwitterIDを問い合わせると、最後のすれ違いユーザーを自分で上書きしてしまう。
 		if (device.getName() == null) {
 
 			return;
@@ -326,7 +337,8 @@ public class DroidSensorService extends Service implements
 		String id = DroidSensorUtils.getTwitterId(settings.getApiUrl(),
 				address, settings.getTwitterId());
 
-		if (!settings.isAllBluetoothDevices() && id == null) {
+		if (!settings.isAllBluetoothDevices()
+				&& (id == null || id.trim().length() == 0 || id.startsWith("@"))) {
 
 			_devices.add(address);
 
