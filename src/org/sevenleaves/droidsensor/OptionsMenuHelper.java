@@ -30,7 +30,7 @@ import android.view.MenuItem;
  * @author esmasui@gmail.com
  * 
  */
-class OptionsMenuHelper {
+public class OptionsMenuHelper {
 
 	interface MenuItemCallback {
 
@@ -55,11 +55,11 @@ class OptionsMenuHelper {
 	}
 
 	public void menuOpened(Menu menu) {
-		
+
 		int size = _callbacks.size();
-		
-		for(int i = 0; i < size; ++i){
-			
+
+		for (int i = 0; i < size; ++i) {
+
 			MenuItem item = _menu.getItem(i);
 			MenuItemCallback callback = _callbacks.get(i);
 			callback.onOpend(item);
@@ -73,7 +73,7 @@ class OptionsMenuHelper {
 		callback.onSelected(item);
 	}
 
-	public MenuItem addItem(MenuItemCallback callback, int titleId, int iconId) {
+	public MenuItem addItem(int titleId, int iconId, MenuItemCallback callback) {
 
 		Intent intent = new Intent(OptionsMenuHelper.class.getName());
 		_callbacks.add(callback);
@@ -81,14 +81,15 @@ class OptionsMenuHelper {
 		return addItem(callback, intent, titleId, iconId);
 	}
 
-	private MenuItem addItem(MenuItemCallback callback, Intent intent, int titleId, int iconId) {
+	private MenuItem addItem(MenuItemCallback callback, Intent intent,
+			int titleId, int iconId) {
 
 		String title = _context.getString(titleId);
 		MenuItem item = _menu.add(0, _itemId++, 0, title);
 		item.setIntent(intent);
 		item.setIcon(iconId);
 		callback.onOpend(item);
-		
+
 		return item;
 	}
 }

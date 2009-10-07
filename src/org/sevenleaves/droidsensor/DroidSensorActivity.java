@@ -19,7 +19,6 @@ package org.sevenleaves.droidsensor;
 import org.sevenleaves.droidsensor.OptionsMenuHelper.MenuItemCallback;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
@@ -31,7 +30,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 
 /**
@@ -40,9 +38,7 @@ import android.view.MenuItem;
  * @author smasui@gmail.com
  * 
  */
-public class DroidSensorActivity extends ListActivity {
-
-	private OptionsMenuHelper _menuHelper;
+public class DroidSensorActivity extends DroidSensorActivityBase {
 
 	private ProgressDialog _progressDialog;
 
@@ -63,36 +59,6 @@ public class DroidSensorActivity extends ListActivity {
 		}
 	};
 
-	private boolean isOptionalAccountUses(DroidSensorSettings settings) {
-
-		if (settings.getDispatchUser() > 1) {
-
-			return true;
-		}
-
-		if (!settings.isAllBluetoothDevices()) {
-
-			return false;
-		}
-
-		return settings.getDispatchDevice() > 1;
-	}
-
-	private boolean isBasicAccountUses(DroidSensorSettings settings) {
-
-		if (settings.getDispatchUser() != 2) {
-
-			return true;
-		}
-
-		if (!settings.isAllBluetoothDevices()) {
-
-			return false;
-		}
-
-		return settings.getDispatchDevice() != 2;
-	}
-
 	private Runnable _bindCallback = new Runnable() {
 
 		public void run() {
@@ -101,7 +67,7 @@ public class DroidSensorActivity extends ListActivity {
 					.getInstance(DroidSensorActivity.this);
 			boolean verified = true;
 
-			boolean basicAccountUses = isBasicAccountUses(s);
+			boolean basicAccountUses = s.isBasicAccountUses();
 
 			if (basicAccountUses) {
 
@@ -109,7 +75,7 @@ public class DroidSensorActivity extends ListActivity {
 						.getTwitterPassword());
 			}
 
-			boolean optionalAccountUses = isOptionalAccountUses(s);
+			boolean optionalAccountUses = s.isOptionalAccountUses();
 
 			if (verified && optionalAccountUses) {
 
@@ -180,6 +146,20 @@ public class DroidSensorActivity extends ListActivity {
 		// setListAdapter(adapter);
 	}
 
+	@Override
+	protected void onCreateOptionMenuInternal(OptionsMenuHelper helper) {
+
+		addDiscoveryMenu(helper);
+		addSettingsMenu(helper);
+	}
+
+	@Override
+	protected void onDestroy() {
+
+		super.onDestroy();
+		unbindService(_serviceConnection);
+	};
+
 	// @Override
 	// protected void onListItemClick(ListView l, View v, int position, long id)
 	// {
@@ -248,96 +228,111 @@ public class DroidSensorActivity extends ListActivity {
 		}
 	}
 
-	private MenuItemCallback _discoverMenuCallback = new MenuItemCallback() {
+	/**
+	 * Discoverメニューが開かれた時に呼ばれるコールバック.
+	 * 
+	 * @param item
+	 */
+	private void onDiscoveryMenuOpened(MenuItem item) {
 
-		public void onSelected(MenuItem item) {
+		boolean scanning = isServiceStarted();
 
-			boolean scanning = isServiceStarted();
+		if (scanning) {
 
-			if (scanning) {
+			item.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+			item.setTitle(R.string.menu_stop_discover);
 
-				stopService();
+			return;
+		}
 
-				return;
+		item.setIcon(android.R.drawable.ic_menu_search);
+		item.setTitle(R.string.menu_discover);
+	}
+
+	/**
+	 * Settingsメニューが開かれた時に呼ばれるコールバック.
+	 * 
+	 * @param item
+	 */
+	private void onSettingsMenuOpened(MenuItem item) {
+
+		; // nop
+	}
+
+	/**
+	 * Discoverメニューが押された時に呼ばれるコールバック.
+	 * 
+	 * @param item
+	 */
+	private void onDiscoveryMenuSelected(MenuItem item) {
+
+		boolean scanning = isServiceStarted();
+
+		if (scanning) {
+
+			stopService();
+
+			return;
+		}
+
+		startService();
+	}
+
+	/**
+	 * Settingsメニューが押された時に呼ばれるコールバック.
+	 * 
+	 * @param item
+	 */
+	private void onSettingsMenuSelected(MenuItem item) {
+
+		Intent intent = new Intent(SettingsActivity.class.getName());
+		startActivity(intent);
+	}
+
+	/**
+	 * Discoveryメニューを登録する.
+	 * 
+	 * @param helper
+	 */
+	private void addDiscoveryMenu(OptionsMenuHelper helper) {
+
+		helper.addItem(R.string.menu_discover, android.R.drawable.ic_menu_view,
+
+		new MenuItemCallback() {
+
+			public void onOpend(MenuItem item) {
+
+				onDiscoveryMenuOpened(item);
 			}
 
-			startService();
-		}
+			public void onSelected(MenuItem item) {
 
-		public void onOpend(MenuItem item) {
-
-			boolean scanning = isServiceStarted();
-
-			if (scanning) {
-
-				item.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-				item.setTitle(R.string.menu_stop_discover);
-
-				return;
+				onDiscoveryMenuSelected(item);
 			}
-
-			item.setIcon(android.R.drawable.ic_menu_search);
-			item.setTitle(R.string.menu_discover);
-		}
-	};
-
-	private MenuItemCallback _settingsMenuCallback = new MenuItemCallback() {
-
-		public void onSelected(MenuItem item) {
-
-			Intent intent = new Intent(SettingsActivity.class.getName());
-			startActivity(intent);
-		}
-
-		public void onOpend(MenuItem item) {
-
-			;// nop
-		}
-	};
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-
-		boolean res = super.onCreateOptionsMenu(menu);
-
-		if (_menuHelper == null) {
-
-			_menuHelper = new OptionsMenuHelper(DroidSensorActivity.this, menu);
-		}
-
-		onCreateOptionMenuInternal(menu);
-
-		return res;
+		});
 	}
 
-	private void onCreateOptionMenuInternal(Menu menu) {
+	/**
+	 * Settingsメニューを登録する.
+	 * 
+	 * @param helper
+	 */
+	private void addSettingsMenu(OptionsMenuHelper helper) {
 
-		_menuHelper.addItem(_discoverMenuCallback, R.string.menu_discover,
-				android.R.drawable.ic_menu_view);
+		helper.addItem(R.string.menu_settings,
+				android.R.drawable.ic_menu_preferences,
 
-		_menuHelper.addItem(_settingsMenuCallback, R.string.menu_settings,
-				android.R.drawable.ic_menu_preferences);
+				new MenuItemCallback() {
+
+					public void onOpend(MenuItem item) {
+
+						onSettingsMenuOpened(item);
+					}
+
+					public void onSelected(MenuItem item) {
+
+						onSettingsMenuSelected(item);
+					}
+				});
 	}
-
-	@Override
-	public boolean onMenuOpened(int featureId, Menu menu) {
-
-		_menuHelper.menuOpened(menu);
-
-		return true;
-	}
-
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-
-		_menuHelper.menuSelected(item);
-
-		return true;
-	}
-
-	protected void onDestroy() {
-
-		super.onDestroy();
-		unbindService(_serviceConnection);
-	};
 }
