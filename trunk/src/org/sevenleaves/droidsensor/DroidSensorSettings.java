@@ -35,7 +35,7 @@ public class DroidSensorSettings {
 	public static final String DISPATCH_USER = "droidsensor_dispatch_user";
 
 	public static final String DISPATCH_DEVICE = "droidsensor_dispatch_device";
-	
+
 	public static final String TOGGLE_BLUETOOTH = "droidsensor_toggle_bluetooth";
 
 	private String _twitterId;
@@ -51,7 +51,7 @@ public class DroidSensorSettings {
 	private int _dispatchUser;
 
 	private int _dispatchDevice;
-	
+
 	private boolean _toggleBluetooth;
 
 	public int getDispatchDevice() {
@@ -156,7 +156,7 @@ public class DroidSensorSettings {
 		_passedDeviceAgainTemplate = context
 				.getString(R.string.template_passed_device_again);
 		_toggleBluetooth = prefs.getBoolean(TOGGLE_BLUETOOTH, false);
-		
+
 		_tags = context.getString(R.string.tags);
 	}
 
@@ -253,4 +253,35 @@ public class DroidSensorSettings {
 
 		_tags = tags;
 	}
+
+	public boolean isOptionalAccountUses() {
+
+		if (getDispatchUser() > 1) {
+
+			return true;
+		}
+
+		if (!isAllBluetoothDevices()) {
+
+			return false;
+		}
+
+		return getDispatchDevice() > 1;
+	}
+
+	public boolean isBasicAccountUses() {
+
+		if (getDispatchUser() != 2) {
+
+			return true;
+		}
+
+		if (!isAllBluetoothDevices()) {
+
+			return false;
+		}
+
+		return getDispatchDevice() != 2;
+	}
+
 }
