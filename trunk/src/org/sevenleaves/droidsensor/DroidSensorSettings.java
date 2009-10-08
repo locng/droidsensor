@@ -38,6 +38,12 @@ public class DroidSensorSettings {
 
 	public static final String TOGGLE_BLUETOOTH = "droidsensor_toggle_bluetooth";
 
+	public static final String DETAIL_PASSED_USER = "droidsensor_device_detail_passed_user";
+
+	public static final String DETAIL_PASSED_ME = "droidsensor_device_detail_passed_me";
+
+	public static final String DETAIL_PASSED_NO = "droidsensor_device_detail_passed_no";
+
 	private String _twitterId;
 
 	private String _twitterPassword;
@@ -51,6 +57,12 @@ public class DroidSensorSettings {
 	private int _dispatchUser;
 
 	private int _dispatchDevice;
+
+	private boolean _detailPassedUser;
+
+	private boolean _detailPassedMe;
+
+	private boolean _detailPassedNo;
 
 	private boolean _toggleBluetooth;
 
@@ -156,6 +168,9 @@ public class DroidSensorSettings {
 		_passedDeviceAgainTemplate = context
 				.getString(R.string.template_passed_device_again);
 		_toggleBluetooth = prefs.getBoolean(TOGGLE_BLUETOOTH, false);
+		_detailPassedUser = prefs.getBoolean(DETAIL_PASSED_USER, true);
+		_detailPassedMe = prefs.getBoolean(DETAIL_PASSED_ME, true);
+		_detailPassedNo = prefs.getBoolean(DETAIL_PASSED_NO, true);
 
 		_tags = context.getString(R.string.tags);
 	}
@@ -221,26 +236,62 @@ public class DroidSensorSettings {
 	}
 
 	public String getPassedDeviceTemplate() {
+
 		return _passedDeviceTemplate;
 	}
 
 	public void setPassedDeviceTemplate(String passedDeviceTemplate) {
+
 		_passedDeviceTemplate = passedDeviceTemplate;
 	}
 
 	public String getPassedDeviceAgainTemplate() {
+
 		return _passedDeviceAgainTemplate;
 	}
 
 	public void setPassedDeviceAgainTemplate(String passedDeviceAgainTemplate) {
+
 		_passedDeviceAgainTemplate = passedDeviceAgainTemplate;
 	}
 
+	public boolean isDetailPassedUser() {
+
+		return _detailPassedUser;
+	}
+
+	public void setDetailPassedUser(boolean detailPassedUser) {
+
+		_detailPassedUser = detailPassedUser;
+	}
+
+	public boolean isDetailPassedMe() {
+
+		return _detailPassedMe;
+	}
+
+	public void setDetailPassedMe(boolean detailPassedMe) {
+
+		_detailPassedMe = detailPassedMe;
+	}
+
+	public boolean isDetailPassedNo() {
+
+		return _detailPassedNo;
+	}
+
+	public void setDetailPassedNo(boolean detailPassedNo) {
+
+		_detailPassedNo = detailPassedNo;
+	}
+
 	public boolean isToggleBluetooth() {
+
 		return _toggleBluetooth;
 	}
 
 	public void setToggleBluetooth(boolean toggleBluetooth) {
+
 		_toggleBluetooth = toggleBluetooth;
 	}
 

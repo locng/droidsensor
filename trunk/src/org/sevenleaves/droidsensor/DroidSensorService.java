@@ -166,6 +166,7 @@ public class DroidSensorService extends Service implements
 
 		Log.d("DroidSensorService", "stopService");
 		cancelImmediatly(this, DroidSensorService.class);
+		_devices.clear();
 		stopSelf();
 
 		try {
@@ -251,7 +252,7 @@ public class DroidSensorService extends Service implements
 		}
 
 		if (_droidSensorInquiry != null) {
-			
+
 			_droidSensorInquiry.cancelAll();
 			_droidSensorInquiry = null;
 		}
@@ -376,20 +377,108 @@ public class DroidSensorService extends Service implements
 
 	}
 
+	private String safeString(String str) {
+
+		if (isEmpty(str)) {
+
+			return "";
+		}
+
+		return str.trim();
+	}
+
+	private boolean isEmpty(String str) {
+
+		if (str == null) {
+
+			return true;
+		}
+
+		if (str.trim().length() == 0) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean isPassedByUser(String id, String myId) {
+
+		String s = safeString(id);
+
+		if (!s.startsWith("@")) {
+
+			return false;
+		}
+
+		return !isPassedByMe(id, myId);
+	}
+
+	private boolean isPassedByMe(String id, String myId) {
+
+		return "@".concat(myId).equals(id);
+	}
+
+	private boolean isUser(String id, String myId) {
+
+		if (isEmpty(id)) {
+
+			return false;
+		}
+
+		if (isPassedByMe(id, myId)) {
+
+			return false;
+		}
+
+		if (isPassedByUser(id, myId)) {
+
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean isDeviceWillTweet(DroidSensorSettings settings, String id) {
+
+		String myId = settings.getTwitterId();
+
+		if (isUser(id, myId)) {
+
+			return true;
+		}
+
+		if (!settings.isAllBluetoothDevices()) {
+
+			return false;
+		}
+
+		if (isPassedByUser(id, myId)) {
+
+			return settings.isDetailPassedUser();
+		}
+
+		if (isPassedByMe(id, myId)) {
+
+			return settings.isDetailPassedMe();
+		}
+
+		return settings.isDetailPassedNo();
+	}
+
 	private void tweetDeviceFound(RemoteBluetoothDevice device, String id) {
 
 		DroidSensorSettings settings = DroidSensorSettings
 				.getInstance(DroidSensorService.this);
 		String address = device.getAddress();
 
-		if (!settings.isAllBluetoothDevices()
-				&& (id == null || id.trim().length() == 0 || id.startsWith("@"))) {
+		if (!isDeviceWillTweet(settings, id)) {
 
 			_devices.add(address);
 
 			return;
 		}
-
+		
 		String tweeted;
 
 		try {

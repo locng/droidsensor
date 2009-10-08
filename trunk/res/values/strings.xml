@@ -88,6 +88,19 @@
         <item>3</item>
         -->
     </string-array>
+
+
+	<string name="device_detail_summary">Details for Device Discovery Settings</string>
+    
+	<string name="device_detail_passed_user_title">Passed by Twitter user</string>
+	<string name="device_detail_passed_user_summary">Include that passed by Twitter user</string>
+
+	<string name="device_detail_passed_me_title">Passed by Me</string>
+	<string name="device_detail_passed_me_summary">Include that passed by Me</string>
+
+	<string name="device_detail_passed_no_title">Passed by No one</string>
+	<string name="device_detail_passed_no_summary">Include that passed by No one</string>
+    
     
     
 	<string name="toggle_bluetooth_title">Toggle Bluetooth</string>
