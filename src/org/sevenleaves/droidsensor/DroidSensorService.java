@@ -39,9 +39,12 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.Handler.Callback;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -57,6 +60,8 @@ public class DroidSensorService extends Service implements
 	private volatile boolean _started;
 
 	private boolean _registered;
+
+	private DroidSensorInquiry _droidSensorInquiry;
 
 	private final RemoteCallbackList<IDroidSensorCallbackListener> _listeners = new RemoteCallbackList<IDroidSensorCallbackListener>();
 
@@ -170,6 +175,12 @@ public class DroidSensorService extends Service implements
 			// nop.
 		}
 
+		if (_droidSensorInquiry != null) {
+
+			_droidSensorInquiry.cancelAll();
+			_droidSensorInquiry = null;
+		}
+
 		_receiver = null;
 		hideNotification();
 
@@ -209,6 +220,12 @@ public class DroidSensorService extends Service implements
 					_receiver.registerSelf(this, SETTINGS);
 				}
 
+				if (_droidSensorInquiry == null) {
+
+					_droidSensorInquiry = new DroidSensorInquiry(
+							DroidSensorService.this);
+				}
+
 				// callLater(DroidSensorService.this, IDroidSensorService.class,
 				// INTERVAL_SECONDS);
 				callLater(DroidSensorService.this, DroidSensorService.class,
@@ -231,6 +248,12 @@ public class DroidSensorService extends Service implements
 			_receiver.unregisterSelf(this, SETTINGS);
 		} catch (Exception e) {
 			// nop.
+		}
+
+		if (_droidSensorInquiry != null) {
+			
+			_droidSensorInquiry.cancelAll();
+			_droidSensorInquiry = null;
 		}
 
 		_receiver = null;
@@ -316,9 +339,11 @@ public class DroidSensorService extends Service implements
 			return;
 		}
 
+		String deviceName = device.getName();
+
 		// device-found, name-updateで確実にデバイス名がとれる。
 		// それぞれでtwitterIDを問い合わせると、最後のすれ違いユーザーを自分で上書きしてしまう。
-		if (device.getName() == null) {
+		if (deviceName == null) {
 
 			return;
 		}
@@ -332,22 +357,35 @@ public class DroidSensorService extends Service implements
 			return;
 		}
 
-		DroidSensorSettings settings = DroidSensorSettings.getInstance(context);
+		DroidSensorSettings settings = DroidSensorSettings
+				.getInstance(DroidSensorService.this);
 
-		String id = DroidSensorUtils.getTwitterId(settings.getApiUrl(),
-				address, settings.getTwitterId());
+		_droidSensorInquiry.getTwitterUser(address, settings.getTwitterId(),
+				new Callback() {
+
+					public boolean handleMessage(Message msg) {
+
+						Bundle data = msg.getData();
+						String id = data
+								.getString(DroidSensorInquiry.TWITTER_USER);
+						tweetDeviceFound(device, id);
+
+						return true;
+					}
+				});
+
+	}
+
+	private void tweetDeviceFound(RemoteBluetoothDevice device, String id) {
+
+		DroidSensorSettings settings = DroidSensorSettings
+				.getInstance(DroidSensorService.this);
+		String address = device.getAddress();
 
 		if (!settings.isAllBluetoothDevices()
 				&& (id == null || id.trim().length() == 0 || id.startsWith("@"))) {
 
 			_devices.add(address);
-
-			return;
-		}
-
-		String deviceName = device.getName();
-
-		if (id == null && deviceName == null) {
 
 			return;
 		}
@@ -392,6 +430,7 @@ public class DroidSensorService extends Service implements
 		_devices.add(address);
 
 		showDeviceFound(tweeted);
+
 	}
 
 	public void onScanModeConnectable(Context context) {
