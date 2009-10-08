@@ -131,7 +131,7 @@ public abstract class ServiceUtils {
 	}
 
 	public static void cancelImmediatly(Service service, Class<?> type) {
-
+		
 		Intent si = createIntervalAction(type);
 		PendingIntent pi = PendingIntent.getService(service, 0, si, 0);
 		AlarmManager alarm = getAlarmManager(service);
