@@ -2,13 +2,14 @@ package org.sevenleaves.droidsensor;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Handler.Callback;
-import android.util.Log;
 
 public class DroidSensorInquiry {
 
@@ -17,7 +18,7 @@ public class DroidSensorInquiry {
 	public static final String TWITTER_USER = "TWITTER_USER";
 
 	private static final int DEFAULT_MAX_THREADS = 3;
-	
+
 	private static final class Inquiry {
 
 		private String _address;
@@ -78,11 +79,18 @@ public class DroidSensorInquiry {
 
 		private volatile Callback _callback;
 
+		private CancellableThread _owner;
+
 		public RequestWorker(String apiUrl, Inquiry inquiry, Callback callback) {
 
 			_apiUrl = apiUrl;
 			_inquiry = inquiry;
 			_callback = callback;
+		}
+
+		public void setOwner(CancellableThread owner) {
+
+			_owner = owner;
 		}
 
 		public void run() {
@@ -96,7 +104,9 @@ public class DroidSensorInquiry {
 				_callback.handleMessage(msg);
 			}
 
+			_running.remove(_owner);
 			_inquiries.remove(_inquiry);
+			pollAndStart();
 		}
 
 		public void cancel() {
@@ -126,7 +136,9 @@ public class DroidSensorInquiry {
 	private Set<CancellableThread> _running;
 
 	private Context _context;
-	
+
+	private Queue<CancellableThread> _queue;
+
 	private int _maxThreas = DEFAULT_MAX_THREADS;
 
 	public DroidSensorInquiry(Context context) {
@@ -142,7 +154,8 @@ public class DroidSensorInquiry {
 		initSelf();
 	}
 
-	public void getTwitterUser(String address, String user, Callback callback) {
+	public synchronized void getTwitterUser(String address, String user,
+			Callback callback) {
 
 		String apiUrl = getApiUrl();
 		Inquiry inquiry = new Inquiry(address, user);
@@ -154,9 +167,7 @@ public class DroidSensorInquiry {
 		}
 
 		RequestWorker worker = new RequestWorker(apiUrl, inquiry, callback);
-		CancellableThread th = new CancellableThread(worker);
-		_running.add(th);
-		th.start();
+		startSequentially(worker);
 	}
 
 	public void cancelAll() {
@@ -166,6 +177,7 @@ public class DroidSensorInquiry {
 			e.cancel();
 		}
 
+		_queue.clear();
 		_running.clear();
 		_inquiries.clear();
 	}
@@ -177,8 +189,35 @@ public class DroidSensorInquiry {
 		cancelAll();
 	}
 
+	private void startSequentially(RequestWorker worker) {
+
+		CancellableThread th = new CancellableThread(worker);
+		worker.setOwner(th);
+		_queue.add(th);
+
+		int threads = _running.size();
+		if (threads <= _maxThreas) {
+
+			pollAndStart();
+		}
+	}
+
+	private void pollAndStart() {
+
+		CancellableThread th = _queue.poll();
+
+		if (th == null) {
+
+			return;
+		}
+
+		_running.add(th);
+		th.start();
+	}
+
 	private void initSelf() {
 
+		_queue = new LinkedBlockingQueue<CancellableThread>();
 		_inquiries = Collections.synchronizedSet(new HashSet<Inquiry>());
 		_running = Collections
 				.synchronizedSet(new HashSet<CancellableThread>());
@@ -213,17 +252,6 @@ public class DroidSensorInquiry {
 
 	private boolean registerInquiry(Inquiry inquiry) {
 
-
-		int threads = _inquiries.size();
-
-		Log.d("DroidSensorInquiry", _inquiries.size()
-				+ " inquiries in progress");
-
-		if(threads >= _maxThreas){
-			
-			return false;
-		}
-		
 		boolean contains = _inquiries.contains(inquiry);
 
 		if (contains) {
