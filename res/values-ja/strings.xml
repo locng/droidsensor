@@ -86,6 +86,6 @@
 	<string name="device_detail_passed_no_summary">誰ともすれちがっていないデバイスをつぶやく</string>
 
 	<string name="toggle_bluetooth_title">Toggle Bluetooth</string>
-	<string name="toggle_bluetooth_summary">一定間隔でBluetoothのON/OFFを繰り返します。(Donutでスキャンを繰り返すとリスタートする現象の暫定対応)</string>
+	<string name="toggle_bluetooth_summary">一定間隔でBluetoothのON/OFFを繰り返します。</string>
 
 </resources>
