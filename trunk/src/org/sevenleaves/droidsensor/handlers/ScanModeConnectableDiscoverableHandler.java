@@ -30,12 +30,6 @@ public class ScanModeConnectableDiscoverableHandler extends
 		return BluetoothState.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 	}
 
-	// TODO implements onRemoteDeviceFound
-
-	// TODO implements onRemoteDeviceDisapppeared
-
-	// TODO implements onRemoteNameUpdate
-
 	@Override
 	public void onScanModeChangedConnectable() {
 
