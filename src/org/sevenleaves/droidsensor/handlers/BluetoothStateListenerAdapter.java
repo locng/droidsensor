@@ -44,6 +44,9 @@ import android.util.Log;
  */
 public class BluetoothStateListenerAdapter extends BroadcastReceiver {
 
+	/**
+	 * Logのカテゴリ.
+	 */
 	private static final String TAG = BluetoothStateListenerAdapter.class
 			.getSimpleName();
 
