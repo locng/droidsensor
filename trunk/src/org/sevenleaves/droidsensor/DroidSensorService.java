@@ -29,7 +29,7 @@ import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStubFactory;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothSettings;
 import org.sevenleaves.droidsensor.handlers.BluetoothEventControllerImpl;
-import org.sevenleaves.droidsensor.handlers.BluetoothEventListener;
+import org.sevenleaves.droidsensor.handlers.BluetoothStateListenerAdapter;
 import org.sevenleaves.droidsensor.handlers.BluetoothState;
 import org.sevenleaves.droidsensor.handlers.DiscoveryCompletedHandler;
 import org.sevenleaves.droidsensor.handlers.DiscoveryStartedHandler;
@@ -51,13 +51,17 @@ import android.os.RemoteException;
 import android.os.Handler.Callback;
 import android.util.Log;
 
-public class DroidSensorService extends DroidSensorServiceBase {
+/**
+ * @author esmasui@gmail.com
+ *
+ */
+public class DroidSensorService extends ServiceSupport {
 
 	private static final String TAG = DroidSensorService.class.getSimpleName();
 	
 	private static final long INTERVAL_SECONDS = 10L;
 
-	private BluetoothEventListener _receiver;
+	private BluetoothStateListenerAdapter _receiver;
 
 	private BluetoothEventControllerImpl _controller;
 
@@ -249,10 +253,10 @@ public class DroidSensorService extends DroidSensorServiceBase {
 		}
 	}
 
-	private BluetoothEventListener createReceiver(
+	private BluetoothStateListenerAdapter createReceiver(
 			BluetoothEventControllerImpl controller) {
 
-		BluetoothEventListener res = new BluetoothEventListener();
+		BluetoothStateListenerAdapter res = new BluetoothStateListenerAdapter();
 		res.setHandler(controller);
 
 		return res;

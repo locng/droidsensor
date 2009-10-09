@@ -22,6 +22,10 @@ import java.util.List;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 abstract class TwitterUtils {
 
 	private static boolean isEmpty(String s) {

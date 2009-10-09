@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2009, DroidSensor - http://code.google.com/p/droidsensor/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.sevenleaves.droidsensor.handlers;
 
 import static org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub.BLUETOOTH_STATE_OFF;
@@ -12,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.sevenleaves.droidsensor.bluetooth.BluetoothIntent;
-import org.sevenleaves.droidsensor.bluetooth.BluetoothSettings;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 
 import android.content.BroadcastReceiver;
@@ -21,9 +36,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
-public class BluetoothEventListener extends BroadcastReceiver {
+/**
+ * Bluetoothインテントによる通知を{@link BluetoothStateHandler}にdispatchするためのアダプタクラス.
+ * 
+ * @author esmasui@gmail.com
+ * 
+ */
+public class BluetoothStateListenerAdapter extends BroadcastReceiver {
 
-	private static final String TAG = "BluetoothEventListener";
+	private static final String TAG = BluetoothStateListenerAdapter.class
+			.getSimpleName();
 
 	private interface IntentHandler {
 
@@ -32,14 +54,14 @@ public class BluetoothEventListener extends BroadcastReceiver {
 
 	private interface HandlerInvoker {
 
-		void invokeHandler(BluetoothEventHandler hanlder);
+		void invokeHandler(BluetoothStateHandler hanlder);
 	}
 
 	private Map<BluetoothIntent, IntentHandler> _handlerMapping;
 
-	private BluetoothEventHandler _handler;
+	private BluetoothStateHandler _handler;
 
-	public BluetoothEventListener() {
+	public BluetoothStateListenerAdapter() {
 
 		int size = BluetoothIntent.values().length;
 		_handlerMapping = new ConcurrentHashMap<BluetoothIntent, IntentHandler>(
@@ -91,7 +113,7 @@ public class BluetoothEventListener extends BroadcastReceiver {
 		context.registerReceiver(this, filter);
 	}
 
-	public void setHandler(BluetoothEventHandler handler) {
+	public void setHandler(BluetoothStateHandler handler) {
 
 		_handler = handler;
 	}
@@ -120,7 +142,7 @@ public class BluetoothEventListener extends BroadcastReceiver {
 						invokeHandler(new HandlerInvoker() {
 
 							public void invokeHandler(
-									BluetoothEventHandler handler) {
+									BluetoothStateHandler handler) {
 
 								handler.onRemoteDeviceFound(address);
 							}
@@ -144,7 +166,7 @@ public class BluetoothEventListener extends BroadcastReceiver {
 						invokeHandler(new HandlerInvoker() {
 
 							public void invokeHandler(
-									BluetoothEventHandler handler) {
+									BluetoothStateHandler handler) {
 
 								handler.onRemoteNameUpdated(address, name);
 							}
@@ -166,7 +188,7 @@ public class BluetoothEventListener extends BroadcastReceiver {
 						invokeHandler(new HandlerInvoker() {
 
 							public void invokeHandler(
-									BluetoothEventHandler handler) {
+									BluetoothStateHandler handler) {
 
 								switch (state) {
 
@@ -213,7 +235,7 @@ public class BluetoothEventListener extends BroadcastReceiver {
 
 				invokeHandler(new HandlerInvoker() {
 
-					public void invokeHandler(BluetoothEventHandler handler) {
+					public void invokeHandler(BluetoothStateHandler handler) {
 
 						switch (scanMode) {
 
@@ -258,7 +280,7 @@ public class BluetoothEventListener extends BroadcastReceiver {
 						invokeHandler(new HandlerInvoker() {
 
 							public void invokeHandler(
-									BluetoothEventHandler handler) {
+									BluetoothStateHandler handler) {
 
 								handler.onRemoteDeviceDisappeared(address);
 							}
@@ -275,7 +297,7 @@ public class BluetoothEventListener extends BroadcastReceiver {
 
 				invokeHandler(new HandlerInvoker() {
 
-					public void invokeHandler(BluetoothEventHandler handler) {
+					public void invokeHandler(BluetoothStateHandler handler) {
 
 						handler.onDiscoveryStarted();
 					}
@@ -295,7 +317,7 @@ public class BluetoothEventListener extends BroadcastReceiver {
 						invokeHandler(new HandlerInvoker() {
 
 							public void invokeHandler(
-									BluetoothEventHandler handler) {
+									BluetoothStateHandler handler) {
 
 								handler.onDiscoveryCompleted();
 							}

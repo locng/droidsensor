@@ -17,6 +17,10 @@
 package org.sevenleaves.droidsensor.bluetooth;
 
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 public enum BluetoothIntent {
 
 	REMOTE_DEVICE_FOUND("android.bluetooth.intent.action.REMOTE_DEVICE_FOUND"),
