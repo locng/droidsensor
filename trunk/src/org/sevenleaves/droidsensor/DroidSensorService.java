@@ -22,22 +22,26 @@ import static org.sevenleaves.droidsensor.ServiceUtils.isActionContinue;
 import static org.sevenleaves.droidsensor.ServiceUtils.isStopAction;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Set;
 
-import org.sevenleaves.droidsensor.bluetooth.BluetoothBroadcastReceiver;
-import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceListener;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStubFactory;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothSettings;
-import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
+import org.sevenleaves.droidsensor.handlers.BluetoothEventControllerImpl;
+import org.sevenleaves.droidsensor.handlers.BluetoothEventListener;
+import org.sevenleaves.droidsensor.handlers.BluetoothState;
+import org.sevenleaves.droidsensor.handlers.DiscoveryCompletedHandler;
+import org.sevenleaves.droidsensor.handlers.DiscoveryStartedHandler;
+import org.sevenleaves.droidsensor.handlers.ScanModeConnectableDiscoverableHandler;
+import org.sevenleaves.droidsensor.handlers.ScanModeConnectableHandler;
+import org.sevenleaves.droidsensor.handlers.ScanModeNoneHandler;
+import org.sevenleaves.droidsensor.handlers.StateOffHandler;
+import org.sevenleaves.droidsensor.handlers.StateOnHandler;
+import org.sevenleaves.droidsensor.handlers.StateTurningOffHandler;
+import org.sevenleaves.droidsensor.handlers.StateTurningOnHandler;
 
 import twitter4j.TwitterException;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -46,27 +50,24 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.Handler.Callback;
 import android.util.Log;
-import android.widget.Toast;
 
-public class DroidSensorService extends Service implements
-		BluetoothDeviceListener {
+public class DroidSensorService extends DroidSensorServiceBase {
 
+	private static final String TAG = DroidSensorService.class.getSimpleName();
+	
 	private static final long INTERVAL_SECONDS = 10L;
 
-	private BluetoothBroadcastReceiver _receiver;
+	private BluetoothEventListener _receiver;
 
-	private static final BluetoothSettings SETTINGS = new BluetoothSettings();
+	private BluetoothEventControllerImpl _controller;
 
 	private volatile boolean _started;
 
-	private boolean _registered;
-
 	private DroidSensorInquiry _droidSensorInquiry;
 
-	private final RemoteCallbackList<IDroidSensorCallbackListener> _listeners = new RemoteCallbackList<IDroidSensorCallbackListener>();
+	private Set<String> _devices;
 
-	private final Set<String> _devices = Collections
-			.synchronizedSet(new LinkedHashSet<String>());
+	private final RemoteCallbackList<IDroidSensorCallbackListener> _listeners = new RemoteCallbackList<IDroidSensorCallbackListener>();
 
 	private final IDroidSensorService.Stub _binder = new IDroidSensorService.Stub() {
 
@@ -93,58 +94,90 @@ public class DroidSensorService extends Service implements
 		}
 	};
 
-	private void showNotification() {
+	class RemoteDeviceHandler extends ScanModeConnectableDiscoverableHandler {
 
-		Notification notification = new Notification(R.drawable.notify,
-				getString(R.string.app_name), System.currentTimeMillis());
-		notification.flags = Notification.FLAG_ONGOING_EVENT;
-		// notification.flags = Notification.FLAG_AUTO_CANCEL;
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(this, DroidSensorActivity.class), 0);
-		notification.setLatestEventInfo(this, getString(R.string.app_name),
-				"Service started", contentIntent);
-		NotificationManager notificationManager = ServiceUtils
-				.getNotificationManager(this);
-		notificationManager.notify(R.string.service_name, notification);
+		@Override
+		public void onRemoteDeviceFound(String address) {
+
+			if (_devices.contains(address)) {
+
+				return;
+			}
+
+			BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+					.createBluetoothServiceStub(DroidSensorService.this);
+
+			String name = stub.getRemoteName(address);
+
+			if (name == null) {
+
+				return;
+			}
+
+			DroidSensorService.this.onRemoteDeviceFound(address, name);
+		}
+
+		@Override
+		public void onRemoteNameUpdated(String address, String name) {
+
+			DroidSensorService.this.onRemoteDeviceFound(address, name);
+		}
+
+		@Override
+		public void onRemoteDeviceDisappeared(String address) {
+
+			_devices.remove(address);
+		}
 	}
 
-	public void showDeviceFound(String tweeted) {
+	/**
+	 * 起動時にBluetoothがOFFの場合に、
+	 * ONになったタイミングでbluetoothアドレスとユーザー名のペアをサーバーに登録するためのハンドラー.
+	 * 
+	 */
+	class RegisterAddressHandler extends StateTurningOnHandler {
 
-		Notification notification = new Notification(R.drawable.notify,
-				tweeted, System.currentTimeMillis());
-		notification.flags = Notification.FLAG_ONGOING_EVENT;
-		// notification.flags = Notification.FLAG_AUTO_CANCEL;
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(this, DroidSensorActivity.class), 0);
-		notification.setLatestEventInfo(this, getString(R.string.app_name),
-				tweeted, contentIntent);
-		NotificationManager notificationManager = ServiceUtils
-				.getNotificationManager(this);
-		notificationManager.notify(R.string.service_name, notification);
+		boolean _registerd;
+
+		@Override
+		public void onStateChangedOn() {
+
+			if (!_registerd) {
+
+				// TODO エラー時のリトライ処理・通知処理などをいれる.
+				boolean succeed = registerAddress();
+			}
+
+			_registerd = true;
+			super.onStateChangedOn();
+		}
 	}
 
-	public void showDeviceDisappeared(String address) {
+	private BluetoothEventControllerImpl createController() {
 
-		String message = address + " was disappeared.";
+		BluetoothEventControllerImpl res = new BluetoothEventControllerImpl(
+				this);
+		// res.addHandler(new ScanModeConnectableDiscoverableHandler());
+		res.addHandler(new RemoteDeviceHandler());
 
-		Notification notification = new Notification(R.drawable.notify,
-				message, System.currentTimeMillis());
-		notification.flags = Notification.FLAG_ONGOING_EVENT;
-		// notification.flags = Notification.FLAG_AUTO_CANCEL;
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(this, DroidSensorActivity.class), 0);
-		notification.setLatestEventInfo(this, getString(R.string.app_name),
-				message, contentIntent);
-		NotificationManager notificationManager = ServiceUtils
-				.getNotificationManager(this);
-		notificationManager.notify(R.string.service_name, notification);
+		res.addHandler(new ScanModeConnectableHandler());
+		res.addHandler(new ScanModeNoneHandler());
+		res.addHandler(new StateOffHandler());
+
+		// res.addHandler(new StateTurningOnHandler());
+		res.addHandler(new RegisterAddressHandler());
+
+		res.addHandler(new StateOnHandler());
+		res.addHandler(new StateTurningOffHandler());
+		res.addHandler(new DiscoveryStartedHandler());
+		res.addHandler(new DiscoveryCompletedHandler());
+
+		return res;
 	}
 
-	private void hideNotification() {
+	public DroidSensorService() {
 
-		NotificationManager notificationManager = ServiceUtils
-				.getNotificationManager(this);
-		notificationManager.cancel(R.string.service_name);
+		_devices = Collections.synchronizedSet(new HashSet<String>());
 	}
 
 	@Override
@@ -159,19 +192,17 @@ public class DroidSensorService extends Service implements
 		Log.d("DroidSensorService", "service create");
 
 		super.onCreate();
-		// setForeground(true);
 	}
 
 	public void stopService() {
 
 		Log.d("DroidSensorService", "stopService");
 		cancelImmediatly(this, DroidSensorService.class);
-		_devices.clear();
 		stopSelf();
 
 		try {
 
-			_receiver.unregisterSelf(this, SETTINGS);
+			_receiver.unregisterSelf(this);
 		} catch (Exception e) {
 			// nop.
 		}
@@ -183,17 +214,54 @@ public class DroidSensorService extends Service implements
 		}
 
 		_receiver = null;
+		_controller = null;
 		hideNotification();
-
 		_started = false;
+		_devices.clear();
+		BluetoothSettings.load(this);
+	}
+
+	/**
+	 * DroidSensorサーバーにBluetoothアドレスとユーザー名のペアを登録する.
+	 * 
+	 * @return
+	 */
+	private boolean registerAddress() {
+
+		BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+				.createBluetoothServiceStub(this);
+		DroidSensorSettings settings = DroidSensorSettings.getInstance(this);
+		String address = stub.getAddress();
+
+		try {
+
+			// second-accountは登録しない。(address同じだから)
+
+			Log.d("DroidSensorService", "register twitter ID");
+
+			boolean succeed = DroidSensorUtils.putTwitterId(settings
+					.getApiUrl(), address, settings.getTwitterId());
+
+			return succeed;
+		} catch (Exception e) {
+
+			return false;
+		}
+	}
+
+	private BluetoothEventListener createReceiver(
+			BluetoothEventControllerImpl controller) {
+
+		BluetoothEventListener res = new BluetoothEventListener();
+		res.setHandler(controller);
+
+		return res;
 	}
 
 	@Override
 	public void onStart(Intent intent, int startId) {
 
 		super.onStart(intent, startId);
-
-		Log.d("DroidSensorService", "onStart");
 
 		if (isStopAction(intent)) {
 
@@ -213,18 +281,20 @@ public class DroidSensorService extends Service implements
 
 			if (_started) {
 
-				if (_receiver == null) {
-
-					showNotification();
-					_receiver = BluetoothBroadcastReceiver.getInstance();
-					_receiver.addListener(this);
-					_receiver.registerSelf(this, SETTINGS);
-				}
-
 				if (_droidSensorInquiry == null) {
 
 					_droidSensorInquiry = new DroidSensorInquiry(
 							DroidSensorService.this);
+				}
+
+				if (_receiver == null) {
+
+					BluetoothSettings.save(this);
+					showNotification();
+					_controller = createController();
+					_receiver = createReceiver(_controller);
+					_receiver.registerSelf(this);
+					fireEvent();
 				}
 
 				// callLater(DroidSensorService.this, IDroidSensorService.class,
@@ -242,11 +312,9 @@ public class DroidSensorService extends Service implements
 
 		super.onDestroy();
 
-		_devices.clear();
-
 		try {
 
-			_receiver.unregisterSelf(this, SETTINGS);
+			_receiver.unregisterSelf(this);
 		} catch (Exception e) {
 			// nop.
 		}
@@ -258,93 +326,46 @@ public class DroidSensorService extends Service implements
 		}
 
 		_receiver = null;
+		_controller = null;
 		_started = false;
-
-		// hideNotification();
+		_devices.clear();
+		BluetoothSettings.load(this);
+		hideNotification();
 	}
 
-	public void onDisabled(Context context) {
+	private void fireEvent() {
 
-	}
+		BluetoothDeviceStub bt = _controller.getBluetoothDevice();
 
-	public void onEnabled(Context context) {
+		if (bt.isEnabled()) {
 
-		if (_registered) {
+			if (bt.isDiscovering()) {
 
-			return;
-		}
-
-		BluetoothDeviceStub stub = BluetoothDeviceStubFactory
-				.createBluetoothServiceStub(this);
-		DroidSensorSettings settings = DroidSensorSettings.getInstance(this);
-		String address = stub.getAddress();
-
-		try {
-
-			// second-accountは登録しない。(address同じだから)
-
-			Log.d("DroidSensorService", "register twitter ID");
-
-			boolean succeed = DroidSensorUtils.putTwitterId(settings
-					.getApiUrl(), address, settings.getTwitterId());
-
-			if (succeed) {
-
-				_registered = true;
+				_controller.setCurrentState(BluetoothState.DISCOVERY_STARTED);
+				bt.cancelDiscovery();
 
 				return;
 			}
-		} catch (Exception e) {
 
-			;
+			bt.setScanMode(0x3);
+
+			return;
 		}
 
-		Toast.makeText(this, getString(R.string.app_name)
-				+ ": service restart.", Toast.LENGTH_LONG);
-		stopService();
+		_controller.setCurrentState(BluetoothState.STATE_OFF);
+		bt.enable();
 	}
 
-	public void onRemoteDeviceDisappeared(Context context, String address) {
-
-		// TODO ここではフラグをたてるだけで、一定時間たったら消すような処理にすること。
-		_devices.remove(address);
-	}
-
-	private boolean isDiscoverable(BluetoothDeviceStub bluetooth) {
-
-		boolean res = (bluetooth.getScanMode() == BluetoothDeviceStub.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
-
-		return res;
-	}
-
-	public void onRemoteNameUpdated(Context context,
-			RemoteBluetoothDevice device) {
-
-		String address = device.getAddress();
+	public void onRemoteDeviceFound(final String address, String name) {
 
 		if (_devices.contains(address)) {
 
 			return;
 		}
-
-		onRemoteDeviceFound(context, device);
-	}
-
-	public void onRemoteDeviceFound(final Context context,
-			final RemoteBluetoothDevice device) {
-
-		String address = device.getAddress();
-
-		if (_devices.contains(address)) {
-
-			return;
-		}
-
-		String deviceName = device.getName();
 
 		// device-found, name-updateで確実にデバイス名がとれる。
 		// それぞれでtwitterIDを問い合わせると、最後のすれ違いユーザーを自分で上書きしてしまう。
-		if (deviceName == null) {
+		if (name == null) {
 
 			return;
 		}
@@ -361,6 +382,16 @@ public class DroidSensorService extends Service implements
 		DroidSensorSettings settings = DroidSensorSettings
 				.getInstance(DroidSensorService.this);
 
+		final String fixedName;
+
+		if (name.trim().length() > 0) {
+
+			fixedName = name;
+		} else {
+
+			fixedName = "*unknown*";
+		}
+
 		_droidSensorInquiry.getTwitterUser(address, settings.getTwitterId(),
 				new Callback() {
 
@@ -369,12 +400,22 @@ public class DroidSensorService extends Service implements
 						Bundle data = msg.getData();
 						String id = data
 								.getString(DroidSensorInquiry.TWITTER_USER);
-						tweetDeviceFound(device, id);
+						
+						Log.d(TAG, "id:" + id);
+						
+						tweetDeviceFound(address, fixedName, id);
 
 						return true;
 					}
 				});
 
+	}
+
+	private boolean isDiscoverable(BluetoothDeviceStub bluetooth) {
+
+		boolean res = (bluetooth.getScanMode() == BluetoothDeviceStub.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+
+		return res;
 	}
 
 	private String safeString(String str) {
@@ -466,11 +507,10 @@ public class DroidSensorService extends Service implements
 		return settings.isDetailPassedNo();
 	}
 
-	private void tweetDeviceFound(RemoteBluetoothDevice device, String id) {
+	private void tweetDeviceFound(String address, String name, String id) {
 
 		DroidSensorSettings settings = DroidSensorSettings
 				.getInstance(DroidSensorService.this);
-		String address = device.getAddress();
 
 		if (!isDeviceWillTweet(settings, id)) {
 
@@ -478,12 +518,13 @@ public class DroidSensorService extends Service implements
 
 			return;
 		}
-		
+
 		String tweeted;
 
 		try {
 
-			tweeted = TwitterUtils.tweetDeviceFound(device, id, settings);
+			tweeted = TwitterUtils
+					.tweetDeviceFound(address, name, id, settings);
 		} catch (TwitterException e) {
 
 			// _handler.post(new Runnable() {
@@ -513,24 +554,11 @@ public class DroidSensorService extends Service implements
 			return;
 		}
 
-		Log.d("DroidSensorService", device.getAddress() + "("
-				+ device.getName() + ")" + " found.");
+		Log.d("DroidSensorService", address + "(" + name + ")" + " found.");
 
 		_devices.add(address);
 
 		showDeviceFound(tweeted);
-
-	}
-
-	public void onScanModeConnectable(Context context) {
-
-	}
-
-	public void onScanModeConnectableDiscoverable(Context context) {
-
-	}
-
-	public void onScanModeNone(Context context) {
 
 	}
 

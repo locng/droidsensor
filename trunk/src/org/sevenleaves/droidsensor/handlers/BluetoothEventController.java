@@ -1,5 +1,10 @@
 package org.sevenleaves.droidsensor.handlers;
 
-public class BluetoothEventController {
+import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub;
 
+public interface BluetoothEventController {
+
+	void setCurrentState(BluetoothState state);
+	
+	BluetoothDeviceStub getBluetoothDevice();
 }

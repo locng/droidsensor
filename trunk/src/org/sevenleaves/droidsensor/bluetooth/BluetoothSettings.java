@@ -16,58 +16,137 @@
 
 package org.sevenleaves.droidsensor.bluetooth;
 
-public class BluetoothSettings {
+import android.content.ContentResolver;
+import android.content.Context;
+import android.provider.Settings.SettingNotFoundException;
 
-	boolean _saved = true;
+public abstract class BluetoothSettings {
 
-	boolean _enabled = false;;
+	private static final String SYSTEM_PROPERTIES_BLUETOOTH_ENABLE = "droidsensor_bluetooth_enabled";
 
-	int _scanMode = BluetoothDeviceStub.SCAN_MODE_CONNECTABLE;
+	public static void save(Context context) {
 
-	/**
-	 * TODO get default value from system property
-	 */
-	int _discoverableTimeout = 120;
+		BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+				.createBluetoothServiceStub(context);
 
-	public void save(BluetoothDeviceStub stub) {
-
-		_saved = true;
-		_enabled = stub.isEnabled();
-		_scanMode = stub.getScanMode();
-		_discoverableTimeout = stub.getDiscoverableTimeout();
+		System.setProperty(SYSTEM_PROPERTIES_BLUETOOTH_ENABLE, Boolean
+				.toString(stub.isEnabled()));
 	}
 
-	public void load(BluetoothDeviceStub stub) {
+	public static void load(Context context) {
 
-		if (!_saved) {
+		BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+				.createBluetoothServiceStub(context);
+		ContentResolver resolver = context.getContentResolver();
+
+		try {
+
+			loadBluetoothDiscoverbilityTimeout(resolver, stub);
+			loadBluetoothDiscoverbility(resolver, stub);
+			loadBluetoothOn(resolver, stub);
+
+		} catch (SettingNotFoundException e) {
+
+			e.printStackTrace();
+		}
+
+		// System.s
+		// System.setProperty(SYSTEM_PROPERTIES_BLUETOOTH_ENABLE, null);
+	}
+
+	private static void loadBluetoothOn(ContentResolver resolver,
+			BluetoothDeviceStub stub) throws SettingNotFoundException {
+
+		String str = System.getProperty(SYSTEM_PROPERTIES_BLUETOOTH_ENABLE);
+		boolean v = (str == null ? false : Boolean.valueOf(str));
+
+		if (stub.isEnabled()) {
+
+			if (!v) {
+
+				stub.disable();
+			}
 
 			return;
 		}
 
-		stub.setScanMode(_scanMode);
-		stub.setDiscoverableTimeout(_discoverableTimeout);
-
-		if (_enabled && !stub.isEnabled()) {
+		if (v) {
 
 			stub.enable();
-		} else if (!_enabled && stub.isEnabled()) {
-
-			stub.disable();
 		}
+
+		// Whether bluetooth is enabled/disabled 0=disabled. 1=enabled.
+		// int v = Settings.Secure.getInt(resolver,
+		// Settings.Secure.BLUETOOTH_ON);
+		//
+		// switch (v) {
+		// case 0:
+		//
+		// if (stub.isEnabled()) {
+		//
+		// stub.disable();
+		// }
+		//
+		// break;
+		//
+		// case 1:
+		//
+		// if (!stub.isEnabled()) {
+		//
+		// stub.enable();
+		// }
+		//
+		// break;
+		//
+		// default:
+		//
+		// break;
+		// }
 	}
 
-	public boolean isEnabled() {
+	private static void loadBluetoothDiscoverbility(ContentResolver resolver,
+			BluetoothDeviceStub stub) throws SettingNotFoundException {
 
-		return _enabled;
+		stub.setScanMode(0x1);
+		// // 2 -- discoverable and connectable
+		// // 1 -- connectable but not discoverable
+		// // 0 -- neither connectable nor discoverable
+		// int v = Integer.parseInt(Settings.System.getString(resolver,
+		// Settings.System.BLUETOOTH_DISCOVERABILITY));
+		//
+		// switch (v) {
+		// case 0:
+		//
+		// stub.setScanMode(0x0);
+		//
+		// break;
+		//
+		// case 1:
+		//
+		// stub.setScanMode(0x1);
+		//
+		// break;
+		//
+		// case 2:
+		//
+		// stub.setScanMode(0x3);
+		//
+		// break;
+		//
+		// default:
+		//
+		// break;
+		// }
 	}
 
-	public int getScanMode() {
+	private static void loadBluetoothDiscoverbilityTimeout(
+			ContentResolver resolver, BluetoothDeviceStub stub)
+			throws SettingNotFoundException {
 
-		return _scanMode;
-	}
-
-	public int getDiscoverableTimeout() {
-
-		return _discoverableTimeout;
+		stub.setDiscoverableTimeout(120);
+		// int v = Settings.System.getInt(resolver,
+		// Settings.System.BLUETOOTH_DISCOVERABILITY_TIMEOUT);
+		//
+		// stub.setDiscoverableTimeout(v);
 	}
 }

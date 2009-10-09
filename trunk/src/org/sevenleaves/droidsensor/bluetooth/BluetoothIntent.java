@@ -16,6 +16,7 @@
 
 package org.sevenleaves.droidsensor.bluetooth;
 
+
 public enum BluetoothIntent {
 
 	REMOTE_DEVICE_FOUND("android.bluetooth.intent.action.REMOTE_DEVICE_FOUND"),
@@ -55,7 +56,7 @@ public enum BluetoothIntent {
 	HEADSET_AUDIO_STATE_CHANGED("android.bluetooth.intent.action.HEADSET_ADUIO_STATE_CHANGED");
 
 	private String _action;
-
+	
 	private BluetoothIntent(String action) {
 
 		_action = action;
@@ -64,5 +65,18 @@ public enum BluetoothIntent {
 	public String getAction() {
 		
 		return _action;
+	}
+	
+	public static BluetoothIntent fromAction(String action){
+
+		for(BluetoothIntent e: values()){
+			
+			if(e.getAction().equals(action)){
+				
+				return e;
+			}
+		}
+		
+		return null;
 	}
 }
