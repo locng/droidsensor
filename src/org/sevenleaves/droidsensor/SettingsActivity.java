@@ -19,6 +19,10 @@ package org.sevenleaves.droidsensor;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 public class SettingsActivity extends PreferenceActivity {
 
 	@Override

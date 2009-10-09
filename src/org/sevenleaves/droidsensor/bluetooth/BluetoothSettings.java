@@ -20,6 +20,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.provider.Settings.SettingNotFoundException;
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 public abstract class BluetoothSettings {
 
 	private static final String SYSTEM_PROPERTIES_BLUETOOTH_ENABLE = "droidsensor_bluetooth_enabled";

@@ -20,6 +20,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 public class DroidSensorSettings {
 
 	public static final String TWITTER_ID = "droidsensor_twitter_id";

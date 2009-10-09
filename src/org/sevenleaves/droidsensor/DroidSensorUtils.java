@@ -29,6 +29,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.util.Log;
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 abstract class DroidSensorUtils {
 
 	private static final int RETRY_COUNT = 3;

@@ -18,6 +18,10 @@ package org.sevenleaves.droidsensor.bluetooth;
 
 import android.content.Context;
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 public abstract class BluetoothDeviceStubFactory {
 
 	private static final String SERVICE_NAME = "bluetooth";

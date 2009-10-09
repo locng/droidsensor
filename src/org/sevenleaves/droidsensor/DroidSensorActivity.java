@@ -38,7 +38,7 @@ import android.view.MenuItem;
  * @author smasui@gmail.com
  * 
  */
-public class DroidSensorActivity extends DroidSensorActivityBase {
+public class DroidSensorActivity extends ListActivitySupport {
 
 	private ProgressDialog _progressDialog;
 

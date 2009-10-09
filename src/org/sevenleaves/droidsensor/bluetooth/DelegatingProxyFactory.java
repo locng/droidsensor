@@ -23,6 +23,10 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 public class DelegatingProxyFactory {
 
 	private static final DelegatingProxyFactory SINGLETON = new DelegatingProxyFactory();

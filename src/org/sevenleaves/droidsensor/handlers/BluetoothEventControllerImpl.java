@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2009, DroidSensor - http://code.google.com/p/droidsensor/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.sevenleaves.droidsensor.handlers;
 
 import java.util.Map;
@@ -9,19 +25,23 @@ import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStubFactory;
 import android.content.Context;
 import android.util.Log;
 
-public class BluetoothEventControllerImpl implements BluetoothEventHandler,
+/**
+ * @author esmasui@gmail.com
+ *
+ */
+public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 		BluetoothEventController {
 
 	private static final String TAG = BluetoothEventController.class.getSimpleName();
 	
-	private Map<BluetoothState, BluetoothEventHandler> _handlers;
+	private Map<BluetoothState, BluetoothStateHandler> _handlers;
 
 	private BluetoothDeviceStub _bluetoothDevice;
 
 	/**
 	 * default pseudo handler
 	 */
-	private BluetoothEventHandler _activeHandler = new AbstractBluetoothEventHandler() {
+	private BluetoothStateHandler _activeHandler = new AbstractBluetoothStateHandler() {
 
 		public BluetoothState getResponsibility() {
 
@@ -32,7 +52,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 	public BluetoothEventControllerImpl(Context context) {
 
 		int size = BluetoothState.values().length;
-		_handlers = new ConcurrentHashMap<BluetoothState, BluetoothEventHandler>(
+		_handlers = new ConcurrentHashMap<BluetoothState, BluetoothStateHandler>(
 				size);
 		_bluetoothDevice = BluetoothDeviceStubFactory
 				.createBluetoothServiceStub(context);
@@ -53,7 +73,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 		throw new UnsupportedOperationException();
 	}
 
-	public void addHandler(BluetoothEventHandler handler) {
+	public void addHandler(BluetoothStateHandler handler) {
 
 		handler.setBluetoothEventController(this);
 		_handlers.put(handler.getResponsibility(), handler);
@@ -94,7 +114,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 
 		Log.d(TAG, _activeHandler.toString() + "#onScanModeChangedConnectable");
 		
-		BluetoothEventHandler h = _activeHandler;
+		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.SCAN_MODE_CONNECTABLE);
 		h.onScanModeChangedConnectable();
 	}
@@ -103,7 +123,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 
 		Log.d(TAG, _activeHandler.toString() + "#onScanModeChangedConnectableDisable");
 
-		BluetoothEventHandler h = _activeHandler;
+		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
 		h.onScanModeChangedConnectableDiscoverable();
 	}
@@ -112,7 +132,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 
 		Log.d(TAG, _activeHandler.toString() + "#onScanModeChangedNone");
 
-		BluetoothEventHandler h = _activeHandler;
+		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.SCAN_MODE_NONE);
 		h.onScanModeChangedNone();
 	}
@@ -121,7 +141,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 
 		Log.d(TAG, _activeHandler.toString() + "#onStateChangedOff");
 
-		BluetoothEventHandler h = _activeHandler;
+		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.STATE_OFF);
 		h.onStateChangedOff();
 	}
@@ -130,7 +150,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 
 		Log.d(TAG, _activeHandler.toString() + "#onStateChangedOn");
 
-		BluetoothEventHandler h = _activeHandler;
+		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.STATE_ON);
 		h.onStateChangedOn();
 	}
@@ -139,7 +159,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 
 		Log.d(TAG, _activeHandler.toString() + "#onStateChangedTurningOff");
 		
-		BluetoothEventHandler h = _activeHandler;
+		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.STATE_TURNING_OFF);
 		h.onStateChangedTurningOff();
 	}
@@ -148,7 +168,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 
 		Log.d(TAG, _activeHandler.toString() + "#onStateChangedTurningOn");
 		
-		BluetoothEventHandler h = _activeHandler;
+		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.STATE_TURNING_ON);
 		h.onStateChangedTurningOn();
 	}
@@ -157,7 +177,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 	
 		Log.d(TAG, _activeHandler.toString() + "#onDiscoveryStarted");
 		
-		BluetoothEventHandler h = _activeHandler;
+		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.DISCOVERY_STARTED);
 		h.onDiscoveryStarted();
 	}
@@ -166,7 +186,7 @@ public class BluetoothEventControllerImpl implements BluetoothEventHandler,
 	
 		Log.d(TAG, _activeHandler.toString() + "#onDiscoveryCompleted");	
 
-		BluetoothEventHandler h = _activeHandler;
+		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.DISCOVERY_COMPLETED);
 		h.onDiscoveryCompleted();
 	}

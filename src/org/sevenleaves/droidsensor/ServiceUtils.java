@@ -24,6 +24,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 public abstract class ServiceUtils {
 
 	public static final String START_ACTION = "start";

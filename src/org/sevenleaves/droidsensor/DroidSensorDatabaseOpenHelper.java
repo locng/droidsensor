@@ -20,6 +20,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/**
+ * @author esmasui@gmail.com
+ *
+ */
 public class DroidSensorDatabaseOpenHelper extends SQLiteOpenHelper {
 
 	public static final String DATABASE_NAME = "DEVICES";
