@@ -1,6 +1,6 @@
 package org.sevenleaves.droidsensor.handlers;
 
-public enum BluetoothEvent {
+public enum BluetoothState {
 
 	STATE_ON,
 	
@@ -14,5 +14,10 @@ public enum BluetoothEvent {
 	
 	SCAN_MODE_CONNECTABLE,
 	
-	SCAN_MODE_CONNECTABLE_DISCOVERABLE
+	SCAN_MODE_CONNECTABLE_DISCOVERABLE,
+	
+	DISCOVERY_COMPLETED,
+	
+	DISCOVERY_STARTED
+	
 }

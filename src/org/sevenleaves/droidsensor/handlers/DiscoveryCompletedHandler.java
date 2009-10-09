@@ -1,15 +1,15 @@
 package org.sevenleaves.droidsensor.handlers;
 
-public class ScanModeConnectableHandler extends AbstractBluetoothEventHandler {
+public class DiscoveryCompletedHandler extends AbstractBluetoothEventHandler {
 
 	public BluetoothState getResponsibility() {
-		
-		return BluetoothState.SCAN_MODE_CONNECTABLE;
+
+		return BluetoothState.DISCOVERY_COMPLETED;
 	}
 
 	@Override
 	public void onScanModeChangedConnectableDiscoverable() {
-
+	
 		getBluetoothDevice().startPeriodicDiscovery();
 	}
 }

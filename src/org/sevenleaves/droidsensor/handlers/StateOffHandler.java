@@ -2,11 +2,8 @@ package org.sevenleaves.droidsensor.handlers;
 
 public class StateOffHandler extends AbstractBluetoothEventHandler {
 
-	@Override
-	public void onStateChangedOn() {
+	public BluetoothState getResponsibility() {
 
-		setBluetoothEvent(BluetoothEvent.STATE_ON);
-		
-		getBluetoothDevice().enable();
+		return BluetoothState.STATE_OFF;
 	}
 }

@@ -19,8 +19,6 @@ package org.sevenleaves.droidsensor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sevenleaves.droidsensor.bluetooth.RemoteBluetoothDevice;
-
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
@@ -148,7 +146,7 @@ abstract class TwitterUtils {
 	 * @return
 	 * @throws TwitterException
 	 */
-	public static String tweetDeviceFound(RemoteBluetoothDevice device,
+	public static String tweetDeviceFound(String address, String name,
 			String id, DroidSensorSettings settings) throws TwitterException {
 
 		String template = settings.getUserTemplate();
@@ -158,7 +156,7 @@ abstract class TwitterUtils {
 
 		if (target == null) {
 
-			target = device.getName();
+			target = name;
 			template = settings.getDeviceTemplate();
 			isUser = false;
 		}
@@ -190,14 +188,12 @@ abstract class TwitterUtils {
 
 		if (text.contains("$device")) {
 
-			String name = device.getName();
-
 			if (name == null) {
 
 				return null;
 			}
 
-			text = text.replace("$device", device.getName());
+			text = text.replace("$device", name);
 		}
 
 		forNotify = text;
