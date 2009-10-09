@@ -123,172 +123,6 @@ public class DroidSensorActivity extends ListActivitySupport {
 		}
 	};
 
-	private void showError(String message) {
-
-		// Toast toast = Toast.makeText(DroidSensorActivity.this, message,
-		// Toast.LENGTH_SHORT);
-		// toast.show();
-	}
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.droid_sensor);
-		Intent bi = new Intent(IDroidSensorService.class.getName());
-		bindService(bi, _serviceConnection, BIND_AUTO_CREATE);
-
-		// ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-		// android.R.layout.simple_list_item_1, new String[] { "Led Zeppelin",
-		// "Jimi Hendrix",
-		// "The Black Crowes" });
-		//	        
-		// setListAdapter(adapter);
-	}
-
-	@Override
-	protected void onCreateOptionMenuInternal(OptionsMenuHelper helper) {
-
-		addDiscoveryMenu(helper);
-		addSettingsMenu(helper);
-	}
-
-	@Override
-	protected void onDestroy() {
-
-		super.onDestroy();
-		unbindService(_serviceConnection);
-	};
-
-	// @Override
-	// protected void onListItemClick(ListView l, View v, int position, long id)
-	// {
-	// super.onListItemClick(l, v, position, id);
-	// Toast.makeText(this,
-	// String.format("l:%s, v:%s, position:%d, id:%d", l.getClass(),
-	// v.getClass(), position, id),
-	// Toast.LENGTH_LONG).show();
-	// }
-
-	private boolean isServiceStarted() {
-
-		try {
-
-			return _service.isStarted();
-		} catch (RemoteException e) {
-
-			return false;
-		}
-	}
-
-	private ProgressDialog createProgressDialog(OnClickListener cancelListener) {
-
-		ProgressDialog dialog = new ProgressDialog(DroidSensorActivity.this);
-		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		// dialog.setCancelable(false);
-		// dialog.setCancelable(true);
-		dialog.setTitle("Processing...");
-		dialog.setMessage("Verify Credentials");
-		// dialog.setButton("Cancel", cancelListener);
-
-		return dialog;
-	}
-
-	private void startService() {
-
-		_progressDialog = createProgressDialog(new OnClickListener() {
-
-			public void onClick(DialogInterface dialog, int which) {
-
-				dialog.cancel();
-			}
-		});
-
-		_progressDialog.show();
-
-		new Thread() {
-
-			public void run() {
-
-				// _handler.post(_bindCallback);
-				_bindCallback.run();
-			};
-		}.start();
-	}
-
-	private void stopService() {
-
-		Log.d("DroidSensorAcivity", "stopService");
-		try {
-
-			_service.stopService();
-		} catch (RemoteException e) {
-
-			; // nop.
-		}
-	}
-
-	/**
-	 * Discoverメニューが開かれた時に呼ばれるコールバック.
-	 * 
-	 * @param item
-	 */
-	private void onDiscoveryMenuOpened(MenuItem item) {
-
-		boolean scanning = isServiceStarted();
-
-		if (scanning) {
-
-			item.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-			item.setTitle(R.string.menu_stop_discover);
-
-			return;
-		}
-
-		item.setIcon(android.R.drawable.ic_menu_search);
-		item.setTitle(R.string.menu_discover);
-	}
-
-	/**
-	 * Settingsメニューが開かれた時に呼ばれるコールバック.
-	 * 
-	 * @param item
-	 */
-	private void onSettingsMenuOpened(MenuItem item) {
-
-		; // nop
-	}
-
-	/**
-	 * Discoverメニューが押された時に呼ばれるコールバック.
-	 * 
-	 * @param item
-	 */
-	private void onDiscoveryMenuSelected(MenuItem item) {
-
-		boolean scanning = isServiceStarted();
-
-		if (scanning) {
-
-			stopService();
-
-			return;
-		}
-
-		startService();
-	}
-
-	/**
-	 * Settingsメニューが押された時に呼ばれるコールバック.
-	 * 
-	 * @param item
-	 */
-	private void onSettingsMenuSelected(MenuItem item) {
-
-		Intent intent = new Intent(SettingsActivity.class.getName());
-		startActivity(intent);
-	}
-
 	/**
 	 * Discoveryメニューを登録する.
 	 * 
@@ -334,5 +168,171 @@ public class DroidSensorActivity extends ListActivitySupport {
 						onSettingsMenuSelected(item);
 					}
 				});
+	}
+
+	private ProgressDialog createProgressDialog(OnClickListener cancelListener) {
+
+		ProgressDialog dialog = new ProgressDialog(DroidSensorActivity.this);
+		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		// dialog.setCancelable(false);
+		// dialog.setCancelable(true);
+		dialog.setTitle("Processing...");
+		dialog.setMessage("Verify Credentials");
+		// dialog.setButton("Cancel", cancelListener);
+
+		return dialog;
+	}
+
+	private boolean isServiceStarted() {
+
+		try {
+
+			return _service.isStarted();
+		} catch (RemoteException e) {
+
+			return false;
+		}
+	};
+
+	// @Override
+	// protected void onListItemClick(ListView l, View v, int position, long id)
+	// {
+	// super.onListItemClick(l, v, position, id);
+	// Toast.makeText(this,
+	// String.format("l:%s, v:%s, position:%d, id:%d", l.getClass(),
+	// v.getClass(), position, id),
+	// Toast.LENGTH_LONG).show();
+	// }
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.droid_sensor);
+		Intent bi = new Intent(IDroidSensorService.class.getName());
+		bindService(bi, _serviceConnection, BIND_AUTO_CREATE);
+
+		// ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+		// android.R.layout.simple_list_item_1, new String[] { "Led Zeppelin",
+		// "Jimi Hendrix",
+		// "The Black Crowes" });
+		//	        
+		// setListAdapter(adapter);
+	}
+
+	@Override
+	protected void onCreateOptionMenuInternal(OptionsMenuHelper helper) {
+
+		addDiscoveryMenu(helper);
+		addSettingsMenu(helper);
+	}
+
+	@Override
+	protected void onDestroy() {
+
+		super.onDestroy();
+		unbindService(_serviceConnection);
+	}
+
+	/**
+	 * Discoverメニューが開かれた時に呼ばれるコールバック.
+	 * 
+	 * @param item
+	 */
+	private void onDiscoveryMenuOpened(MenuItem item) {
+
+		boolean scanning = isServiceStarted();
+
+		if (scanning) {
+
+			item.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+			item.setTitle(R.string.menu_stop_discover);
+
+			return;
+		}
+
+		item.setIcon(android.R.drawable.ic_menu_search);
+		item.setTitle(R.string.menu_discover);
+	}
+
+	/**
+	 * Discoverメニューが押された時に呼ばれるコールバック.
+	 * 
+	 * @param item
+	 */
+	private void onDiscoveryMenuSelected(MenuItem item) {
+
+		boolean scanning = isServiceStarted();
+
+		if (scanning) {
+
+			stopService();
+
+			return;
+		}
+
+		startService();
+	}
+
+	/**
+	 * Settingsメニューが開かれた時に呼ばれるコールバック.
+	 * 
+	 * @param item
+	 */
+	private void onSettingsMenuOpened(MenuItem item) {
+
+		; // nop
+	}
+
+	/**
+	 * Settingsメニューが押された時に呼ばれるコールバック.
+	 * 
+	 * @param item
+	 */
+	private void onSettingsMenuSelected(MenuItem item) {
+
+		Intent intent = new Intent(SettingsActivity.class.getName());
+		startActivity(intent);
+	}
+
+	private void showError(String message) {
+
+		// Toast toast = Toast.makeText(DroidSensorActivity.this, message,
+		// Toast.LENGTH_SHORT);
+		// toast.show();
+	}
+
+	private void startService() {
+
+		_progressDialog = createProgressDialog(new OnClickListener() {
+
+			public void onClick(DialogInterface dialog, int which) {
+
+				dialog.cancel();
+			}
+		});
+
+		_progressDialog.show();
+
+		new Thread() {
+
+			public void run() {
+
+				// _handler.post(_bindCallback);
+				_bindCallback.run();
+			};
+		}.start();
+	}
+
+	private void stopService() {
+
+		Log.d("DroidSensorAcivity", "stopService");
+		try {
+
+			_service.stopService();
+		} catch (RemoteException e) {
+
+			; // nop.
+		}
 	}
 }

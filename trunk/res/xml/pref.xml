@@ -2,43 +2,39 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	android:key="com_google_appengine_droidsensor">
 	<!-- keyを変えなきゃいけないけど、すでに配布しちゃってるしな、、、。 -->
-	
+
 	<PreferenceCategory android:title="Twitter account Settings">
 
-			<EditTextPreference android:key="droidsensor_twitter_id"
-				android:title="@string/twitter_id_title" 
-				android:summary="@string/twitter_id_summary" 
-				android:inputType="textAutoCorrect" />
+		<EditTextPreference android:key="droidsensor_twitter_id"
+			android:title="@string/twitter_id_title" android:summary="@string/twitter_id_summary"
+			android:inputType="textAutoCorrect" />
 
-			<EditTextPreference android:key="droidsensor_twitter_password"
-				android:title="@string/twitter_password_title" 
-				android:summary="@string/twitter_password_summary" 
-				android:inputType="textPassword" />
+		<EditTextPreference android:key="droidsensor_twitter_password"
+			android:title="@string/twitter_password_title" android:summary="@string/twitter_password_summary"
+			android:inputType="textPassword" />
 
 	</PreferenceCategory>
 
-	<!-- 
-	<PreferenceCategory android:title="Message Settings">
+	<!--
+		<PreferenceCategory android:title="Message Settings">
 
-				<EditTextPreference android:key="droidsensor_message"
-					android:title="Message" android:inputType="textAutoCorrect" />
-					
-	</PreferenceCategory>
+		<EditTextPreference android:key="droidsensor_message"
+		android:title="Message" android:inputType="textAutoCorrect" />
+
+		</PreferenceCategory>
 	-->
-	
+
 	<PreferenceCategory android:title="Discovery Settings">
 
 		<CheckBoxPreference android:key="droidsensor_discovery_all_bluetooth_devices"
-			android:title="@string/all_devices_title"
-			android:summary="@string/all_devices_summary" />
+			android:title="@string/all_devices_title" android:summary="@string/all_devices_summary" />
 
 		<PreferenceScreen android:title="Device Details..."
-			android:summary="@string/device_detail_summary"
-			android:dependency="droidsensor_discovery_all_bluetooth_devices">
+			android:summary="@string/device_detail_summary" android:dependency="droidsensor_discovery_all_bluetooth_devices">
 
 
 			<PreferenceCategory android:title="Device Details">
-					
+
 				<CheckBoxPreference android:key="droidsensor_device_detail_passed_user"
 					android:title="@string/device_detail_passed_user_title"
 					android:summary="@string/device_detail_passed_user_summary"
@@ -53,9 +49,9 @@
 					android:title="@string/device_detail_passed_no_title"
 					android:summary="@string/device_detail_passed_no_summary"
 					android:defaultValue="true" />
-					
+
 			</PreferenceCategory>
-					
+
 		</PreferenceScreen>
 
 	</PreferenceCategory>
@@ -69,8 +65,7 @@
 			<PreferenceCategory android:title="Optional Twitter account Settings">
 
 				<EditTextPreference android:key="droidsensor_optional_twitter_id"
-					android:title="@string/second_twitter_id_title"
-					android:summary="@string/second_twitter_id_summary"
+					android:title="@string/second_twitter_id_title" android:summary="@string/second_twitter_id_summary"
 					android:inputType="textAutoCorrect" />
 
 				<EditTextPreference android:key="droidsensor_optional_twitter_password"
@@ -82,49 +77,39 @@
 
 			<PreferenceCategory android:title="Dispatch Settings">
 
-				<ListPreference
-					android:key="droidsensor_dispatch_user"
-					android:title="@string/twitter_list_title"
-					android:summary="@string/twitter_list_summary"
+				<ListPreference android:key="droidsensor_dispatch_user"
+					android:title="@string/twitter_list_title" android:summary="@string/twitter_list_summary"
 					android:dialogTitle="@string/twitter_list_dialogtitle"
-					android:defaultValue="1"
-					android:entries="@array/twitter_list_entries"
+					android:defaultValue="1" android:entries="@array/twitter_list_entries"
 					android:entryValues="@array/twitter_list_entryvalues" />
 
-				<ListPreference
-					android:key="droidsensor_dispatch_device"
-					android:title="@string/device_list_title"
-					android:summary="@string/device_list_summary"
+				<ListPreference android:key="droidsensor_dispatch_device"
+					android:title="@string/device_list_title" android:summary="@string/device_list_summary"
 					android:dialogTitle="@string/device_list_dialogtitle"
-					android:defaultValue="1"
-					android:entries="@array/device_list_entries"
-					android:entryValues="@array/device_list_entryvalues"/>
+					android:defaultValue="1" android:entries="@array/device_list_entries"
+					android:entryValues="@array/device_list_entryvalues" />
 
 			</PreferenceCategory>
 
-			<!-- 
+
 			<PreferenceCategory android:title="Misc">
 
 				<CheckBoxPreference android:key="droidsensor_toggle_bluetooth"
-					android:title="@string/toggle_bluetooth_title"
-					android:summary="@string/toggle_bluetooth_summary" />
+					android:title="@string/toggle_bluetooth_title" android:summary="@string/toggle_bluetooth_summary" />
 
 			</PreferenceCategory>
-			-->
-		</PreferenceScreen>		
+
+		</PreferenceScreen>
 
 	</PreferenceCategory>
 
-	<!-- 
-	<PreferenceCategory android:title="Notification Settings">
+	<!--
+		<PreferenceCategory android:title="Notification Settings">
 
 		<CheckBoxPreference android:key="droidsensor_notification_vibration"
-			android:title="Vibration" />
-
-		<CheckBoxPreference android:key="droidsensor_notification_led_flash"
-			android:title="LED Flash" />
-
-	</PreferenceCategory>
+		android:title="Vibration" /> <CheckBoxPreference
+		android:key="droidsensor_notification_led_flash" android:title="LED
+		Flash" /> </PreferenceCategory>
 	-->
-	
+
 </PreferenceScreen>
