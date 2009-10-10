@@ -243,7 +243,7 @@ public class DroidSensorService extends ServiceSupport {
 	 */
 	private RemoteDeviceHandler createRemoteDeviceHandler() {
 
-		DroidSensorSettings settings = DroidSensorSettings
+		SettingsManager settings = SettingsManager
 				.getInstance(DroidSensorService.this);
 
 		if (settings.isToggleBluetooth()) {
@@ -263,7 +263,7 @@ public class DroidSensorService extends ServiceSupport {
 	 */
 	private ScanModeNoneHandler createScanModeNoneHandler() {
 
-		DroidSensorSettings settings = DroidSensorSettings
+		SettingsManager settings = SettingsManager
 				.getInstance(DroidSensorService.this);
 
 		if (settings.isToggleBluetooth()) {
@@ -307,7 +307,7 @@ public class DroidSensorService extends ServiceSupport {
 	 * @param id
 	 * @return 対象の場合はtrue、対象外の場合はfalseを返す.
 	 */
-	private boolean isDeviceWillTweet(DroidSensorSettings settings, String id) {
+	private boolean isDeviceWillTweet(SettingsManager settings, String id) {
 
 		String myId = settings.getTwitterId();
 
@@ -532,7 +532,7 @@ public class DroidSensorService extends ServiceSupport {
 			return;
 		}
 
-		DroidSensorSettings settings = DroidSensorSettings
+		SettingsManager settings = SettingsManager
 				.getInstance(DroidSensorService.this);
 
 		final String fixedName;
@@ -573,7 +573,7 @@ public class DroidSensorService extends ServiceSupport {
 
 		BluetoothDeviceStub stub = BluetoothDeviceStubFactory
 				.createBluetoothServiceStub(this);
-		DroidSensorSettings settings = DroidSensorSettings.getInstance(this);
+		SettingsManager settings = SettingsManager.getInstance(this);
 		String address = stub.getAddress();
 
 		try {
@@ -631,7 +631,7 @@ public class DroidSensorService extends ServiceSupport {
 
 	private void tweetDeviceFound(String address, String name, String id) {
 
-		DroidSensorSettings settings = DroidSensorSettings
+		SettingsManager settings = SettingsManager
 				.getInstance(DroidSensorService.this);
 
 		if (!isDeviceWillTweet(settings, id)) {

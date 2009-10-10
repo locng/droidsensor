@@ -263,7 +263,7 @@ public class DroidSensorInquiry {
 
 	private String getApiUrl() {
 
-		DroidSensorSettings settings = DroidSensorSettings
+		SettingsManager settings = SettingsManager
 				.getInstance(_context);
 		String res = settings.getApiUrl();
 

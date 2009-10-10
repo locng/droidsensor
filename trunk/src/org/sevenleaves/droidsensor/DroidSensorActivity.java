@@ -63,7 +63,7 @@ public class DroidSensorActivity extends ListActivitySupport {
 
 		public void run() {
 
-			DroidSensorSettings s = DroidSensorSettings
+			SettingsManager s = SettingsManager
 					.getInstance(DroidSensorActivity.this);
 			boolean verified = true;
 
