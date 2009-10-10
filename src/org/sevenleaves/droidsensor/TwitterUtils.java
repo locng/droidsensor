@@ -74,7 +74,7 @@ abstract class TwitterUtils {
 	}
 
 	private static Twitter createTwitterFromMainAccount(
-			DroidSensorSettings settings) {
+			SettingsManager settings) {
 
 		String u = settings.getTwitterId();
 		String p = settings.getTwitterPassword();
@@ -84,7 +84,7 @@ abstract class TwitterUtils {
 	}
 
 	private static Twitter createTwitterFromOptionalAccount(
-			DroidSensorSettings settings) {
+			SettingsManager settings) {
 
 		String u = settings.getOptionalTwitterId();
 		String p = settings.getOptionalTwitterPassword();
@@ -94,7 +94,7 @@ abstract class TwitterUtils {
 	}
 
 	private static List<Twitter> createDispatchTwitters(
-			DroidSensorSettings settings, int dispatch) {
+			SettingsManager settings, int dispatch) {
 
 		Twitter t;
 		List<Twitter> accounts = new ArrayList<Twitter>();
@@ -125,7 +125,7 @@ abstract class TwitterUtils {
 		return accounts;
 	}
 
-	private static List<Twitter> createTwitters(DroidSensorSettings settings,
+	private static List<Twitter> createTwitters(SettingsManager settings,
 			boolean isUser) {
 
 		List<Twitter> accounts;
@@ -151,7 +151,7 @@ abstract class TwitterUtils {
 	 * @throws TwitterException
 	 */
 	public static String tweetDeviceFound(String address, String name,
-			String id, DroidSensorSettings settings) throws TwitterException {
+			String id, SettingsManager settings) throws TwitterException {
 
 		String template = settings.getUserTemplate();
 
