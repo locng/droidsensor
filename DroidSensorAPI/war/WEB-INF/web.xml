@@ -10,12 +10,26 @@
     <servlet-name>apiServlet</servlet-name>
     <servlet-class>com.google.appengine.droidsensorserver.ApiServlet</servlet-class>
   </servlet>
-  
+
+  <!-- 
+  <servlet>
+    <servlet-name>migrateServlet</servlet-name>
+    <servlet-class>com.google.appengine.droidsensorserver.MigrateServlet</servlet-class>
+  </servlet>
+   -->
+   
   <servlet-mapping>
     <servlet-name>apiServlet</servlet-name>
     <url-pattern>/api</url-pattern>
   </servlet-mapping>
-  
+
+  <!-- 
+  <servlet-mapping>
+    <servlet-name>migrateServlet</servlet-name>
+    <url-pattern>/migrate</url-pattern>
+  </servlet-mapping>
+   -->
+   
   <!-- Default page to serve -->
   <!-- 
   <welcome-file-list>
