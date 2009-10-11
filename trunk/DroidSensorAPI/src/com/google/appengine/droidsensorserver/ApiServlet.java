@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ApiServlet extends HttpServlet {
 
+	/**
+	 * serialVersionUID.
+	 */
 	private static final long serialVersionUID = 8668774458868358942L;
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -65,12 +68,12 @@ public class ApiServlet extends HttpServlet {
 		processIgnore(req, resp);
 	}
 
-	private User buildUser(String address, String user) {
+	private BluetoothDevice buildBluetoothDevice(String address, String user) {
 
-		User u = new User(address, user);
-		u.setUpdateTime(System.currentTimeMillis());
+		BluetoothDevice res = new BluetoothDevice(address, user);
+		res.setUpdated(System.currentTimeMillis());
 
-		return u;
+		return res;
 	}
 
 	private void processIgnore(HttpServletRequest req, HttpServletResponse resp)
@@ -86,11 +89,13 @@ public class ApiServlet extends HttpServlet {
 		PersistenceManager pm = PersistenceManagerFactoryFactory
 				.createManager();
 
-		User u = null;
+		BluetoothDevice u = null;
 
+		Long id = addressToId(address);
+		
 		try {
 
-			u = pm.getObjectById(User.class, address);
+			u = pm.getObjectById(BluetoothDevice.class, id);
 			u = pm.detachCopy(u);
 
 		} catch (JDOObjectNotFoundException e) {
@@ -102,7 +107,7 @@ public class ApiServlet extends HttpServlet {
 
 			if (u == null || u.getTwitterUser().startsWith("@")) {
 
-				User su = buildUser(address, user);
+				BluetoothDevice su = buildBluetoothDevice(address, user);
 
 				try {
 
@@ -147,7 +152,7 @@ public class ApiServlet extends HttpServlet {
 	private void processPut(HttpServletRequest req, HttpServletResponse resp,
 			String address, String user) {
 
-		User u = buildUser(address, user);
+		BluetoothDevice u = buildBluetoothDevice(address, user);
 		PersistenceManager pm = PersistenceManagerFactoryFactory
 				.createManager();
 
@@ -163,13 +168,14 @@ public class ApiServlet extends HttpServlet {
 	private void processDelete(HttpServletRequest req,
 			HttpServletResponse resp, String address) {
 
-		User u;
+		BluetoothDevice u;
 		PersistenceManager pm = PersistenceManagerFactoryFactory
 				.createManager();
+		Long id = addressToId(address);
 
 		try {
 
-			u = pm.getObjectById(User.class, address);
+			u = pm.getObjectById(BluetoothDevice.class, id);
 			pm.deletePersistent(u);
 		} catch (JDOObjectNotFoundException e) {
 
@@ -180,17 +186,23 @@ public class ApiServlet extends HttpServlet {
 		}
 	}
 
+	private Long addressToId(String address){
+	
+		return Long.valueOf(address.hashCode());
+	}
+	
 	private void processGet(HttpServletRequest req, HttpServletResponse resp,
 			String address) throws IOException {
 
 		PersistenceManager pm = PersistenceManagerFactoryFactory
 				.createManager();
 
-		User u;
+		BluetoothDevice u;
+		Long id = addressToId(address);
 
 		try {
 
-			u = pm.getObjectById(User.class, address);
+			u = pm.getObjectById(BluetoothDevice.class, id);
 			u = pm.detachCopy(u);
 			
 			if(u.getTwitterUser().startsWith("@")){
