@@ -17,6 +17,10 @@
 package org.sevenleaves.droidsensor.handlers;
 
 /**
+ * TODO BluetoothIntentConstansを参照するように変更. <br />
+ * TODO BluetoothIntentと重複している。このクラスは除去する必要がある.
+ * 
+ * <br />
  * Bluetoothデバイスがとりうる状態の列挙. 但し、アプリケーションで必要とする状態のみに限定している.
  * 
  * @author esmasui@gmail.com

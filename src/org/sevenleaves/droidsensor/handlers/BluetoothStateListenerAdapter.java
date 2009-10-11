@@ -37,7 +37,10 @@ import android.content.IntentFilter;
 import android.util.Log;
 
 /**
- * Bluetoothインテントによる通知を{@link BluetoothStateHandler}にdispatchするためのアダプタクラス.
+ * TODO ハンドラーを登録するときの多重のネストはもうすこし浅くできると思う.
+ * 
+ * <br />
+ * インテントによるBluetoothイベントの通知を{@link BluetoothStateHandler}にdispatchするためのアダプタクラス.
  * 
  * @author esmasui@gmail.com
  * 
@@ -50,6 +53,10 @@ public class BluetoothStateListenerAdapter extends BroadcastReceiver {
 	private static final String TAG = BluetoothStateListenerAdapter.class
 			.getSimpleName();
 
+	/**
+	 * Intentを処理するハンドラーインターフェイス
+	 * 
+	 */
 	private interface IntentHandler {
 
 		void handleIntent(Context context, Intent intent);

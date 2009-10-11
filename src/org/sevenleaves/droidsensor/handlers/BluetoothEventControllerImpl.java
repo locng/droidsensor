@@ -1,5 +1,5 @@
 /*
-  * Copyright (C) 2009, DroidSensor - http://code.google.com/p/droidsensor/
+ * Copyright (C) 2009, DroidSensor - http://code.google.com/p/droidsensor/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,17 @@ import android.content.Context;
 import android.util.Log;
 
 /**
+ * 
+ * 
  * @author esmasui@gmail.com
- *
+ * 
  */
 public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 		BluetoothEventController {
 
-	private static final String TAG = BluetoothEventController.class.getSimpleName();
-	
+	private static final String TAG = BluetoothEventController.class
+			.getSimpleName();
+
 	private Map<BluetoothState, BluetoothStateHandler> _handlers;
 
 	private BluetoothDeviceStub _bluetoothDevice;
@@ -81,39 +84,43 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 
 	public void setCurrentState(BluetoothState currentState) {
 
-		if(!_handlers.containsKey(currentState)){
-			
+		if (!_handlers.containsKey(currentState)) {
+
 			return;
 		}
-		
+
 		_activeHandler = _handlers.get(currentState);
 	}
 
 	public void onRemoteDeviceDisappeared(String address) {
 
-		Log.d(TAG, _activeHandler.toString() + "#onRemoteDeviceDisappeared");
-		
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onRemoteDeviceDisappeared");
+
 		_activeHandler.onRemoteDeviceDisappeared(address);
 	}
 
 	public void onRemoteDeviceFound(String address) {
 
-		Log.d(TAG, _activeHandler.toString() + "#onRemoteDeviceFound");
-		
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onRemoteDeviceFound");
+
 		_activeHandler.onRemoteDeviceFound(address);
 	}
 
 	public void onRemoteNameUpdated(String address, String name) {
 
-		Log.d(TAG, _activeHandler.toString() + "#onRemoteNameUpdate");
-		
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onRemoteNameUpdate");
+
 		_activeHandler.onRemoteNameUpdated(address, name);
 	}
 
 	public void onScanModeChangedConnectable() {
 
-		Log.d(TAG, _activeHandler.toString() + "#onScanModeChangedConnectable");
-		
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onScanModeChangedConnectable");
+
 		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.SCAN_MODE_CONNECTABLE);
 		h.onScanModeChangedConnectable();
@@ -121,7 +128,8 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 
 	public void onScanModeChangedConnectableDiscoverable() {
 
-		Log.d(TAG, _activeHandler.toString() + "#onScanModeChangedConnectableDisable");
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onScanModeChangedConnectableDisable");
 
 		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
@@ -130,7 +138,8 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 
 	public void onScanModeChangedNone() {
 
-		Log.d(TAG, _activeHandler.toString() + "#onScanModeChangedNone");
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onScanModeChangedNone");
 
 		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.SCAN_MODE_NONE);
@@ -139,7 +148,8 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 
 	public void onStateChangedOff() {
 
-		Log.d(TAG, _activeHandler.toString() + "#onStateChangedOff");
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onStateChangedOff");
 
 		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.STATE_OFF);
@@ -148,7 +158,8 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 
 	public void onStateChangedOn() {
 
-		Log.d(TAG, _activeHandler.toString() + "#onStateChangedOn");
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onStateChangedOn");
 
 		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.STATE_ON);
@@ -157,8 +168,9 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 
 	public void onStateChangedTurningOff() {
 
-		Log.d(TAG, _activeHandler.toString() + "#onStateChangedTurningOff");
-		
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onStateChangedTurningOff");
+
 		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.STATE_TURNING_OFF);
 		h.onStateChangedTurningOff();
@@ -166,25 +178,28 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 
 	public void onStateChangedTurningOn() {
 
-		Log.d(TAG, _activeHandler.toString() + "#onStateChangedTurningOn");
-		
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onStateChangedTurningOn");
+
 		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.STATE_TURNING_ON);
 		h.onStateChangedTurningOn();
 	}
-	
+
 	public void onDiscoveryStarted() {
-	
-		Log.d(TAG, _activeHandler.toString() + "#onDiscoveryStarted");
-		
+
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onDiscoveryStarted");
+
 		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.DISCOVERY_STARTED);
 		h.onDiscoveryStarted();
 	}
-	
+
 	public void onDiscoveryCompleted() {
-	
-		Log.d(TAG, _activeHandler.toString() + "#onDiscoveryCompleted");	
+
+		Log.d(TAG, _activeHandler.getClass().getSimpleName()
+				+ "#onDiscoveryCompleted");
 
 		BluetoothStateHandler h = _activeHandler;
 		setCurrentState(BluetoothState.DISCOVERY_COMPLETED);
