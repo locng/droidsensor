@@ -303,7 +303,7 @@ public class DroidSensorService extends ServiceSupport {
 			return;
 		}
 
-		_controller.setCurrentState(BluetoothState.STATE_OFF);
+		_controller.setCurrentState(BluetoothState.BLUETOOTH_STATE_OFF);
 		bt.enable();
 	}
 

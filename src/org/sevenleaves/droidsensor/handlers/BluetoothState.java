@@ -17,11 +17,7 @@
 package org.sevenleaves.droidsensor.handlers;
 
 /**
- * TODO BluetoothIntentConstansを参照するように変更. <br />
- * TODO BluetoothIntentと重複している。このクラスは除去する必要がある.
- * 
- * <br />
- * Bluetoothデバイスがとりうる状態の列挙. 但し、アプリケーションで必要とする状態のみに限定している.
+ * Bluetoothデバイスがとりうる状態の列挙. 但し、アプリケーションで必要とする状態のみに限定している. <br />
  * 
  * @author esmasui@gmail.com
  * 
@@ -31,22 +27,22 @@ public enum BluetoothState {
 	/**
 	 * Bluetoothが有効になっている状態.
 	 */
-	STATE_ON,
+	BLUETOOTH_STATE_ON,
 
 	/**
 	 * Bluetoothが無効になろうとしている状態.
 	 */
-	STATE_TURNING_OFF,
+	BLUETOOTH_STATE_TURNING_OFF,
 
 	/**
 	 * Bluetoothが無効になっている状態.
 	 */
-	STATE_OFF,
+	BLUETOOTH_STATE_OFF,
 
 	/**
 	 * Bluetoothが有効になろうとしている状態.
 	 */
-	STATE_TURNING_ON,
+	BLUETOOTH_STATE_TURNING_ON,
 
 	/**
 	 * 接続・検出のいずれも不可能な状態.

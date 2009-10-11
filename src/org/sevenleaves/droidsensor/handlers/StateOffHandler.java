@@ -26,6 +26,6 @@ public class StateOffHandler extends AbstractBluetoothStateHandler {
 
 	public BluetoothState getResponsibility() {
 
-		return BluetoothState.STATE_OFF;
+		return BluetoothState.BLUETOOTH_STATE_OFF;
 	}
 }

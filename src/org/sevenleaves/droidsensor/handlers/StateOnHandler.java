@@ -26,7 +26,7 @@ public class StateOnHandler extends AbstractBluetoothStateHandler {
 
 	public BluetoothState getResponsibility() {
 
-		return BluetoothState.STATE_ON;
+		return BluetoothState.BLUETOOTH_STATE_ON;
 	}
 
 	@Override
