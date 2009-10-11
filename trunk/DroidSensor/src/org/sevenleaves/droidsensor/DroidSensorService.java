@@ -330,8 +330,8 @@ public class DroidSensorService extends ServiceSupport {
 
 				return;
 			}
-			
-			//_controller.setCurrentState(BluetoothState.BLUETOOTH_STATE_ON);
+
+			_controller.setCurrentState(BluetoothState.BLUETOOTH_STATE_ON);
 			bt.setScanMode(0x3);
 
 			return;
@@ -724,7 +724,7 @@ public class DroidSensorService extends ServiceSupport {
 
 		_devices.add(address);
 
-		//sendMessage(tweeted);
+		// sendMessage(tweeted);
 
 		showDeviceFound(tweeted);
 	}
