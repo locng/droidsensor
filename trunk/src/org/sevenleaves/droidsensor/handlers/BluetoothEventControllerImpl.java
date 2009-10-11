@@ -152,7 +152,7 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 				+ "#onStateChangedOff");
 
 		BluetoothStateHandler h = _activeHandler;
-		setCurrentState(BluetoothState.STATE_OFF);
+		setCurrentState(BluetoothState.BLUETOOTH_STATE_OFF);
 		h.onStateChangedOff();
 	}
 
@@ -162,7 +162,7 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 				+ "#onStateChangedOn");
 
 		BluetoothStateHandler h = _activeHandler;
-		setCurrentState(BluetoothState.STATE_ON);
+		setCurrentState(BluetoothState.BLUETOOTH_STATE_ON);
 		h.onStateChangedOn();
 	}
 
@@ -172,7 +172,7 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 				+ "#onStateChangedTurningOff");
 
 		BluetoothStateHandler h = _activeHandler;
-		setCurrentState(BluetoothState.STATE_TURNING_OFF);
+		setCurrentState(BluetoothState.BLUETOOTH_STATE_TURNING_OFF);
 		h.onStateChangedTurningOff();
 	}
 
@@ -182,7 +182,7 @@ public class BluetoothEventControllerImpl implements BluetoothStateHandler,
 				+ "#onStateChangedTurningOn");
 
 		BluetoothStateHandler h = _activeHandler;
-		setCurrentState(BluetoothState.STATE_TURNING_ON);
+		setCurrentState(BluetoothState.BLUETOOTH_STATE_TURNING_ON);
 		h.onStateChangedTurningOn();
 	}
 
