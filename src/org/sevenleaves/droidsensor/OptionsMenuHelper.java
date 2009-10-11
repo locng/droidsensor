@@ -32,6 +32,10 @@ import android.view.MenuItem;
  */
 public class OptionsMenuHelper {
 
+	/**
+	 * メニューに対するイベントを処理するCallbackインターフェイス.
+	 * 
+	 */
 	interface MenuItemCallback {
 
 		void onSelected(MenuItem item);
@@ -75,6 +79,7 @@ public class OptionsMenuHelper {
 
 	public MenuItem addItem(int titleId, int iconId, MenuItemCallback callback) {
 
+		// TODO これ、どうしてOptionsMenuHelperのクラスを渡してるんだっけ,,,という謎を解明する
 		Intent intent = new Intent(OptionsMenuHelper.class.getName());
 		_callbacks.add(callback);
 

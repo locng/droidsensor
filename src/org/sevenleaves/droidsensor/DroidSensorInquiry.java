@@ -28,17 +28,22 @@ import android.os.Message;
 import android.os.Handler.Callback;
 
 /**
+ * TODO スレッドの停止にintrupt()を使用する.
+ * <br />
+ * TODO RequestWorkerとRequestThreadをまとめる.
+ * 
+ * <br />
+ * API呼び出しのキューを管理するクラス. 実行結果は {@link Callback} へ通知する.
+ * 
  * @author esmasui@gmail.com
- *
+ * 
  */
 public class DroidSensorInquiry {
 
-	public static final String BLUETOOTH_ADDRESS = "BLUETOOTH_ADDRESS";
-
-	public static final String TWITTER_USER = "TWITTER_USER";
-
-	private static final int DEFAULT_MAX_THREADS = 3;
-
+	/**
+	 * API呼び出しのパラメーター.
+	 * 
+	 */
 	private static final class Inquiry {
 
 		private String _address;
@@ -49,16 +54,6 @@ public class DroidSensorInquiry {
 
 			_address = address;
 			_user = user;
-		}
-
-		public String getAddress() {
-
-			return _address;
-		}
-
-		public String getUser() {
-
-			return _user;
 		}
 
 		@Override
@@ -81,6 +76,16 @@ public class DroidSensorInquiry {
 			return res;
 		}
 
+		public String getAddress() {
+
+			return _address;
+		}
+
+		public String getUser() {
+
+			return _user;
+		}
+
 		@Override
 		public int hashCode() {
 
@@ -91,6 +96,26 @@ public class DroidSensorInquiry {
 		}
 	}
 
+	private final class RequestThread extends Thread {
+
+		private RequestWorker _worker;
+
+		public RequestThread(RequestWorker worker) {
+
+			super(worker);
+			_worker = worker;
+		}
+
+		public void cancel() {
+
+			_worker.cancel();
+		}
+	}
+
+	/**
+	 * API呼び出しを実行するスレッドの.
+	 * 
+	 */
 	private final class RequestWorker implements Runnable {
 
 		private String _apiUrl;
@@ -99,7 +124,7 @@ public class DroidSensorInquiry {
 
 		private volatile Callback _callback;
 
-		private CancellableThread _owner;
+		private RequestThread _owner;
 
 		public RequestWorker(String apiUrl, Inquiry inquiry, Callback callback) {
 
@@ -108,9 +133,12 @@ public class DroidSensorInquiry {
 			_callback = callback;
 		}
 
-		public void setOwner(CancellableThread owner) {
+		/**
+		 * callbackを解除する.
+		 */
+		public void cancel() {
 
-			_owner = owner;
+			_callback = null;
 		}
 
 		public void run() {
@@ -129,44 +157,66 @@ public class DroidSensorInquiry {
 			pollAndStart();
 		}
 
-		public void cancel() {
+		public void setOwner(RequestThread owner) {
 
-			_callback = null;
+			_owner = owner;
 		}
 	}
 
-	private final class CancellableThread extends Thread {
+	/**
+	 * メッセージにバンドルするBluetoothアドレスのキー.
+	 */
+	public static final String BLUETOOTH_ADDRESS = "BLUETOOTH_ADDRESS";
 
-		private RequestWorker _worker;
+	/**
+	 * メッセージにバンドルするTwitterユーザー名のキー.
+	 */
+	public static final String TWITTER_USER = "TWITTER_USER";
 
-		public CancellableThread(RequestWorker worker) {
+	/**
+	 * API呼び出しの同時実行可能数のデフォルト値.
+	 */
+	private static final int DEFAULT_MAX_THREADS = 3;
 
-			super(worker);
-			_worker = worker;
-		}
-
-		public void cancel() {
-
-			_worker.cancel();
-		}
-	}
-
+	/**
+	 * 受付済みのAPI呼び出し.
+	 */
 	private Set<Inquiry> _inquiries;
 
-	private Set<CancellableThread> _running;
+	/**
+	 * 実行中のAPI呼び出し.
+	 */
+	private Set<RequestThread> _running;
 
 	private Context _context;
 
-	private Queue<CancellableThread> _queue;
+	/**
+	 * 待機中のAPI呼び出し.
+	 */
+	private Queue<RequestThread> _queue;
 
+	/**
+	 * API呼び出しの同時実行可能数.
+	 */
 	private int _maxThreas = DEFAULT_MAX_THREADS;
 
+	/**
+	 * デフォルトの同時実行可能数を使用してインスタンス化する.
+	 * 
+	 * @param context
+	 */
 	public DroidSensorInquiry(Context context) {
 
 		_context = context;
 		initSelf();
 	}
 
+	/**
+	 * 同時実行可能数を明示してインスタンス化する.
+	 * 
+	 * @param context
+	 * @param maxThreads
+	 */
 	public DroidSensorInquiry(Context context, int maxThreads) {
 
 		_context = context;
@@ -174,6 +224,73 @@ public class DroidSensorInquiry {
 		initSelf();
 	}
 
+	/**
+	 * 実行中のすべてのAPI呼び出しを取り消す.
+	 */
+	public void cancelAll() {
+
+		for (RequestThread e : _running) {
+
+			e.cancel();
+		}
+
+		_queue.clear();
+		_running.clear();
+		_inquiries.clear();
+	}
+
+	/**
+	 * メッセージにバンドルするデータを作成する.
+	 * 
+	 * @param address
+	 * @param user
+	 * @return
+	 */
+	private Bundle createBundle(String address, String user) {
+
+		Bundle res = new Bundle(2);
+		res.putString(BLUETOOTH_ADDRESS, address);
+		res.putString(TWITTER_USER, user);
+
+		return res;
+	}
+
+	/**
+	 * ハンドラーに通知するメッセージを作成する.
+	 * 
+	 * @param inquiry
+	 * @param result
+	 * @return
+	 */
+	private Message createMessage(Inquiry inquiry, String result) {
+
+		Message res = new Message();
+		Bundle bundle = createBundle(inquiry.getAddress(), result);
+		res.setData(bundle);
+
+		return res;
+	}
+
+	/**
+	 * APIのURLを得る.
+	 * 
+	 * @return
+	 */
+	private String getApiUrl() {
+
+		SettingsManager settings = SettingsManager.getInstance(_context);
+		String res = settings.getApiUrl();
+
+		return res;
+	}
+
+	/**
+	 * デバイスの所有者をAPIを呼び出して得る. APIの呼び出し結果は callbackパラメーターに通知される.
+	 * 
+	 * @param address
+	 * @param user
+	 * @param callback
+	 */
 	public synchronized void getTwitterUser(String address, String user,
 			Callback callback) {
 
@@ -190,41 +307,22 @@ public class DroidSensorInquiry {
 		startSequentially(worker);
 	}
 
-	public void cancelAll() {
+	/**
+	 * 初期化処理を行う.
+	 */
+	private void initSelf() {
 
-		for (CancellableThread e : _running) {
-
-			e.cancel();
-		}
-
-		_queue.clear();
-		_running.clear();
-		_inquiries.clear();
+		_queue = new LinkedBlockingQueue<RequestThread>();
+		_inquiries = Collections.synchronizedSet(new HashSet<Inquiry>());
+		_running = Collections.synchronizedSet(new HashSet<RequestThread>());
 	}
 
-	@Override
-	protected void finalize() throws Throwable {
-
-		super.finalize();
-		cancelAll();
-	}
-
-	private void startSequentially(RequestWorker worker) {
-
-		CancellableThread th = new CancellableThread(worker);
-		worker.setOwner(th);
-		_queue.add(th);
-
-		int threads = _running.size();
-		if (threads <= _maxThreas) {
-
-			pollAndStart();
-		}
-	}
-
+	/**
+	 * 待機状態の問い合わせを1件、実行する.
+	 */
 	private void pollAndStart() {
 
-		CancellableThread th = _queue.poll();
+		RequestThread th = _queue.poll();
 
 		if (th == null) {
 
@@ -235,41 +333,12 @@ public class DroidSensorInquiry {
 		th.start();
 	}
 
-	private void initSelf() {
-
-		_queue = new LinkedBlockingQueue<CancellableThread>();
-		_inquiries = Collections.synchronizedSet(new HashSet<Inquiry>());
-		_running = Collections
-				.synchronizedSet(new HashSet<CancellableThread>());
-	}
-
-	private Bundle createBundle(String address, String user) {
-
-		Bundle res = new Bundle(2);
-		res.putString(BLUETOOTH_ADDRESS, address);
-		res.putString(TWITTER_USER, user);
-
-		return res;
-	}
-
-	private Message createMessage(Inquiry inquiry, String result) {
-
-		Message res = new Message();
-		Bundle bundle = createBundle(inquiry.getAddress(), result);
-		res.setData(bundle);
-
-		return res;
-	}
-
-	private String getApiUrl() {
-
-		SettingsManager settings = SettingsManager
-				.getInstance(_context);
-		String res = settings.getApiUrl();
-
-		return res;
-	}
-
+	/**
+	 * API呼び出しを受け付ける.
+	 * 
+	 * @param inquiry
+	 * @return
+	 */
 	private boolean registerInquiry(Inquiry inquiry) {
 
 		boolean contains = _inquiries.contains(inquiry);
@@ -282,5 +351,23 @@ public class DroidSensorInquiry {
 		_inquiries.add(inquiry);
 
 		return true;
+	}
+
+	/**
+	 * キューに入っているAPI呼び出しを1件実行する.
+	 * 
+	 * @param worker
+	 */
+	private void startSequentially(RequestWorker worker) {
+
+		RequestThread th = new RequestThread(worker);
+		worker.setOwner(th);
+		_queue.add(th);
+
+		int threads = _running.size();
+		if (threads <= _maxThreas) {
+
+			pollAndStart();
+		}
 	}
 }
