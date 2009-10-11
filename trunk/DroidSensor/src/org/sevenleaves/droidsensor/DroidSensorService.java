@@ -710,7 +710,7 @@ public class DroidSensorService extends ServiceSupport {
 				showDeviceFound(pref + error);
 			}
 
-			Log.e(TAG, Integer.toString(e.getStatusCode()));
+			Log.e(TAG, e.getLocalizedMessage(), e);
 
 			return;
 		}
