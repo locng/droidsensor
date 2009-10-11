@@ -20,6 +20,7 @@ import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub;
 
 /**
  * Bluetoothデバイスの状態遷移を処理するためのハンドラーインターフェイスを実装する抽象基底クラス.
+ * ハンドラーはこのクラスを継承し、処理する必要のある遷移をオーバーライドすること.
  * 
  * @author esmasui@gmail.com
  * 

@@ -19,6 +19,12 @@ package org.sevenleaves.droidsensor.handlers;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub;
 
 /**
+ * Bluetoothインテントの通知によって状態遷移を発生させるためのインターフェイス.
+ * 
+ * 
+ * <br />
+ * Bluetoothの状態遷移の通知をうけとるインターフェイス.
+ * 
  * @author esmasui@gmail.com
  * 
  */
