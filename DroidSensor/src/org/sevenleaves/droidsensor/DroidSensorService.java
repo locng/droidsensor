@@ -44,6 +44,7 @@ import org.sevenleaves.droidsensor.handlers.StateTurningOnHandler;
 import twitter4j.TwitterException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteCallbackList;
@@ -56,6 +57,8 @@ import android.util.Log;
  * 
  */
 public class DroidSensorService extends ServiceSupport {
+
+	private static final int REMOTE_DEVICE_FOUND_MESSAGE = 1;
 
 	/**
 	 * 定期的にBluetoothをOFF/ONするためのハンドラークラス.
@@ -171,6 +174,36 @@ public class DroidSensorService extends ServiceSupport {
 	private Set<String> _devices;
 
 	private final RemoteCallbackList<IDroidSensorCallbackListener> _listeners = new RemoteCallbackList<IDroidSensorCallbackListener>();
+
+	private Handler _handler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+
+			if (msg.what != REMOTE_DEVICE_FOUND_MESSAGE) {
+
+				super.dispatchMessage(msg);
+
+				return;
+			}
+
+			for (int i = 0, size = _listeners.beginBroadcast(); i < size; ++i) {
+
+				IDroidSensorCallbackListener item = _listeners
+						.getBroadcastItem(i);
+
+				try {
+
+					item.deviceFound((String) msg.obj);
+				} catch (RemoteException e) {
+
+					Log.e(TAG, e.getLocalizedMessage(), e);
+				}
+			}
+
+			_listeners.finishBroadcast();
+		};
+	};
 
 	private final IDroidSensorService.Stub _binder = new IDroidSensorService.Stub() {
 
@@ -297,7 +330,8 @@ public class DroidSensorService extends ServiceSupport {
 
 				return;
 			}
-
+			
+			//_controller.setCurrentState(BluetoothState.BLUETOOTH_STATE_ON);
 			bt.setScanMode(0x3);
 
 			return;
@@ -690,8 +724,17 @@ public class DroidSensorService extends ServiceSupport {
 
 		_devices.add(address);
 
-		showDeviceFound(tweeted);
+		//sendMessage(tweeted);
 
+		showDeviceFound(tweeted);
+	}
+
+	private void sendMessage(String tweeted) {
+
+		Message msg = new Message();
+		msg.obj = tweeted;
+		msg.what = REMOTE_DEVICE_FOUND_MESSAGE;
+		_handler.sendMessage(msg);
 	}
 
 }

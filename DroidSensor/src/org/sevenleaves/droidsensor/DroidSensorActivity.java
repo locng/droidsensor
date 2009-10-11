@@ -28,9 +28,11 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 /**
  * TODO プログレスのキャンセル処理.
@@ -40,17 +42,53 @@ import android.view.MenuItem;
  */
 public class DroidSensorActivity extends ListActivitySupport {
 
+	private static final String TAG = DroidSensorActivity.class.getSimpleName();
+
+	private static final int CALLBACK_MESSAGE = 1;
+
 	private ProgressDialog _progressDialog;
 
-	private Handler _handler = new Handler();
-
 	private IDroidSensorService _service;
+
+	private Handler _handler = new Handler() {
+
+		@Override
+		public void dispatchMessage(Message msg) {
+
+			if (msg.what != CALLBACK_MESSAGE) {
+
+				super.dispatchMessage(msg);
+
+				return;
+			}
+
+			Toast.makeText(DroidSensorActivity.this, (CharSequence) msg.obj,
+					Toast.LENGTH_SHORT).show();
+		};
+	};
+
+	private IDroidSensorCallbackListener _listener = new IDroidSensorCallbackListener.Stub() {
+
+		public void deviceFound(String message) throws RemoteException {
+
+			_handler.sendMessage(_handler.obtainMessage(CALLBACK_MESSAGE,
+					message));
+		}
+	};
 
 	private ServiceConnection _serviceConnection = new ServiceConnection() {
 
 		public void onServiceConnected(ComponentName name, IBinder service) {
 
 			_service = IDroidSensorService.Stub.asInterface(service);
+
+			try {
+
+				_service.addListener(_listener);
+			} catch (RemoteException e) {
+
+				Log.e(TAG, e.getLocalizedMessage(), e);
+			}
 		}
 
 		public void onServiceDisconnected(ComponentName name) {
@@ -110,7 +148,7 @@ public class DroidSensorActivity extends ListActivitySupport {
 					}
 				};
 
-				_handler.post(alert);
+				new Handler().post(alert);
 
 				return;
 			}
