@@ -193,7 +193,7 @@ public class BluetoothStateListenerAdapter extends BroadcastReceiver {
 					public void handleIntent(final Context context,
 							final Intent intent) {
 
-						final int state = BluetoothUtils.getState(intent);
+						final int state = BluetoothUtils.getBluetoothState(intent);
 
 						invokeHandler(new HandlerInvoker() {
 
