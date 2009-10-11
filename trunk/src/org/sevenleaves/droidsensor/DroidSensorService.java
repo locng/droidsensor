@@ -60,6 +60,7 @@ public class DroidSensorService extends ServiceSupport {
 	/**
 	 * 定期的にBluetoothをOFF/ONするためのハンドラークラス.
 	 * DonutでDiscoveryを繰り返すとコアライブラリのメモリリークにより端末がリスタートするため.
+	 * 但し、リスタートまでの時間がやや伸びる程度の効果しかないかもしれない.
 	 */
 	private class DonutRemoteDeviceHandler extends RemoteDeviceHandler {
 
@@ -79,7 +80,7 @@ public class DroidSensorService extends ServiceSupport {
 
 		@Override
 		public void onStateChangedOff() {
-		
+
 			getBluetoothDevice().enable();
 		}
 	}
@@ -108,7 +109,8 @@ public class DroidSensorService extends ServiceSupport {
 	}
 
 	/**
-	 * @author smasui
+	 * ローカルBluetoothデバイスが検出可能状態でリモートデバイスを発見した時に通知するためのハンドラー.
+	 * 検出可能状態であるConnectableDiscoverableの時のみ通知するのは、すれ違い通信という状況をつくるため.
 	 * 
 	 */
 	private class RemoteDeviceHandler extends
@@ -200,6 +202,11 @@ public class DroidSensorService extends ServiceSupport {
 		_devices = Collections.synchronizedSet(new HashSet<String>());
 	}
 
+	/**
+	 * コントローラーにハンドラーを登録して初期化する.
+	 * 
+	 * @return
+	 */
 	private BluetoothEventControllerImpl createController() {
 
 		BluetoothEventControllerImpl res = new BluetoothEventControllerImpl(
@@ -209,10 +216,10 @@ public class DroidSensorService extends ServiceSupport {
 		res.addHandler(remoteDeviceHandler);
 
 		res.addHandler(new ScanModeConnectableHandler());
-		//res.addHandler(new ScanModeNoneHandler());
+		// res.addHandler(new ScanModeNoneHandler());
 		ScanModeNoneHandler scanModeNoneHandler = createScanModeNoneHandler();
 		res.addHandler(scanModeNoneHandler);
-		
+
 		res.addHandler(new StateOffHandler());
 
 		// res.addHandler(new StateTurningOnHandler());
@@ -347,6 +354,12 @@ public class DroidSensorService extends ServiceSupport {
 		return res;
 	}
 
+	/**
+	 * 文字列が空文字であることを確認する.
+	 * 
+	 * @param str
+	 * @return 空文字の場合はtrue、空文字ではない場合はfalseを返す.
+	 */
 	private boolean isEmpty(String str) {
 
 		if (str == null) {
@@ -509,6 +522,12 @@ public class DroidSensorService extends ServiceSupport {
 		}
 	}
 
+	/**
+	 * リモートデバイスを発見した時に
+	 * 
+	 * @param address
+	 * @param name
+	 */
 	private void onRemoteDeviceFound(final String address, String name) {
 
 		if (_devices.contains(address)) {

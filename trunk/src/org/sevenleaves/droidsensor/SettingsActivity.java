@@ -20,8 +20,10 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 /**
+ * 設定画面.
+ * 
  * @author esmasui@gmail.com
- *
+ * 
  */
 public class SettingsActivity extends PreferenceActivity {
 
