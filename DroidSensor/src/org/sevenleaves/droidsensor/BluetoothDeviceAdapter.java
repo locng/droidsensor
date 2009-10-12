@@ -71,8 +71,10 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 		textView = (TextView) view.findViewById(R.id.updated);
 		textView.setText(formatDate(entity.getUpdated()));
 
-		textView = (TextView) view.findViewById(R.id.count);
-		textView.setText(formatCount(entity.getCount()) + "(times)");
+		// 要望とりこみなう.
+		// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
+		// textView = (TextView) view.findViewById(R.id.count);
+		// textView.setText(formatCount(entity.getCount()) + "(times)");
 
 		ImageView imageView = (ImageView) view.findViewById(R.id.androidIcon);
 		imageView.setVisibility(isUser(entity.getTwitterID())
@@ -83,7 +85,7 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 
 			imageView.setImageResource(R.drawable.android);
 		} else {
-			
+
 			imageView.setImageResource(R.drawable.android_mono);
 		}
 
@@ -128,11 +130,11 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 
 		_devices.clear();
 	}
-	
-	private String formatCount(int count){
-		
+
+	private String formatCount(int count) {
+
 		DecimalFormat fmt = new DecimalFormat("   ");
-		
+
 		return fmt.format(count);
 	}
 

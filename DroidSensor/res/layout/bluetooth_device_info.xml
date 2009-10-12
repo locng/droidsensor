@@ -52,10 +52,12 @@
 		android:textSize="22sp" android:textColor="#ffffffff"
 		android:layout_gravity="center" android:padding="6px"
 		android:fadingEdge="vertical" android:text="Updated: N/A" />
+	<!-- 
 	<TextView android:id="@+id/remoteDeviceCount"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:textSize="22sp" android:textColor="#ffffffff"
 		android:layout_gravity="center" android:padding="6px"
 		android:fadingEdge="vertical" android:text="Count: N/A" />
+	-->
 
 </LinearLayout>

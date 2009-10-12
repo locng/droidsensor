@@ -9,8 +9,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.text.format.DateFormat;
-import android.util.Log;
 import android.widget.TextView;
 
 public class RemoteBluetoothDeviceActivity extends Activity {
@@ -55,11 +53,14 @@ public class RemoteBluetoothDeviceActivity extends Activity {
 		view = (TextView) findViewById(R.id.remoteDeviceCompany);
 		view.setText("Company: " + emptyToNothing(entity.getCompany()));
 		view = (TextView) findViewById(R.id.remoteDeviceManufacturer);
-		view.setText("Manufacturer: " + emptyToNothing(entity.getManufacturer()));
+		view.setText("Manufacturer: "
+				+ emptyToNothing(entity.getManufacturer()));
 		view = (TextView) findViewById(R.id.remoteDeviceUpdated);
 		view.setText("Updated: " + formatDate(entity.getUpdated()));
-		view = (TextView) findViewById(R.id.remoteDeviceCount);
-		view.setText("Count: " + Integer.toString(entity.getCount()));
+		// 要望とりこみなう.
+		// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
+		//view = (TextView) findViewById(R.id.remoteDeviceCount);
+		//view.setText("Count: " + Integer.toString(entity.getCount()));
 	}
 
 	private String emptyToNothing(String s) {

@@ -689,8 +689,6 @@ public class DroidSensorService extends ServiceSupport {
 		SettingsManager settings = SettingsManager
 				.getInstance(DroidSensorService.this);
 
-		
-
 		if (!isDeviceWillTweet(settings, id)) {
 
 			persistBluetoothDevice(address, name, id, null, false);
@@ -750,39 +748,26 @@ public class DroidSensorService extends ServiceSupport {
 			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
 
 			BluetoothDeviceEntity e;
-			e = dao.findByAddress(address);
 
-			if (e != null) {
-
-				e.setName(name);
-				e.setDeviceClass(stub.getRemoteClass(address));
-				e.setCompany(stub.getRemoteCompany(address));
-				e.setManufacturer(stub.getRemoteManufacturer(address));
-				e.setTwitterID(twitterID);
-				e.setMessage(message);
-				e.setCount(e.getCount() + 1);
-				e.setStatus(tweeted ? 1 : 0);
-				e.setUpdated(Calendar.getInstance().getTimeInMillis());
-				dao.update(e);
-			} else {
-
-				e = new BluetoothDeviceEntity();
-				e.setAddress(address);
-				// e.setRSSI();
-				e.setName(name);
-				e.setDeviceClass(stub.getRemoteClass(address));
-				e.setCompany(stub.getRemoteCompany(address));
-				e.setManufacturer(stub.getRemoteManufacturer(address));
-				e.setTwitterID(twitterID);
-				e.setMessage(message);
-				// e.setLongitude();
-				// e.setLatitude();
-				e.setCount(1);
-				// e.setStatus();
-				e.setStatus(tweeted ? 1 : 0);
-				e.setUpdated(Calendar.getInstance().getTimeInMillis());
-				dao.insert(e);
-			}
+			// 要望とりこみなう.
+			// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
+			e = new BluetoothDeviceEntity();
+			e.setAddress(address);
+			// e.setRSSI();
+			e.setName(name);
+			e.setDeviceClass(stub.getRemoteClass(address));
+			e.setCompany(stub.getRemoteCompany(address));
+			e.setManufacturer(stub.getRemoteManufacturer(address));
+			e.setTwitterID(twitterID);
+			e.setMessage(message);
+			// e.setLongitude();
+			// e.setLatitude();
+			e.setCount(1);
+			// e.setStatus();
+			e.setStatus(tweeted ? 1 : 0);
+			e.setUpdated(Calendar.getInstance().getTimeInMillis());
+			dao.insert(e);
+			// }
 		} finally {
 
 			if (db != null) {
