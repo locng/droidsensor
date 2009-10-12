@@ -19,5 +19,5 @@ package org.sevenleaves.droidsensor;
 
 interface IDroidSensorCallbackListener {
 
-	void deviceFound(String message);	
+	void deviceFound(String address);	
 }

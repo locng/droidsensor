@@ -16,7 +16,10 @@
 
 package org.sevenleaves.droidsensor;
 
+import java.util.List;
+
 import org.sevenleaves.droidsensor.OptionsMenuHelper.MenuItemCallback;
+import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -25,6 +28,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.DialogInterface.OnClickListener;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -32,7 +36,8 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.ListView;
 
 /**
  * TODO プログレスのキャンセル処理.
@@ -62,17 +67,18 @@ public class DroidSensorActivity extends ListActivitySupport {
 				return;
 			}
 
-			Toast.makeText(DroidSensorActivity.this, (CharSequence) msg.obj,
-					Toast.LENGTH_SHORT).show();
+			String address = (String) msg.obj;
+			BluetoothDeviceEntity entity = getRemoteBluetoothDevice(address);
+			addDeviceToList(entity);
 		};
 	};
 
 	private IDroidSensorCallbackListener _listener = new IDroidSensorCallbackListener.Stub() {
 
-		public void deviceFound(String message) throws RemoteException {
+		public void deviceFound(String address) throws RemoteException {
 
 			_handler.sendMessage(_handler.obtainMessage(CALLBACK_MESSAGE,
-					message));
+					address));
 		}
 	};
 
@@ -208,6 +214,29 @@ public class DroidSensorActivity extends ListActivitySupport {
 				});
 	}
 
+	/**
+	 * 削除メニューを登録する.
+	 * 
+	 * @param helper
+	 */
+	private void addDeleteMenu(OptionsMenuHelper helper) {
+
+		helper.addItem(R.string.menu_delete, android.R.drawable.ic_menu_delete,
+
+		new MenuItemCallback() {
+
+			public void onOpend(MenuItem item) {
+
+				; // nop
+			}
+
+			public void onSelected(MenuItem item) {
+
+				onDeleteMenuSelected(item);
+			}
+		});
+	}
+
 	private ProgressDialog createProgressDialog(OnClickListener cancelListener) {
 
 		ProgressDialog dialog = new ProgressDialog(DroidSensorActivity.this);
@@ -250,12 +279,101 @@ public class DroidSensorActivity extends ListActivitySupport {
 		Intent bi = new Intent(IDroidSensorService.class.getName());
 		bindService(bi, _serviceConnection, BIND_AUTO_CREATE);
 
-		// ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-		// android.R.layout.simple_list_item_1, new String[] { "Led Zeppelin",
-		// "Jimi Hendrix",
-		// "The Black Crowes" });
-		//	        
-		// setListAdapter(adapter);
+		BluetoothDeviceAdapter adapter = new BluetoothDeviceAdapter(
+				DroidSensorActivity.this);
+		setListAdapter(adapter);
+		initList();
+	}
+
+	private void clearList() {
+
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		adapter.clear();
+
+		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
+				DroidSensorActivity.this);
+		SQLiteDatabase db = null;
+
+		try {
+
+			db = dbHelper.getWritableDatabase();
+			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+			dao.deleteAll();
+		} finally {
+
+			if (db != null) {
+
+				db.close();
+			}
+		}
+
+		adapter.notifyDataSetChanged();
+	}
+
+	private void initList() {
+
+		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
+				DroidSensorActivity.this);
+		SQLiteDatabase db = null;
+
+		try {
+
+			db = dbHelper.getWritableDatabase();
+			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+			List<BluetoothDeviceEntity> devices = dao.findAll();
+
+			for (BluetoothDeviceEntity e : devices) {
+
+				addDeviceToList(e);
+			}
+		} finally {
+
+			if (db != null) {
+
+				db.close();
+			}
+		}
+	}
+
+	private BluetoothDeviceEntity getRemoteBluetoothDevice(String address) {
+
+		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
+				DroidSensorActivity.this);
+		SQLiteDatabase db = null;
+
+		try {
+
+			db = dbHelper.getWritableDatabase();
+			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+			BluetoothDeviceEntity entity = dao.findByAddress(address);
+
+			return entity;
+		} finally {
+
+			if (db != null) {
+
+				db.close();
+			}
+		}
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		BluetoothDeviceEntity entity = (BluetoothDeviceEntity) adapter
+				.getItem(position);
+		Intent intent = new Intent(RemoteBluetoothDeviceActivity.class
+				.getName());
+		BluetoothUtils.putAddress(intent, entity.getAddress());
+		startActivity(intent);
+	}
+
+	private void addDeviceToList(BluetoothDeviceEntity entity) {
+
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		adapter.addBluetoothDevice(entity);
+		adapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -263,6 +381,7 @@ public class DroidSensorActivity extends ListActivitySupport {
 
 		addDiscoveryMenu(helper);
 		addSettingsMenu(helper);
+		addDeleteMenu(helper);
 	}
 
 	@Override
@@ -333,6 +452,22 @@ public class DroidSensorActivity extends ListActivitySupport {
 		startActivity(intent);
 	}
 
+	/**
+	 * Deleteメニューが押された時に呼ばれるコールバック.
+	 * 
+	 * @param item
+	 */
+	private void onDeleteMenuSelected(MenuItem item) {
+
+		buildDeleteConfirm().show();
+	}
+
+	@Override
+	protected void doClearList() {
+
+		clearList();
+	}
+
 	private void showError(String message) {
 
 		// Toast toast = Toast.makeText(DroidSensorActivity.this, message,
@@ -373,4 +508,5 @@ public class DroidSensorActivity extends ListActivitySupport {
 			; // nop.
 		}
 	}
+
 }

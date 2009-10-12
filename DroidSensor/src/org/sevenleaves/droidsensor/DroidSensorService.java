@@ -21,6 +21,7 @@ import static org.sevenleaves.droidsensor.ServiceUtils.cancelImmediatly;
 import static org.sevenleaves.droidsensor.ServiceUtils.isActionContinue;
 import static org.sevenleaves.droidsensor.ServiceUtils.isStopAction;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,6 +44,7 @@ import org.sevenleaves.droidsensor.handlers.StateTurningOnHandler;
 
 import twitter4j.TwitterException;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -687,8 +689,12 @@ public class DroidSensorService extends ServiceSupport {
 		SettingsManager settings = SettingsManager
 				.getInstance(DroidSensorService.this);
 
+		
+
 		if (!isDeviceWillTweet(settings, id)) {
 
+			persistBluetoothDevice(address, name, id, null, false);
+			sendMessage(address);
 			_devices.add(address);
 
 			return;
@@ -722,17 +728,74 @@ public class DroidSensorService extends ServiceSupport {
 
 		Log.d(TAG, address + "(" + name + ")" + " found.");
 
+		persistBluetoothDevice(address, name, id, null, true);
 		_devices.add(address);
 
-		// sendMessage(tweeted);
-
+		sendMessage(address);
 		showDeviceFound(tweeted);
 	}
 
-	private void sendMessage(String tweeted) {
+	private void persistBluetoothDevice(String address, String name,
+			String twitterID, String message, boolean tweeted) {
+
+		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
+				DroidSensorService.this);
+		SQLiteDatabase db = null;
+
+		try {
+
+			BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+					.createBluetoothServiceStub(DroidSensorService.this);
+			db = dbHelper.getWritableDatabase();
+			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+
+			BluetoothDeviceEntity e;
+			e = dao.findByAddress(address);
+
+			if (e != null) {
+
+				e.setName(name);
+				e.setDeviceClass(stub.getRemoteClass(address));
+				e.setCompany(stub.getRemoteCompany(address));
+				e.setManufacturer(stub.getRemoteManufacturer(address));
+				e.setTwitterID(twitterID);
+				e.setMessage(message);
+				e.setCount(e.getCount() + 1);
+				e.setStatus(tweeted ? 1 : 0);
+				e.setUpdated(Calendar.getInstance().getTimeInMillis());
+				dao.update(e);
+			} else {
+
+				e = new BluetoothDeviceEntity();
+				e.setAddress(address);
+				// e.setRSSI();
+				e.setName(name);
+				e.setDeviceClass(stub.getRemoteClass(address));
+				e.setCompany(stub.getRemoteCompany(address));
+				e.setManufacturer(stub.getRemoteManufacturer(address));
+				e.setTwitterID(twitterID);
+				e.setMessage(message);
+				// e.setLongitude();
+				// e.setLatitude();
+				e.setCount(1);
+				// e.setStatus();
+				e.setStatus(tweeted ? 1 : 0);
+				e.setUpdated(Calendar.getInstance().getTimeInMillis());
+				dao.insert(e);
+			}
+		} finally {
+
+			if (db != null) {
+
+				db.close();
+			}
+		}
+	}
+
+	private void sendMessage(String address) {
 
 		Message msg = new Message();
-		msg.obj = tweeted;
+		msg.obj = address;
 		msg.what = REMOTE_DEVICE_FOUND_MESSAGE;
 		_handler.sendMessage(msg);
 	}

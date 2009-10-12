@@ -29,8 +29,12 @@
     <string name="menu_stop_discover">Stop Discover</string>
     <string name="menu_settings">Settings</string>
     <string name="default_message">MENU &gt; Start Discover</string>
+    <string name="menu_delete">Clear List</string>
 
-    
+	<string name="delete_confirm_title">Procced to clear list</string>
+	<string name="delete_confirm_yes">OK</string>
+	<string name="delete_confirm_no">Cancel</string>
+	    
     <!-- deplicate -->
     <string name="advanced_menu_settings">Advanced Settings</string>
 

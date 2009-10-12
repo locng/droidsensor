@@ -24,7 +24,7 @@ import twitter4j.TwitterException;
 
 /**
  * @author esmasui@gmail.com
- *
+ * 
  */
 abstract class TwitterUtils {
 
@@ -73,8 +73,7 @@ abstract class TwitterUtils {
 		return t;
 	}
 
-	private static Twitter createTwitterFromMainAccount(
-			SettingsManager settings) {
+	private static Twitter createTwitterFromMainAccount(SettingsManager settings) {
 
 		String u = settings.getTwitterId();
 		String p = settings.getTwitterPassword();

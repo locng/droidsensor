@@ -17,6 +17,7 @@
 package org.sevenleaves.droidsensor.bluetooth;
 
 import android.content.Intent;
+import android.os.Bundle;
 
 public abstract class BluetoothUtils {
 
@@ -49,6 +50,11 @@ public abstract class BluetoothUtils {
 		return res;
 	}
 
+	public static void putAddress(Intent intent, String address) {
+
+		intent.putExtra(ADDRESS, address);
+	}
+
 	public static String getName(Intent intent) {
 
 		String res = intent.getStringExtra(NAME);
@@ -75,5 +81,12 @@ public abstract class BluetoothUtils {
 		int res = intent.getIntExtra(BLUETOOTH_STATE, Integer.MIN_VALUE);
 
 		return res;
+	}
+	
+	public static String getMaskedAddress(String address){
+		
+		String vendor = address.substring(0, 8);
+		
+		return vendor + ":--:--:--";
 	}
 }
