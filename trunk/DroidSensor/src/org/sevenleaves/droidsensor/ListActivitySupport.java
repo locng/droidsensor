@@ -16,7 +16,11 @@
 
 package org.sevenleaves.droidsensor;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -60,4 +64,28 @@ public abstract class ListActivitySupport extends ListActivity {
 	}
 
 	abstract protected void onCreateOptionMenuInternal(OptionsMenuHelper helper);
+	
+	abstract protected void doClearList();
+	
+	protected AlertDialog buildDeleteConfirm(){
+		
+		Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.delete_confirm_title);
+		builder.setPositiveButton(R.string.delete_confirm_yes, new OnClickListener() {
+			
+			public void onClick(DialogInterface dialog, int which) {
+
+				doClearList();
+			}
+		});
+		builder.setNegativeButton(R.string.delete_confirm_no, new OnClickListener() {
+			
+			public void onClick(DialogInterface dialog, int which) {
+
+				// nop.
+			}
+		});
+		
+		return builder.create();
+	}
 }

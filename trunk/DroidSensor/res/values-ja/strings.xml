@@ -16,6 +16,11 @@
 	<string name="menu_discover">すれ違い通信を開始</string>
 	<string name="menu_stop_discover">すれ違い通信を終了</string>
 	<string name="menu_settings">設定</string>
+	<string name="menu_delete">一覧をクリア</string>
+
+	<string name="delete_confirm_title">一覧をクリアしてよろしいですか？</string>
+	<string name="delete_confirm_yes">クリア</string>
+	<string name="delete_confirm_no">キャンセル</string>
 
 	<string name="default_message">[MENU] &gt; [すれ違い通信を開始] で通信を開始します</string>
 

@@ -26,9 +26,9 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DroidSensorDatabaseOpenHelper extends SQLiteOpenHelper {
 
-	public static final String DATABASE_NAME = "DEVICES";
+	public static final String DATABASE_NAME = "BLUETOOTH_DEVICE";
 
-	public static final int DATABASE_VERSION = 1;
+	public static final int DATABASE_VERSION = 2;
 
 	private static final String CREATE_TABLE_SQL;
 	
@@ -37,18 +37,28 @@ public class DroidSensorDatabaseOpenHelper extends SQLiteOpenHelper {
 	static {
 	
 		StringBuilder b = new StringBuilder();
-		b.append("create table DEVICES");
+		b.append("create table BLUETOOTH_DEVICE");
 		b.append(" (");
-		b.append("rowid integer primary key autoincrement,");
+		b.append("ROW_ID integer primary key autoincrement,");
 		b.append("ADDRESS text not null,");
-		b.append("NAME text not null,");
-		b.append("TWITTER_ID text");
+		b.append("RSSI integer not null,");
+		b.append("NAME text,");
+		b.append("CLASS integer,");
+		b.append("COMPANY text,");
+		b.append("MANUFACTURER text,");
+		b.append("TWITTER_ID text,");
+		b.append("MESSAGE text,");
+		b.append("LONGITUDE real,");
+		b.append("LATITUDE real,");
+		b.append("COUNT integer,");
+		b.append("STATUS integer,");
+		b.append("UPDATED real");
 		b.append(")");
-		
+
 		CREATE_TABLE_SQL = b.toString();
 		
 		b.setLength(0);
-		b.append("drop table if existsDEVICES");
+		b.append("drop table if exists BLUETOOTH_DEVICE");
 		
 		DROP_TABLE_SQL = b.toString();
 		
