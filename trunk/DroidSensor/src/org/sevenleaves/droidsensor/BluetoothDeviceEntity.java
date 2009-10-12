@@ -157,12 +157,15 @@ public class BluetoothDeviceEntity {
 
 		BluetoothDeviceEntity c = (BluetoothDeviceEntity) o;
 
-		return getAddress().equals(c.getAddress());
+		// 要望とりこみなう.
+		// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
+		// return getAddress().equals(c.getAddress());
+		return getRowID() == c.getRowID();
 	}
-	
+
 	@Override
 	public int hashCode() {
-	
-		return getAddress().hashCode();
+
+		return getRowID();
 	}
 }
