@@ -104,10 +104,12 @@
 
 	<string name="device_detail_passed_no_title">Passed by No one</string>
 	<string name="device_detail_passed_no_summary">Include that passed by No one</string>
-    
-    
+     
     
 	<string name="toggle_bluetooth_title">Toggle Bluetooth</string>
 	<string name="toggle_bluetooth_summary">Toggle bluetooth at constant intervals</string>
+    
+    <string name="post_message_button_text">Leave Message</string>
+    <string name="post_message_description">The message can be left for the user that passed each other with this device.</string>
     
 </resources>
