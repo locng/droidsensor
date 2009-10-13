@@ -20,9 +20,19 @@ import org.sevenleaves.droidsensor.OptionsMenuHelper.MenuItemCallback;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
+import android.content.ComponentName;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.DialogInterface.OnClickListener;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.RemoteException;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -33,6 +43,65 @@ import android.view.MenuItem;
  * 
  */
 public abstract class DroidSensorActivitySupport extends ListActivity {
+
+	private static final String TAG = DroidSensorActivitySupport.class
+			.getSimpleName();
+
+	private IDroidSensorService _service;
+
+	private static final int CALLBACK_MESSAGE = 1;
+
+	private Handler _handler = new Handler() {
+
+		@Override
+		public void dispatchMessage(Message msg) {
+
+			if (msg.what != CALLBACK_MESSAGE) {
+
+				super.dispatchMessage(msg);
+
+				return;
+			}
+
+			onMessageDispatched(msg);
+		};
+	};
+
+	/**
+	 * {@link IDroidSensorCallbackListener}のインスタンス. 
+	 */
+	private IDroidSensorCallbackListener _listener = new IDroidSensorCallbackListener.Stub() {
+
+		public void deviceFound(String address) throws RemoteException {
+
+			_handler.sendMessage(_handler.obtainMessage(CALLBACK_MESSAGE,
+					address));
+		}
+	};
+
+	/**
+	 * {@link IDroidSensorService}とバインドするための {@link ServiceConnection}のインスタンス.
+	 */
+	private ServiceConnection _serviceConnection = new ServiceConnection() {
+
+		public void onServiceConnected(ComponentName name, IBinder service) {
+
+			_service = IDroidSensorService.Stub.asInterface(service);
+
+			try {
+
+				_service.addListener(_listener);
+			} catch (RemoteException e) {
+
+				Log.e(TAG, e.getLocalizedMessage(), e);
+			}
+		}
+
+		public void onServiceDisconnected(ComponentName name) {
+
+			_service = null;
+		}
+	};
 
 	private OptionsMenuHelper _menuHelper;
 
@@ -49,7 +118,7 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 		registerOptionsMenu(_menuHelper);
 
 		return res;
-	}
+	};
 
 	@Override
 	public final boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -179,14 +248,40 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	}
 
 	/**
-	 * ClearAllメニューを拒否した時の処理を実装する.
+	 * Progressダイアログを構成する.
+	 * 
+	 * @param cancelListener
+	 * @return
 	 */
-	protected abstract void onClearAllDialogRejected();
+	protected ProgressDialog createProgressDialog(OnClickListener cancelListener) {
+
+		ProgressDialog dialog = new ProgressDialog(this);
+		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		dialog.setTitle("Processing...");
+		// dialog.setMessage("Verify Credentials");
+
+		return dialog;
+	}
+
+	/**
+	 * bind済みの{@link IDroidSensorService}インスタンスを得る.
+	 * 
+	 * @return
+	 */
+	protected final IDroidSensorService getDroidSensorService() {
+
+		return _service;
+	}
 
 	/**
 	 * ClearAllメニューを許可した時の処理を実装する.
 	 */
 	protected abstract void onClearAllDialogAccepted();
+
+	/**
+	 * ClearAllメニューを拒否した時の処理を実装する.
+	 */
+	protected abstract void onClearAllDialogRejected();
 
 	/**
 	 * ClearAllメニューが開かれた時の処理を実装する.
@@ -202,6 +297,21 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	 */
 	protected abstract void onClearAllMenuSelected(MenuItem item);
 
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+
+		super.onCreate(savedInstanceState);
+		Intent bi = new Intent(IDroidSensorService.class.getName());
+		bindService(bi, _serviceConnection, BIND_AUTO_CREATE);
+	}
+
+	@Override
+	protected void onDestroy() {
+
+		super.onDestroy();
+		unbindService(_serviceConnection);
+	}
+
 	/**
 	 * Discoveryメニューが開かれた時の処理を実装する.
 	 * 
@@ -215,6 +325,13 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	 * @param item
 	 */
 	protected abstract void onDiscoveryMenuSelected(MenuItem item);
+
+	/**
+	 * {@link DroidSensorService}からリモートデバイス検出を通知された時の処理を実装する.
+	 * 
+	 * @param msg
+	 */
+	protected abstract void onMessageDispatched(Message msg);
 
 	/**
 	 * Settingsメニューが開かれた時の処理を実装する.
