@@ -36,93 +36,6 @@ public abstract class ServiceUtils {
 
 	public static final String INTERVAL_ACTION = "interval";
 
-	public static boolean isActionMatches(Intent intent, String action) {
-
-		String a = intent.getAction();
-		boolean res = action.equals(a);
-
-		return res;
-	}
-
-	public static boolean isStartAction(Intent intent) {
-
-		return isStartService(intent) || isActionMatches(intent, START_ACTION);
-	}
-
-	public static boolean isStartService(Intent intent) {
-
-		return isActionMatches(intent, IDroidSensorService.class.getName());
-	}
-
-	public static boolean isStopAction(Intent intent) {
-
-		return isActionMatches(intent, STOP_ACTION);
-	}
-
-	public static boolean isIntervalAction(Intent intent) {
-
-		return isActionMatches(intent, INTERVAL_ACTION);
-	}
-
-	public static boolean isActionContinue(Intent intent) {
-
-		boolean res = isStartAction(intent);
-		res |= isIntervalAction(intent);
-
-		return res;
-	}
-
-	public static Intent createIntent(Class<?> clazz, String action) {
-
-		String pkg = clazz.getPackage().getName();
-		String name = clazz.getName();
-		Intent intent = new Intent();
-		intent.setClassName(pkg, name);
-		intent.setAction(action);
-
-		return intent;
-	}
-
-	public static Intent createStartAction(Class<?> service) {
-
-		return createIntent(service, START_ACTION);
-	}
-
-	public static Intent createStopAction(Class<?> service) {
-
-		return createIntent(service, STOP_ACTION);
-	}
-
-	public static Intent createIntervalAction(Class<?> service) {
-
-		return createIntent(service, INTERVAL_ACTION);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T getSystemService(Context context, String serviceName) {
-
-		T res = (T) context.getSystemService(serviceName);
-
-		return res;
-	}
-
-	public static AlarmManager getAlarmManager(Context context) {
-
-		return getSystemService(context, Context.ALARM_SERVICE);
-	}
-
-	public static NotificationManager getNotificationManager(Context context) {
-
-		return getSystemService(context, Context.NOTIFICATION_SERVICE);
-	}
-
-	public static long toMilliSeconds(long seconds) {
-
-		long res = seconds * 1000L;
-
-		return res;
-	}
-
 	public static void callLater(Service service, Class<?> type, long seconds) {
 
 		AlarmManager alarm = getAlarmManager(service);
@@ -140,5 +53,92 @@ public abstract class ServiceUtils {
 		PendingIntent pi = PendingIntent.getService(service, 0, si, 0);
 		AlarmManager alarm = getAlarmManager(service);
 		alarm.cancel(pi);
+	}
+
+	public static Intent createIntent(Class<?> clazz, String action) {
+
+		String pkg = clazz.getPackage().getName();
+		String name = clazz.getName();
+		Intent intent = new Intent();
+		intent.setClassName(pkg, name);
+		intent.setAction(action);
+
+		return intent;
+	}
+
+	public static Intent createIntervalAction(Class<?> service) {
+
+		return createIntent(service, INTERVAL_ACTION);
+	}
+
+	public static Intent createStartAction(Class<?> service) {
+
+		return createIntent(service, START_ACTION);
+	}
+
+	public static Intent createStopAction(Class<?> service) {
+
+		return createIntent(service, STOP_ACTION);
+	}
+
+	public static AlarmManager getAlarmManager(Context context) {
+
+		return getSystemService(context, Context.ALARM_SERVICE);
+	}
+
+	public static NotificationManager getNotificationManager(Context context) {
+
+		return getSystemService(context, Context.NOTIFICATION_SERVICE);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T getSystemService(Context context, String serviceName) {
+
+		T res = (T) context.getSystemService(serviceName);
+
+		return res;
+	}
+
+	public static boolean isActionContinue(Intent intent) {
+
+		boolean res = isStartAction(intent);
+		res |= isIntervalAction(intent);
+
+		return res;
+	}
+
+	public static boolean isActionMatches(Intent intent, String action) {
+
+		String a = intent.getAction();
+		boolean res = action.equals(a);
+
+		return res;
+	}
+
+	public static boolean isIntervalAction(Intent intent) {
+
+		return isActionMatches(intent, INTERVAL_ACTION);
+	}
+
+	public static boolean isStartAction(Intent intent) {
+
+		return isStartService(intent) || isActionMatches(intent, START_ACTION);
+	}
+
+	public static boolean isStartService(Intent intent) {
+
+		return isActionMatches(intent, IDroidSensorService.class.getName());
+	}
+
+	public static boolean isStopAction(Intent intent) {
+
+		return isActionMatches(intent, STOP_ACTION);
+	}
+
+	public static long toMilliSeconds(long seconds) {
+
+		long res = seconds * 1000L;
+
+		return res;
 	}
 }

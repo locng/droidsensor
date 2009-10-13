@@ -50,6 +50,73 @@ public class BluetoothDeviceEntityDAO {
 		_db = db;
 	}
 
+	public int deleteAll() {
+
+		int res = _db.delete(TABLE_NAME, null, null);
+
+		return res;
+	}
+
+	public List<BluetoothDeviceEntity> findAll() {
+
+		List<BluetoothDeviceEntity> res = new ArrayList<BluetoothDeviceEntity>();
+
+		Cursor c = _db.query(TABLE_NAME, COLUMNS, null, null, null, null,
+				ROW_ID + " desc");
+
+		while (c.moveToNext()) {
+
+			BluetoothDeviceEntity e = new BluetoothDeviceEntity();
+			e.setRowID(c.getInt(0));
+			e.setAddress(c.getString(1));
+			e.setRSSI(c.getInt(2));
+			e.setName(c.getString(3));
+			e.setDeviceClass(c.getInt(4));
+			e.setCompany(c.getString(5));
+			e.setManufacturer(c.getString(6));
+			e.setTwitterID(c.getString(7));
+			e.setMessage(c.getString(8));
+			e.setLongitude(c.getDouble(9));
+			e.setLatitude(c.getDouble(10));
+			e.setCount(c.getInt(11));
+			e.setStatus(c.getInt(12));
+			e.setUpdated(c.getLong(13));
+			res.add(e);
+		}
+
+		return res;
+	}
+
+	public BluetoothDeviceEntity findByAddress(String address) {
+
+		String selection = "ADDRESS='" + address + "'";
+		Cursor c = _db.query(TABLE_NAME, COLUMNS, selection, null, null, null,
+				UPDATED + " desc");
+
+		while (c.moveToNext()) {
+
+			BluetoothDeviceEntity res = new BluetoothDeviceEntity();
+			res.setRowID(c.getInt(0));
+			res.setAddress(c.getString(1));
+			res.setRSSI(c.getInt(2));
+			res.setName(c.getString(3));
+			res.setDeviceClass(c.getInt(4));
+			res.setCompany(c.getString(5));
+			res.setManufacturer(c.getString(6));
+			res.setTwitterID(c.getString(7));
+			res.setMessage(c.getString(8));
+			res.setLongitude(c.getDouble(9));
+			res.setLatitude(c.getDouble(10));
+			res.setCount(c.getInt(11));
+			res.setStatus(c.getInt(12));
+			res.setUpdated(c.getLong(13));
+
+			return res;
+		}
+
+		return null;
+	}
+
 	public long insert(BluetoothDeviceEntity entity) {
 
 		ContentValues values = new ContentValues();
@@ -89,73 +156,6 @@ public class BluetoothDeviceEntityDAO {
 		values.put(UPDATED, entity.getUpdated());
 		String whereClause = "ROW_ID=" + entity.getRowID(); 
 		long res = _db.update(TABLE_NAME, values, whereClause, null);
-
-		return res;
-	}
-
-	public BluetoothDeviceEntity findByAddress(String address) {
-
-		String selection = "ADDRESS='" + address + "'";
-		Cursor c = _db.query(TABLE_NAME, COLUMNS, selection, null, null, null,
-				UPDATED + " desc");
-
-		while (c.moveToNext()) {
-
-			BluetoothDeviceEntity res = new BluetoothDeviceEntity();
-			res.setRowID(c.getInt(0));
-			res.setAddress(c.getString(1));
-			res.setRSSI(c.getInt(2));
-			res.setName(c.getString(3));
-			res.setDeviceClass(c.getInt(4));
-			res.setCompany(c.getString(5));
-			res.setManufacturer(c.getString(6));
-			res.setTwitterID(c.getString(7));
-			res.setMessage(c.getString(8));
-			res.setLongitude(c.getDouble(9));
-			res.setLatitude(c.getDouble(10));
-			res.setCount(c.getInt(11));
-			res.setStatus(c.getInt(12));
-			res.setUpdated(c.getLong(13));
-
-			return res;
-		}
-
-		return null;
-	}
-
-	public List<BluetoothDeviceEntity> findAll() {
-
-		List<BluetoothDeviceEntity> res = new ArrayList<BluetoothDeviceEntity>();
-
-		Cursor c = _db.query(TABLE_NAME, COLUMNS, null, null, null, null,
-				ROW_ID + " desc");
-
-		while (c.moveToNext()) {
-
-			BluetoothDeviceEntity e = new BluetoothDeviceEntity();
-			e.setRowID(c.getInt(0));
-			e.setAddress(c.getString(1));
-			e.setRSSI(c.getInt(2));
-			e.setName(c.getString(3));
-			e.setDeviceClass(c.getInt(4));
-			e.setCompany(c.getString(5));
-			e.setManufacturer(c.getString(6));
-			e.setTwitterID(c.getString(7));
-			e.setMessage(c.getString(8));
-			e.setLongitude(c.getDouble(9));
-			e.setLatitude(c.getDouble(10));
-			e.setCount(c.getInt(11));
-			e.setStatus(c.getInt(12));
-			e.setUpdated(c.getLong(13));
-			res.add(e);
-		}
-
-		return res;
-	}
-
-	public int deleteAll() {
-
-		int res = _db.delete(TABLE_NAME, null, null);
 
 		return res;
 	}

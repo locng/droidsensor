@@ -240,6 +240,29 @@ public class DroidSensorInquiry {
 	}
 
 	/**
+	 * デバイスの所有者をAPIを呼び出して得る. APIの呼び出し結果は callbackパラメーターに通知される.
+	 * 
+	 * @param address
+	 * @param user
+	 * @param callback
+	 */
+	public synchronized void getTwitterUser(String address, String user,
+			Callback callback) {
+
+		String apiUrl = getApiUrl();
+		Inquiry inquiry = new Inquiry(address, user);
+		boolean success = registerInquiry(inquiry);
+
+		if (!success) {
+
+			return;
+		}
+
+		RequestWorker worker = new RequestWorker(apiUrl, inquiry, callback);
+		startSequentially(worker);
+	}
+
+	/**
 	 * メッセージにバンドルするデータを作成する.
 	 * 
 	 * @param address
@@ -282,29 +305,6 @@ public class DroidSensorInquiry {
 		String res = settings.getApiUrl();
 
 		return res;
-	}
-
-	/**
-	 * デバイスの所有者をAPIを呼び出して得る. APIの呼び出し結果は callbackパラメーターに通知される.
-	 * 
-	 * @param address
-	 * @param user
-	 * @param callback
-	 */
-	public synchronized void getTwitterUser(String address, String user,
-			Callback callback) {
-
-		String apiUrl = getApiUrl();
-		Inquiry inquiry = new Inquiry(address, user);
-		boolean success = registerInquiry(inquiry);
-
-		if (!success) {
-
-			return;
-		}
-
-		RequestWorker worker = new RequestWorker(apiUrl, inquiry, callback);
-		startSequentially(worker);
 	}
 
 	/**

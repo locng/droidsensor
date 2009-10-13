@@ -60,8 +60,6 @@ import android.util.Log;
  */
 public class DroidSensorService extends ServiceSupport {
 
-	private static final int REMOTE_DEVICE_FOUND_MESSAGE = 1;
-
 	/**
 	 * 定期的にBluetoothをOFF/ONするためのハンドラークラス.
 	 * DonutでDiscoveryを繰り返すとコアライブラリのメモリリークにより端末がリスタートするため.
@@ -155,6 +153,8 @@ public class DroidSensorService extends ServiceSupport {
 		}
 	}
 
+	private static final int REMOTE_DEVICE_FOUND_MESSAGE = 1;
+
 	/**
 	 * Logのカテゴリー.
 	 */
@@ -235,6 +235,122 @@ public class DroidSensorService extends ServiceSupport {
 	public DroidSensorService() {
 
 		_devices = Collections.synchronizedSet(new HashSet<String>());
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+
+		return _binder;
+	}
+
+	@Override
+	public void onCreate() {
+
+		Log.d(TAG, "service create");
+
+		super.onCreate();
+	}
+
+	@Override
+	public void onDestroy() {
+
+		Log.d(TAG, "service destroy");
+
+		super.onDestroy();
+
+		try {
+
+			_receiver.unregisterSelf(this);
+		} catch (Exception e) {
+			// nop.
+		}
+
+		if (_droidSensorInquiry != null) {
+
+			_droidSensorInquiry.cancelAll();
+			_droidSensorInquiry = null;
+		}
+
+		_receiver = null;
+		_controller = null;
+		_started = false;
+		_devices.clear();
+		BluetoothSettings.load(this);
+		hideNotification();
+	}
+
+	@Override
+	public void onStart(Intent intent, int startId) {
+
+		super.onStart(intent, startId);
+
+		if (isStopAction(intent)) {
+
+			if (_started) {
+
+				stopService();
+			}
+
+			return;
+		}
+
+		if (isActionContinue(intent)) {
+
+			_started = true;
+
+			Log.d(TAG, "running");
+
+			if (_started) {
+
+				if (_droidSensorInquiry == null) {
+
+					_droidSensorInquiry = new DroidSensorInquiry(
+							DroidSensorService.this);
+				}
+
+				if (_receiver == null) {
+
+					BluetoothSettings.save(this);
+					showNotification();
+					_controller = createController();
+					_receiver = createReceiver(_controller);
+					_receiver.registerSelf(this);
+					fireEvent();
+				}
+
+				// callLater(DroidSensorService.this, IDroidSensorService.class,
+				// INTERVAL_SECONDS);
+				callLater(DroidSensorService.this, DroidSensorService.class,
+						INTERVAL_SECONDS);
+			}
+		}
+	}
+
+	public void stopService() {
+
+		Log.d(TAG, "stopService");
+		cancelImmediatly(this, DroidSensorService.class);
+		stopSelf();
+
+		try {
+
+			_receiver.unregisterSelf(this);
+		} catch (Exception e) {
+			// nop.
+		}
+
+		if (_droidSensorInquiry != null) {
+
+			_droidSensorInquiry.cancelAll();
+			_droidSensorInquiry = null;
+		}
+
+		_receiver = null;
+		_controller = null;
+		hideNotification();
+		_started = false;
+		_devices.clear();
+		BluetoothSettings.load(this);
 	}
 
 	/**
@@ -469,95 +585,6 @@ public class DroidSensorService extends ServiceSupport {
 		return true;
 	}
 
-	@Override
-	public IBinder onBind(Intent intent) {
-
-		return _binder;
-	}
-
-	@Override
-	public void onCreate() {
-
-		Log.d(TAG, "service create");
-
-		super.onCreate();
-	}
-
-	@Override
-	public void onDestroy() {
-
-		Log.d(TAG, "service destroy");
-
-		super.onDestroy();
-
-		try {
-
-			_receiver.unregisterSelf(this);
-		} catch (Exception e) {
-			// nop.
-		}
-
-		if (_droidSensorInquiry != null) {
-
-			_droidSensorInquiry.cancelAll();
-			_droidSensorInquiry = null;
-		}
-
-		_receiver = null;
-		_controller = null;
-		_started = false;
-		_devices.clear();
-		BluetoothSettings.load(this);
-		hideNotification();
-	}
-
-	@Override
-	public void onStart(Intent intent, int startId) {
-
-		super.onStart(intent, startId);
-
-		if (isStopAction(intent)) {
-
-			if (_started) {
-
-				stopService();
-			}
-
-			return;
-		}
-
-		if (isActionContinue(intent)) {
-
-			_started = true;
-
-			Log.d(TAG, "running");
-
-			if (_started) {
-
-				if (_droidSensorInquiry == null) {
-
-					_droidSensorInquiry = new DroidSensorInquiry(
-							DroidSensorService.this);
-				}
-
-				if (_receiver == null) {
-
-					BluetoothSettings.save(this);
-					showNotification();
-					_controller = createController();
-					_receiver = createReceiver(_controller);
-					_receiver.registerSelf(this);
-					fireEvent();
-				}
-
-				// callLater(DroidSensorService.this, IDroidSensorService.class,
-				// INTERVAL_SECONDS);
-				callLater(DroidSensorService.this, DroidSensorService.class,
-						INTERVAL_SECONDS);
-			}
-		}
-	}
-
 	/**
 	 * リモートデバイスを発見した時に
 	 * 
@@ -619,6 +646,50 @@ public class DroidSensorService extends ServiceSupport {
 
 	}
 
+	private void persistBluetoothDevice(String address, String name,
+			String twitterID, String message, boolean tweeted) {
+
+		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
+				DroidSensorService.this);
+		SQLiteDatabase db = null;
+
+		try {
+
+			BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+					.createBluetoothServiceStub(DroidSensorService.this);
+			db = dbHelper.getWritableDatabase();
+			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+
+			BluetoothDeviceEntity e;
+
+			// 要望とりこみなう.
+			// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
+			e = new BluetoothDeviceEntity();
+			e.setAddress(address);
+			// e.setRSSI();
+			e.setName(name);
+			e.setDeviceClass(stub.getRemoteClass(address));
+			e.setCompany(stub.getRemoteCompany(address));
+			e.setManufacturer(stub.getRemoteManufacturer(address));
+			e.setTwitterID(twitterID);
+			e.setMessage(message);
+			// e.setLongitude();
+			// e.setLatitude();
+			e.setCount(1);
+			// e.setStatus();
+			e.setStatus(tweeted ? 1 : 0);
+			e.setUpdated(Calendar.getInstance().getTimeInMillis());
+			dao.insert(e);
+			// }
+		} finally {
+
+			if (db != null) {
+
+				db.close();
+			}
+		}
+	}
+
 	/**
 	 * DroidSensorサーバーにBluetoothアドレスとユーザー名のペアを登録する.
 	 * 
@@ -657,31 +728,12 @@ public class DroidSensorService extends ServiceSupport {
 		return str.trim();
 	}
 
-	public void stopService() {
+	private void sendMessage(String address) {
 
-		Log.d(TAG, "stopService");
-		cancelImmediatly(this, DroidSensorService.class);
-		stopSelf();
-
-		try {
-
-			_receiver.unregisterSelf(this);
-		} catch (Exception e) {
-			// nop.
-		}
-
-		if (_droidSensorInquiry != null) {
-
-			_droidSensorInquiry.cancelAll();
-			_droidSensorInquiry = null;
-		}
-
-		_receiver = null;
-		_controller = null;
-		hideNotification();
-		_started = false;
-		_devices.clear();
-		BluetoothSettings.load(this);
+		Message msg = new Message();
+		msg.obj = address;
+		msg.what = REMOTE_DEVICE_FOUND_MESSAGE;
+		_handler.sendMessage(msg);
 	}
 
 	private void tweetDeviceFound(String address, String name, String id) {
@@ -731,58 +783,6 @@ public class DroidSensorService extends ServiceSupport {
 
 		sendMessage(address);
 		showDeviceFound(tweeted);
-	}
-
-	private void persistBluetoothDevice(String address, String name,
-			String twitterID, String message, boolean tweeted) {
-
-		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
-				DroidSensorService.this);
-		SQLiteDatabase db = null;
-
-		try {
-
-			BluetoothDeviceStub stub = BluetoothDeviceStubFactory
-					.createBluetoothServiceStub(DroidSensorService.this);
-			db = dbHelper.getWritableDatabase();
-			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
-
-			BluetoothDeviceEntity e;
-
-			// 要望とりこみなう.
-			// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
-			e = new BluetoothDeviceEntity();
-			e.setAddress(address);
-			// e.setRSSI();
-			e.setName(name);
-			e.setDeviceClass(stub.getRemoteClass(address));
-			e.setCompany(stub.getRemoteCompany(address));
-			e.setManufacturer(stub.getRemoteManufacturer(address));
-			e.setTwitterID(twitterID);
-			e.setMessage(message);
-			// e.setLongitude();
-			// e.setLatitude();
-			e.setCount(1);
-			// e.setStatus();
-			e.setStatus(tweeted ? 1 : 0);
-			e.setUpdated(Calendar.getInstance().getTimeInMillis());
-			dao.insert(e);
-			// }
-		} finally {
-
-			if (db != null) {
-
-				db.close();
-			}
-		}
-	}
-
-	private void sendMessage(String address) {
-
-		Message msg = new Message();
-		msg.obj = address;
-		msg.what = REMOTE_DEVICE_FOUND_MESSAGE;
-		_handler.sendMessage(msg);
 	}
 
 }

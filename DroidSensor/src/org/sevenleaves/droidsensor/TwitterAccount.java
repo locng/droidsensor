@@ -34,24 +34,24 @@ public class TwitterAccount {
 		_password = password;
 	}
 
-	public String getUser() {
-
-		return _user;
-	}
-
-	public void setUser(String user) {
-
-		_user = user;
-	}
-
 	public String getPassword() {
 
 		return _password;
 	}
 
+	public String getUser() {
+
+		return _user;
+	}
+
 	public void setPassword(String password) {
 
 		_password = password;
+	}
+
+	public void setUser(String user) {
+
+		_user = user;
 	}
 
 }
