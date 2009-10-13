@@ -78,7 +78,7 @@ public class BluetoothDeviceEntityDAO {
 		List<BluetoothDeviceEntity> res = new ArrayList<BluetoothDeviceEntity>();
 
 		Cursor c = _db.query(TABLE_NAME, COLUMNS, null, null, null, null,
-				ROW_ID + " desc");
+				ROW_ID);
 
 		while (c.moveToNext()) {
 
@@ -99,6 +99,8 @@ public class BluetoothDeviceEntityDAO {
 			e.setUpdated(c.getLong(13));
 			res.add(e);
 		}
+
+		c.close();
 
 		return res;
 	}
@@ -127,8 +129,12 @@ public class BluetoothDeviceEntityDAO {
 			res.setStatus(c.getInt(12));
 			res.setUpdated(c.getLong(13));
 
+			c.close();
+
 			return res;
 		}
+
+		c.close();
 
 		return null;
 	}
@@ -170,7 +176,7 @@ public class BluetoothDeviceEntityDAO {
 		values.put(COUNT, entity.getCount());
 		values.put(STATUS, entity.getStatus());
 		values.put(UPDATED, entity.getUpdated());
-		String whereClause = "ROW_ID=" + entity.getRowID(); 
+		String whereClause = "ROW_ID=" + entity.getRowID();
 		long res = _db.update(TABLE_NAME, values, whereClause, null);
 
 		return res;

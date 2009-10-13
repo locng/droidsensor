@@ -113,19 +113,21 @@ abstract class TwitterUtils {
 			return false;
 		}
 
-		//return true;
-		Twitter twitter = createTwitter(twitterId, twitterPassword);
+		return true;
 
-		try {
-
-			twitter.verifyCredentials();
-
-			return true;
-
-		} catch (TwitterException e) {
-
-			return false;
-		}
+		// 遅い...
+		// Twitter twitter = createTwitter(twitterId, twitterPassword);
+		//
+		// try {
+		//
+		// twitter.verifyCredentials();
+		//
+		// return true;
+		//
+		// } catch (TwitterException e) {
+		//
+		// return false;
+		// }
 	}
 
 	private static List<Twitter> createDispatchTwitters(

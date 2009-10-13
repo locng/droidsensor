@@ -25,6 +25,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Message;
@@ -42,13 +43,6 @@ import android.widget.ListView;
 public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 	private static final String TAG = DroidSensorActivity.class.getSimpleName();
-
-	private void addDeviceToList(BluetoothDeviceEntity entity) {
-
-		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-		adapter.addBluetoothDevice(entity);
-		adapter.notifyDataSetChanged();
-	}
 
 	private BluetoothDeviceEntity getRemoteBluetoothDevice(final String address) {
 
@@ -71,6 +65,7 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 	private void initList() {
 
+		final BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
 		DatabaseManipulation.manipulate(DroidSensorActivity.this,
 
 		new ManipulationScope() {
@@ -82,7 +77,7 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 				for (BluetoothDeviceEntity e : devices) {
 
-					addDeviceToList(e);
+					adapter.addBluetoothDevice(e);
 				}
 			}
 		});
@@ -108,31 +103,44 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 	private void startService() {
 
-		SettingsManager s = SettingsManager
+		final SettingsManager setting = SettingsManager
 				.getInstance(DroidSensorActivity.this);
-		boolean verified = true;
+		final HardReference<Boolean> verified = HardReference.create();
 
-		boolean basicAccountUses = s.isBasicAccountUses();
+		indeterminate("Starting Service", new Runnable() {
 
-		if (basicAccountUses) {
+			public void run() {
 
-			verified = TwitterUtils.verifyCredentials(s.getTwitterId(), s
-					.getTwitterPassword());
-		}
+				boolean basicAccountUses = setting.isBasicAccountUses();
 
-		// boolean optionalAccountUses = s.isOptionalAccountUses();
-		//
-		// if (verified && optionalAccountUses) {
-		//
-		// verified = TwitterUtils.verifyCredentials(s.getOptionalTwitterId(),
-		// s.getOptionalTwitterPassword());
-		// }
+				if (basicAccountUses) {
 
-		if (!verified) {
+					boolean b = TwitterUtils.verifyCredentials(setting
+							.getTwitterId(), setting.getTwitterPassword());
 
-			AlertDialog alertDialog = new AlertDialog.Builder(
-					DroidSensorActivity.this)
-					.setTitle("Authentication failed.").setPositiveButton(
+					verified.put(b);
+				}
+
+				// boolean optionalAccountUses = s.isOptionalAccountUses();
+				//
+				// if (verified && optionalAccountUses) {
+				//
+				// verified =
+				// TwitterUtils.verifyCredentials(s.getOptionalTwitterId(),
+				// s.getOptionalTwitterPassword());
+				// }
+			}
+		}, new OnDismissListener() {
+
+			public void onDismiss(DialogInterface dialog) {
+
+				boolean b = verified.get();
+
+				if (!b) {
+
+					AlertDialog alertDialog = new AlertDialog.Builder(
+							DroidSensorActivity.this).setTitle(
+							"Authentication failed.").setPositiveButton(
 							"Open Settings", new OnClickListener() {
 
 								public void onClick(DialogInterface dialog,
@@ -143,13 +151,16 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 									startActivity(settings);
 								}
 							}).create();
-			alertDialog.show();
+					alertDialog.show();
 
-			return;
-		}
+					return;
+				}
 
-		Intent si = new Intent(IDroidSensorService.class.getName());
-		startService(si);
+				Intent si = new Intent(IDroidSensorService.class.getName());
+				startService(si);
+			}
+		});
+
 	}
 
 	private void stopService() {
@@ -166,7 +177,7 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 					; // nop.
 				}
 			}
-		});
+		}, null);
 	}
 
 	@Override
@@ -175,9 +186,6 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 		indeterminate("Deleting list", new Runnable() {
 
 			public void run() {
-
-				BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-				adapter.clear();
 
 				DatabaseManipulation.manipulate(DroidSensorActivity.this,
 
@@ -190,7 +198,13 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 						dao.deleteAll();
 					}
 				});
+			}
+		}, new OnDismissListener() {
 
+			public void onDismiss(DialogInterface dialog) {
+
+				BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+				adapter.clear();
 				adapter.notifyDataSetChanged();
 			}
 		});
@@ -227,6 +241,13 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 			public void run() {
 
 				initList();
+			}
+		}, new OnDismissListener() {
+
+			public void onDismiss(DialogInterface dialog) {
+
+				final BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+				adapter.notifyDataSetChanged();
 			}
 		});
 	}
@@ -284,7 +305,15 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 			public void run() {
 
 				BluetoothDeviceEntity entity = getRemoteBluetoothDevice(address);
-				addDeviceToList(entity);
+				BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+				adapter.addBluetoothDevice(entity);
+			}
+		}, new OnDismissListener() {
+
+			public void onDismiss(DialogInterface dialog) {
+
+				BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+				adapter.notifyDataSetChanged();
 			}
 		});
 	}
