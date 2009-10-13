@@ -2,6 +2,7 @@ package com.google.appengine.droidsensorserver;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Calendar;
 
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
@@ -9,6 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.google.appengine.repackaged.com.google.common.labs.misc.ToStringBuilder;
 
 public class ApiServlet extends HttpServlet {
 
@@ -29,13 +32,6 @@ public class ApiServlet extends HttpServlet {
 			processIgnore(req, resp);
 			return;
 		}
-
-		// try {
-		// address = encodeString(address);
-		// } catch (Exception e) {
-		//
-		// throw new ServletException(e);
-		// }
 
 		if (user == null) {
 
@@ -72,6 +68,7 @@ public class ApiServlet extends HttpServlet {
 
 		BluetoothDevice res = new BluetoothDevice(address, user);
 		res.setUpdated(System.currentTimeMillis());
+		res.setCount(0);
 
 		return res;
 	}
@@ -91,13 +88,14 @@ public class ApiServlet extends HttpServlet {
 
 		BluetoothDevice u = null;
 
+		boolean json = "json".equalsIgnoreCase(req.getParameter("t"));
+
 		Long id = addressToId(address);
-		
+
 		try {
 
 			u = pm.getObjectById(BluetoothDevice.class, id);
-			u = pm.detachCopy(u);
-
+			updateCount(u);
 		} catch (JDOObjectNotFoundException e) {
 
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -107,11 +105,17 @@ public class ApiServlet extends HttpServlet {
 
 			if (u == null || u.getTwitterUser().startsWith("@")) {
 
-				BluetoothDevice su = buildBluetoothDevice(address, user);
-
 				try {
 
-					pm.makePersistent(su);
+					if (u == null) {
+
+						u = buildBluetoothDevice(address, user);
+						updateCount(u);
+						pm.makePersistent(u);
+					} else {
+
+						u.setTwitterUser(user);
+					}
 				} finally {
 
 					pm.close();
@@ -123,7 +127,14 @@ public class ApiServlet extends HttpServlet {
 		}
 
 		resp.setCharacterEncoding("utf-8");
-		resp.setContentType("text/plain");
+
+		if (json) {
+
+			resp.setContentType("application/x-json");
+		} else {
+
+			resp.setContentType("text/plain");
+		}
 
 		try {
 
@@ -133,10 +144,23 @@ public class ApiServlet extends HttpServlet {
 			if (u.getTwitterUser().startsWith("@")) {
 
 				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-				writer.write(u.getTwitterUser().substring(1));
+
+				if (json) {
+
+					writer.write(toJSON(u));
+				} else {
+					writer.write(u.getTwitterUser().substring(1));
+				}
+
 			} else {
 
-				writer.write(u.getTwitterUser());
+				if (json) {
+
+					writer.write(toJSON(u));
+				} else {
+
+					writer.write(u.getTwitterUser());
+				}
 			}
 
 			writer.flush();
@@ -149,15 +173,48 @@ public class ApiServlet extends HttpServlet {
 
 	}
 
+	private String toJSON(BluetoothDevice device) {
+
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+		sb.append("twitterUser:");
+		sb.append("'");
+		sb.append(removePrefix(device.getTwitterUser()));
+		sb.append("'");
+		sb.append(',');
+		sb.append("count:");
+		sb.append(device.getCount());
+		sb.append('}');
+
+		return sb.toString();
+	}
+
+	private String removePrefix(String s) {
+
+		if (s.startsWith("@")) {
+
+			return s.substring(1);
+		}
+
+		return s;
+	}
+
 	private void processPut(HttpServletRequest req, HttpServletResponse resp,
 			String address, String user) {
 
-		BluetoothDevice u = buildBluetoothDevice(address, user);
+		BluetoothDevice u;
 		PersistenceManager pm = PersistenceManagerFactoryFactory
 				.createManager();
+		Long id = addressToId(address);
 
 		try {
 
+			u = pm.getObjectById(BluetoothDevice.class, id);
+			pm.detachCopy(u);
+
+		} catch (JDOObjectNotFoundException e) {
+
+			u = buildBluetoothDevice(address, user);
 			pm.makePersistent(u);
 
 		} finally {
@@ -186,11 +243,11 @@ public class ApiServlet extends HttpServlet {
 		}
 	}
 
-	private Long addressToId(String address){
-	
+	private Long addressToId(String address) {
+
 		return Long.valueOf(address.hashCode());
 	}
-	
+
 	private void processGet(HttpServletRequest req, HttpServletResponse resp,
 			String address) throws IOException {
 
@@ -203,10 +260,10 @@ public class ApiServlet extends HttpServlet {
 		try {
 
 			u = pm.getObjectById(BluetoothDevice.class, id);
-			u = pm.detachCopy(u);
-			
-			if(u.getTwitterUser().startsWith("@")){
-				
+			updateCount(u);
+
+			if (u.getTwitterUser().startsWith("@")) {
+
 				throw new JDOObjectNotFoundException();
 			}
 		} catch (JDOObjectNotFoundException e) {
@@ -235,5 +292,33 @@ public class ApiServlet extends HttpServlet {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 
+	}
+
+	private void updateCount(BluetoothDevice device) {
+
+		Integer count = device.getCount();
+		int newCount = nullToZero(count) + 1;
+		device.setCount(newCount);
+		device.setUpdated(Calendar.getInstance().getTimeInMillis());
+	}
+
+	private int nullToZero(Integer i) {
+
+		if (i == null) {
+
+			return 1;
+		}
+
+		return i.intValue();
+	}
+
+	private String deviceToString(BluetoothDevice device) {
+
+		ToStringBuilder builder = new ToStringBuilder(BluetoothDevice.class);
+		builder.add("address", device.getBluetoothAddress());
+		builder.add("twitterUser", device.getTwitterUser());
+		builder.add("count", device.getCount());
+
+		return builder.toString();
 	}
 }
