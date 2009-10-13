@@ -27,6 +27,14 @@
 			</intent-filter>
 		</activity>
 
+		<activity android:name=".PostMessageActivity"
+			android:label="PostMessage" android:noHistory="true">
+			<intent-filter>
+				<action android:name="org.sevenleaves.droidsensor.PostMessageActivity" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
+
 		<service android:name=".DroidSensorService"
 			android:process=":remote">
 			<intent-filter>

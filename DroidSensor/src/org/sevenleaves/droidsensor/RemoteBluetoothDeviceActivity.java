@@ -25,9 +25,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.TextView;
 
-public class RemoteBluetoothDeviceActivity extends Activity {
+public class RemoteBluetoothDeviceActivity extends
+		RemoteBluetoothDeviceActivitySupport {
 
 	private static final String TAG = RemoteBluetoothDeviceActivity.class
 			.getSimpleName();
@@ -97,5 +99,17 @@ public class RemoteBluetoothDeviceActivity extends Activity {
 		// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
 		// view = (TextView) findViewById(R.id.remoteDeviceCount);
 		// view.setText("Count: " + Integer.toString(entity.getCount()));
+	}
+
+	@Override
+	protected void onPostMessageMenuOpened(MenuItem item) {
+
+	}
+
+	@Override
+	protected void onPostMessageMenuSelected(MenuItem item) {
+
+		Intent intent = new Intent(PostMessageActivity.class.getName());
+		startActivity(intent);
 	}
 }

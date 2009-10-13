@@ -120,6 +120,10 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 			imageView.setImageResource(R.drawable.android_mono);
 		}
 
+		imageView = (ImageView) view.findViewById(R.id.mailIcon);
+		imageView.setVisibility(isEmpty(entity.getMessage()) ? View.INVISIBLE
+				: View.VISIBLE);
+
 		imageView = (ImageView) view.findViewById(R.id.twitterIcon);
 		imageView.setVisibility(entity.getStatus() == 1 ? View.VISIBLE
 				: View.INVISIBLE);
@@ -143,6 +147,16 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 		String res = fmt.format(cal.getTime());
 
 		return res;
+	}
+
+	private boolean isEmpty(String s) {
+
+		if (s == null) {
+
+			return true;
+		}
+
+		return s.trim().length() == 0;
 	}
 
 	private boolean isPassedByUser(String id) {
