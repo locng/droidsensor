@@ -27,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -257,13 +258,7 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 
 		ProgressDialog dialog = new ProgressDialog(this);
 		dialog.setIndeterminate(false);
-		dialog.setTitle("Processing...");
-		dialog.setCancelable(false);
-		
-		if (message != null) {
-			
-			dialog.setMessage(message);
-		}
+		dialog.setMessage(message);
 
 		return dialog;
 	}
@@ -278,30 +273,50 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 		return _service;
 	}
 
-	protected void indeterminate(String message, final Runnable runnable) {
+	protected void indeterminate(String message, final Runnable runnable,
+			OnDismissListener dismissListener) {
+
+		try {
+
+			indeterminateInternal(message, runnable, dismissListener);
+		} catch (Exception e) {
+
+			; // nop.
+		}
+	}
+
+	private void indeterminateInternal(String message, final Runnable runnable,
+			OnDismissListener dismissListener) {
 
 		final ProgressDialog dialog = createProgressDialog(message);
-		dialog.show();
 
-		// stolen from - http://d.hatena.ne.jp/minghai/20080614
+		if (dismissListener != null) {
+
+			dialog.setOnDismissListener(dismissListener);
+		}
+
+		dialog.show();
 
 		new Thread() {
 
 			@Override
 			public void run() {
 
+				// 関数オブジェクトつくるのめんどーだった.
+				runnable.run();
+
 				_handler.post(new Runnable() {
 
 					public void run() {
 
-						_handler.post(new Runnable() {
+						try {
+							
+							dialog.dismiss();
+						} catch (Exception e) {
 
-							public void run() {
+							; // nop.
+						}
 
-								runnable.run();
-								dialog.dismiss();
-							}
-						});
 					}
 				});
 			};
