@@ -258,6 +258,7 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 		ProgressDialog dialog = new ProgressDialog(this);
 		dialog.setIndeterminate(false);
 		dialog.setTitle("Processing...");
+		dialog.setCancelable(false);
 		
 		if (message != null) {
 			
@@ -275,6 +276,36 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	protected final IDroidSensorService getDroidSensorService() {
 
 		return _service;
+	}
+
+	protected void indeterminate(String message, final Runnable runnable) {
+
+		final ProgressDialog dialog = createProgressDialog(message);
+		dialog.show();
+
+		// stolen from - http://d.hatena.ne.jp/minghai/20080614
+
+		new Thread() {
+
+			@Override
+			public void run() {
+
+				_handler.post(new Runnable() {
+
+					public void run() {
+
+						_handler.post(new Runnable() {
+
+							public void run() {
+
+								runnable.run();
+								dialog.dismiss();
+							}
+						});
+					}
+				});
+			};
+		}.start();
 	}
 
 	/**
@@ -314,36 +345,6 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 
 		super.onDestroy();
 		unbindService(_serviceConnection);
-	}
-
-	protected void indeterminate(String message, final Runnable runnable) {
-
-		final ProgressDialog dialog = createProgressDialog(message);
-		dialog.show();
-
-		// stolen from - http://d.hatena.ne.jp/minghai/20080614
-
-		new Thread() {
-
-			@Override
-			public void run() {
-
-				_handler.post(new Runnable() {
-
-					public void run() {
-
-						_handler.post(new Runnable() {
-
-							public void run() {
-
-								runnable.run();
-								dialog.dismiss();
-							}
-						});
-					}
-				});
-			};
-		}.start();
 	}
 
 	/**

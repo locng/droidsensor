@@ -29,7 +29,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
@@ -43,6 +42,13 @@ import android.widget.ListView;
 public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 	private static final String TAG = DroidSensorActivity.class.getSimpleName();
+
+	private void addDeviceToList(BluetoothDeviceEntity entity) {
+
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		adapter.addBluetoothDevice(entity);
+		adapter.notifyDataSetChanged();
+	}
 
 	private BluetoothDeviceEntity getRemoteBluetoothDevice(final String address) {
 
@@ -114,13 +120,13 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 					.getTwitterPassword());
 		}
 
-		boolean optionalAccountUses = s.isOptionalAccountUses();
-
-		if (verified && optionalAccountUses) {
-
-			verified = TwitterUtils.verifyCredentials(s.getOptionalTwitterId(),
-					s.getOptionalTwitterPassword());
-		}
+		// boolean optionalAccountUses = s.isOptionalAccountUses();
+		//
+		// if (verified && optionalAccountUses) {
+		//
+		// verified = TwitterUtils.verifyCredentials(s.getOptionalTwitterId(),
+		// s.getOptionalTwitterPassword());
+		// }
 
 		if (!verified) {
 
@@ -142,16 +148,11 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 			return;
 		}
 
-		// Intent si = new Intent(DroidSensorActivity.this,
-		// IDroidSensorService.class);
-		// si.setAction(ServiceUtils.START_ACTION);
 		Intent si = new Intent(IDroidSensorService.class.getName());
 		startService(si);
 	}
 
 	private void stopService() {
-
-		Log.d("DroidSensorAcivity", "stopService");
 
 		indeterminate("Stopping service", new Runnable() {
 
@@ -166,13 +167,6 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 				}
 			}
 		});
-	}
-
-	private void addDeviceToList(BluetoothDeviceEntity entity) {
-
-		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-		adapter.addBluetoothDevice(entity);
-		adapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -238,12 +232,6 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 	}
 
 	@Override
-	protected void onStart() {
-
-		super.onStart();
-	}
-
-	@Override
 	protected void onDiscoveryMenuOpened(MenuItem item) {
 
 		boolean scanning = isServiceStarted();
@@ -276,6 +264,18 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 	}
 
 	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		BluetoothDeviceEntity entity = (BluetoothDeviceEntity) adapter
+				.getItem(position);
+		Intent intent = new Intent(RemoteBluetoothDeviceActivity.class
+				.getName());
+		BluetoothUtils.putAddress(intent, entity.getAddress());
+		startActivity(intent);
+	}
+
+	@Override
 	protected void onMessageDispatched(Message msg) {
 
 		final String address = (String) msg.obj;
@@ -290,18 +290,6 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 	}
 
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-
-		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-		BluetoothDeviceEntity entity = (BluetoothDeviceEntity) adapter
-				.getItem(position);
-		Intent intent = new Intent(RemoteBluetoothDeviceActivity.class
-				.getName());
-		BluetoothUtils.putAddress(intent, entity.getAddress());
-		startActivity(intent);
-	}
-
-	@Override
 	protected void onSettingsMenuOpened(MenuItem item) {
 
 		; // nop
@@ -312,5 +300,11 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 		Intent intent = new Intent(SettingsActivity.class.getName());
 		startActivity(intent);
+	}
+
+	@Override
+	protected void onStart() {
+
+		super.onStart();
 	}
 }
