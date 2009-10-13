@@ -28,6 +28,21 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 				.synchronizedList(new LinkedList<BluetoothDeviceEntity>());
 	}
 
+	public void addBluetoothDevice(BluetoothDeviceEntity entity) {
+
+		if (_devices.contains(entity)) {
+
+			_devices.remove(entity);
+		}
+
+		_devices.add(0, entity);
+	}
+
+	public void clear() {
+
+		_devices.clear();
+	}
+
 	public int getCount() {
 
 		return _devices.size();
@@ -96,41 +111,6 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 		return view;
 	}
 
-	private boolean isUser(String id) {
-
-		if (id == null || id.trim().length() == 0) {
-
-			return false;
-		}
-
-		return !id.startsWith("@");
-	}
-
-	private boolean isPassedByUser(String id) {
-
-		if (id == null || id.trim().length() == 0) {
-
-			return false;
-		}
-
-		return id.startsWith("@");
-	}
-
-	public void addBluetoothDevice(BluetoothDeviceEntity entity) {
-
-		if (_devices.contains(entity)) {
-
-			_devices.remove(entity);
-		}
-
-		_devices.add(0, entity);
-	}
-
-	public void clear() {
-
-		_devices.clear();
-	}
-
 	private String formatCount(int count) {
 
 		DecimalFormat fmt = new DecimalFormat("   ");
@@ -147,6 +127,26 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 		String res = fmt.format(cal.getTime());
 
 		return res;
+	}
+
+	private boolean isPassedByUser(String id) {
+
+		if (id == null || id.trim().length() == 0) {
+
+			return false;
+		}
+
+		return id.startsWith("@");
+	}
+
+	private boolean isUser(String id) {
+
+		if (id == null || id.trim().length() == 0) {
+
+			return false;
+		}
+
+		return !id.startsWith("@");
 	}
 
 }

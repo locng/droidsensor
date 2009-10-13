@@ -28,16 +28,25 @@ import android.content.Intent;
  */
 public abstract class ServiceSupport extends Service {
 
-	protected void showNotification() {
+	protected void hideNotification() {
+
+		NotificationManager notificationManager = ServiceUtils
+				.getNotificationManager(this);
+		notificationManager.cancel(R.string.service_name);
+	}
+
+	protected void showDeviceDisappeared(String address) {
+
+		String message = address + " was disappeared.";
 
 		Notification notification = new Notification(R.drawable.notify,
-				getString(R.string.app_name), System.currentTimeMillis());
+				message, System.currentTimeMillis());
 		notification.flags = Notification.FLAG_ONGOING_EVENT;
 		// notification.flags = Notification.FLAG_AUTO_CANCEL;
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 				new Intent(this, DroidSensorActivity.class), 0);
 		notification.setLatestEventInfo(this, getString(R.string.app_name),
-				"Service started", contentIntent);
+				message, contentIntent);
 		NotificationManager notificationManager = ServiceUtils
 				.getNotificationManager(this);
 		notificationManager.notify(R.string.service_name, notification);
@@ -58,28 +67,19 @@ public abstract class ServiceSupport extends Service {
 		notificationManager.notify(R.string.service_name, notification);
 	}
 
-	protected void showDeviceDisappeared(String address) {
-
-		String message = address + " was disappeared.";
+	protected void showNotification() {
 
 		Notification notification = new Notification(R.drawable.notify,
-				message, System.currentTimeMillis());
+				getString(R.string.app_name), System.currentTimeMillis());
 		notification.flags = Notification.FLAG_ONGOING_EVENT;
 		// notification.flags = Notification.FLAG_AUTO_CANCEL;
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 				new Intent(this, DroidSensorActivity.class), 0);
 		notification.setLatestEventInfo(this, getString(R.string.app_name),
-				message, contentIntent);
+				"Service started", contentIntent);
 		NotificationManager notificationManager = ServiceUtils
 				.getNotificationManager(this);
 		notificationManager.notify(R.string.service_name, notification);
-	}
-
-	protected void hideNotification() {
-
-		NotificationManager notificationManager = ServiceUtils
-				.getNotificationManager(this);
-		notificationManager.cancel(R.string.service_name);
 	}
 
 }

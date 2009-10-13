@@ -16,6 +16,26 @@ public class RemoteBluetoothDeviceActivity extends Activity {
 	private static final String TAG = RemoteBluetoothDeviceActivity.class
 			.getSimpleName();
 
+	private String emptyToNothing(String s) {
+
+		if (s == null || s.trim().length() == 0) {
+
+			return "*unknown*";
+		}
+
+		return s;
+	}
+
+	private String formatDate(long time) {
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(time);
+		SimpleDateFormat fmt = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		String res = fmt.format(cal.getTime());
+
+		return res;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -61,25 +81,5 @@ public class RemoteBluetoothDeviceActivity extends Activity {
 		// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
 		//view = (TextView) findViewById(R.id.remoteDeviceCount);
 		//view.setText("Count: " + Integer.toString(entity.getCount()));
-	}
-
-	private String emptyToNothing(String s) {
-
-		if (s == null || s.trim().length() == 0) {
-
-			return "*unknown*";
-		}
-
-		return s;
-	}
-
-	private String formatDate(long time) {
-
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(time);
-		SimpleDateFormat fmt = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		String res = fmt.format(cal.getTime());
-
-		return res;
 	}
 }

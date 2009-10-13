@@ -105,25 +105,29 @@ public class SettingsManager {
 
 	}
 
-	private SharedPreferences getSharedPreferences(Context context) {
+	public String getApiUrl() {
 
-		SharedPreferences res = PreferenceManager
-				.getDefaultSharedPreferences(context);
-
-		return res;
+		return _apiUrl;
 	}
 
-	private int getInt(SharedPreferences prefs, String key, int defaultValue) {
+	public String getDeviceTemplate() {
 
-		String v = prefs.getString(key, Integer.toString(defaultValue));
-		int i = Integer.parseInt(v);
-
-		return i;
+		return _deviceTemplate;
 	}
 	
 	public int getDispatchDevice() {
 
 		return _dispatchDevice;
+	}
+
+	public int getDispatchPassword() {
+
+		return _dispatchPassword;
+	}
+
+	public int getDispatchUser() {
+
+		return _dispatchUser;
 	}
 
 	public String getOptionalTwitterId() {
@@ -136,14 +140,19 @@ public class SettingsManager {
 		return _optionalTwitterPassword;
 	}
 
-	public int getDispatchUser() {
+	public String getPassedDeviceAgainTemplate() {
 
-		return _dispatchUser;
+		return _passedDeviceAgainTemplate;
 	}
 
-	public int getDispatchPassword() {
+	public String getPassedDeviceTemplate() {
 
-		return _dispatchPassword;
+		return _passedDeviceTemplate;
+	}
+
+	public String getTags() {
+
+		return _tags;
 	}
 
 	public String getTwitterId() {
@@ -156,39 +165,29 @@ public class SettingsManager {
 		return _twitterPassword;
 	}
 
-	public boolean isAllBluetoothDevices() {
-
-		return _allBluetoothDevices;
-	}
-
-	public String getApiUrl() {
-
-		return _apiUrl;
-	}
-
 	public String getUserTemplate() {
 
 		return _userTemplate;
 	}
 
-	public String getDeviceTemplate() {
+	public boolean isAllBluetoothDevices() {
 
-		return _deviceTemplate;
+		return _allBluetoothDevices;
 	}
 
-	public String getPassedDeviceTemplate() {
+	public boolean isBasicAccountUses() {
 
-		return _passedDeviceTemplate;
-	}
+		if (getDispatchUser() != 2) {
 
-	public String getPassedDeviceAgainTemplate() {
+			return true;
+		}
 
-		return _passedDeviceAgainTemplate;
-	}
+		if (!isAllBluetoothDevices()) {
 
-	public boolean isDetailPassedUser() {
+			return false;
+		}
 
-		return _detailPassedUser;
+		return getDispatchDevice() != 2;
 	}
 
 	public boolean isDetailPassedMe() {
@@ -201,14 +200,9 @@ public class SettingsManager {
 		return _detailPassedNo;
 	}
 
-	public boolean isToggleBluetooth() {
+	public boolean isDetailPassedUser() {
 
-		return _toggleBluetooth;
-	}
-
-	public String getTags() {
-
-		return _tags;
+		return _detailPassedUser;
 	}
 
 	public boolean isOptionalAccountUses() {
@@ -226,19 +220,9 @@ public class SettingsManager {
 		return getDispatchDevice() > 1;
 	}
 
-	public boolean isBasicAccountUses() {
+	public boolean isToggleBluetooth() {
 
-		if (getDispatchUser() != 2) {
-
-			return true;
-		}
-
-		if (!isAllBluetoothDevices()) {
-
-			return false;
-		}
-
-		return getDispatchDevice() != 2;
+		return _toggleBluetooth;
 	}
 
 	public synchronized void refresh(Context context) {
@@ -264,6 +248,22 @@ public class SettingsManager {
 		_detailPassedMe = prefs.getBoolean(DETAIL_PASSED_ME, true);
 		_detailPassedNo = prefs.getBoolean(DETAIL_PASSED_NO, true);
 		_tags = context.getString(R.string.tags);
+	}
+
+	private int getInt(SharedPreferences prefs, String key, int defaultValue) {
+
+		String v = prefs.getString(key, Integer.toString(defaultValue));
+		int i = Integer.parseInt(v);
+
+		return i;
+	}
+
+	private SharedPreferences getSharedPreferences(Context context) {
+
+		SharedPreferences res = PreferenceManager
+				.getDefaultSharedPreferences(context);
+
+		return res;
 	}
 
 }

@@ -18,7 +18,6 @@ package org.sevenleaves.droidsensor;
 
 import java.util.List;
 
-import org.sevenleaves.droidsensor.OptionsMenuHelper.MenuItemCallback;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 
 import android.app.AlertDialog;
@@ -32,6 +31,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
@@ -45,7 +45,7 @@ import android.widget.ListView;
  * @author smasui@gmail.com
  * 
  */
-public class DroidSensorActivity extends ListActivitySupport {
+public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 	private static final String TAG = DroidSensorActivity.class.getSimpleName();
 
@@ -103,186 +103,11 @@ public class DroidSensorActivity extends ListActivitySupport {
 		}
 	};
 
-	private Runnable _bindCallback = new Runnable() {
+	private void addDeviceToList(BluetoothDeviceEntity entity) {
 
-		public void run() {
-
-			SettingsManager s = SettingsManager
-					.getInstance(DroidSensorActivity.this);
-			boolean verified = true;
-
-			boolean basicAccountUses = s.isBasicAccountUses();
-
-			if (basicAccountUses) {
-
-				verified = TwitterUtils.verifyCredentials(s.getTwitterId(), s
-						.getTwitterPassword());
-			}
-
-			boolean optionalAccountUses = s.isOptionalAccountUses();
-
-			if (verified && optionalAccountUses) {
-
-				verified = TwitterUtils
-						.verifyCredentials(s.getOptionalTwitterId(), s
-								.getOptionalTwitterPassword());
-			}
-
-			_progressDialog.dismiss();
-
-			if (!verified) {
-
-				Runnable alert = new Runnable() {
-
-					public void run() {
-
-						AlertDialog alertDialog = new AlertDialog.Builder(
-								DroidSensorActivity.this).setTitle(
-								"Authentication failed.").setPositiveButton(
-								"Open Settings", new OnClickListener() {
-
-									public void onClick(DialogInterface dialog,
-											int which) {
-
-										Intent settings = new Intent(
-												SettingsActivity.class
-														.getName());
-										startActivity(settings);
-									}
-								}).create();
-						alertDialog.show();
-					}
-				};
-
-				new Handler().post(alert);
-
-				return;
-			}
-
-			// Intent si = new Intent(DroidSensorActivity.this,
-			// IDroidSensorService.class);
-			// si.setAction(ServiceUtils.START_ACTION);
-			Intent si = new Intent(IDroidSensorService.class.getName());
-			startService(si);
-		}
-	};
-
-	/**
-	 * Discoveryメニューを登録する.
-	 * 
-	 * @param helper
-	 */
-	private void addDiscoveryMenu(OptionsMenuHelper helper) {
-
-		helper.addItem(R.string.menu_discover, android.R.drawable.ic_menu_view,
-
-		new MenuItemCallback() {
-
-			public void onOpend(MenuItem item) {
-
-				onDiscoveryMenuOpened(item);
-			}
-
-			public void onSelected(MenuItem item) {
-
-				onDiscoveryMenuSelected(item);
-			}
-		});
-	}
-
-	/**
-	 * Settingsメニューを登録する.
-	 * 
-	 * @param helper
-	 */
-	private void addSettingsMenu(OptionsMenuHelper helper) {
-
-		helper.addItem(R.string.menu_settings,
-				android.R.drawable.ic_menu_preferences,
-
-				new MenuItemCallback() {
-
-					public void onOpend(MenuItem item) {
-
-						onSettingsMenuOpened(item);
-					}
-
-					public void onSelected(MenuItem item) {
-
-						onSettingsMenuSelected(item);
-					}
-				});
-	}
-
-	/**
-	 * 削除メニューを登録する.
-	 * 
-	 * @param helper
-	 */
-	private void addDeleteMenu(OptionsMenuHelper helper) {
-
-		helper.addItem(R.string.menu_delete, android.R.drawable.ic_menu_delete,
-
-		new MenuItemCallback() {
-
-			public void onOpend(MenuItem item) {
-
-				; // nop
-			}
-
-			public void onSelected(MenuItem item) {
-
-				onDeleteMenuSelected(item);
-			}
-		});
-	}
-
-	private ProgressDialog createProgressDialog(OnClickListener cancelListener) {
-
-		ProgressDialog dialog = new ProgressDialog(DroidSensorActivity.this);
-		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		// dialog.setCancelable(false);
-		// dialog.setCancelable(true);
-		dialog.setTitle("Processing...");
-		dialog.setMessage("Verify Credentials");
-		// dialog.setButton("Cancel", cancelListener);
-
-		return dialog;
-	}
-
-	private boolean isServiceStarted() {
-
-		try {
-
-			return _service.isStarted();
-		} catch (RemoteException e) {
-
-			return false;
-		}
-	};
-
-	// @Override
-	// protected void onListItemClick(ListView l, View v, int position, long id)
-	// {
-	// super.onListItemClick(l, v, position, id);
-	// Toast.makeText(this,
-	// String.format("l:%s, v:%s, position:%d, id:%d", l.getClass(),
-	// v.getClass(), position, id),
-	// Toast.LENGTH_LONG).show();
-	// }
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.droid_sensor);
-		Intent bi = new Intent(IDroidSensorService.class.getName());
-		bindService(bi, _serviceConnection, BIND_AUTO_CREATE);
-
-		BluetoothDeviceAdapter adapter = new BluetoothDeviceAdapter(
-				DroidSensorActivity.this);
-		setListAdapter(adapter);
-		initList();
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		adapter.addBluetoothDevice(entity);
+		adapter.notifyDataSetChanged();
 	}
 
 	private void clearList() {
@@ -308,6 +133,51 @@ public class DroidSensorActivity extends ListActivitySupport {
 		}
 
 		adapter.notifyDataSetChanged();
+	};
+
+	// @Override
+	// protected void onListItemClick(ListView l, View v, int position, long id)
+	// {
+	// super.onListItemClick(l, v, position, id);
+	// Toast.makeText(this,
+	// String.format("l:%s, v:%s, position:%d, id:%d", l.getClass(),
+	// v.getClass(), position, id),
+	// Toast.LENGTH_LONG).show();
+	// }
+
+	private ProgressDialog createProgressDialog(OnClickListener cancelListener) {
+
+		ProgressDialog dialog = new ProgressDialog(DroidSensorActivity.this);
+		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		// dialog.setCancelable(false);
+		// dialog.setCancelable(true);
+		dialog.setTitle("Processing...");
+		dialog.setMessage("Verify Credentials");
+		// dialog.setButton("Cancel", cancelListener);
+
+		return dialog;
+	}
+
+	private BluetoothDeviceEntity getRemoteBluetoothDevice(String address) {
+
+		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
+				DroidSensorActivity.this);
+		SQLiteDatabase db = null;
+
+		try {
+
+			db = dbHelper.getWritableDatabase();
+			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+			BluetoothDeviceEntity entity = dao.findByAddress(address);
+
+			return entity;
+		} finally {
+
+			if (db != null) {
+
+				db.close();
+			}
+		}
 	}
 
 	private void initList() {
@@ -335,53 +205,121 @@ public class DroidSensorActivity extends ListActivitySupport {
 		}
 	}
 
-	private BluetoothDeviceEntity getRemoteBluetoothDevice(String address) {
-
-		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
-				DroidSensorActivity.this);
-		SQLiteDatabase db = null;
+	private boolean isServiceStarted() {
 
 		try {
 
-			db = dbHelper.getWritableDatabase();
-			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
-			BluetoothDeviceEntity entity = dao.findByAddress(address);
+			return _service.isStarted();
+		} catch (RemoteException e) {
 
-			return entity;
-		} finally {
+			return false;
+		}
+	}
 
-			if (db != null) {
+	private void showError(String message) {
 
-				db.close();
-			}
+		// Toast toast = Toast.makeText(DroidSensorActivity.this, message,
+		// Toast.LENGTH_SHORT);
+		// toast.show();
+	}
+
+	private void startService() {
+
+		SettingsManager s = SettingsManager
+				.getInstance(DroidSensorActivity.this);
+		boolean verified = true;
+
+		boolean basicAccountUses = s.isBasicAccountUses();
+
+		if (basicAccountUses) {
+
+			verified = TwitterUtils.verifyCredentials(s.getTwitterId(), s
+					.getTwitterPassword());
+		}
+
+		boolean optionalAccountUses = s.isOptionalAccountUses();
+
+		if (verified && optionalAccountUses) {
+
+			verified = TwitterUtils.verifyCredentials(s.getOptionalTwitterId(),
+					s.getOptionalTwitterPassword());
+		}
+
+		if (!verified) {
+
+			AlertDialog alertDialog = new AlertDialog.Builder(
+					DroidSensorActivity.this)
+					.setTitle("Authentication failed.").setPositiveButton(
+							"Open Settings", new OnClickListener() {
+
+								public void onClick(DialogInterface dialog,
+										int which) {
+
+									Intent settings = new Intent(
+											SettingsActivity.class.getName());
+									startActivity(settings);
+								}
+							}).create();
+			alertDialog.show();
+
+			return;
+		}
+
+		// Intent si = new Intent(DroidSensorActivity.this,
+		// IDroidSensorService.class);
+		// si.setAction(ServiceUtils.START_ACTION);
+		Intent si = new Intent(IDroidSensorService.class.getName());
+		startService(si);
+	}
+
+	private void stopService() {
+
+		Log.d("DroidSensorAcivity", "stopService");
+		try {
+
+			_service.stopService();
+		} catch (RemoteException e) {
+
+			; // nop.
 		}
 	}
 
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
+	protected void onClearAllDialogRejected() {
 
-		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-		BluetoothDeviceEntity entity = (BluetoothDeviceEntity) adapter
-				.getItem(position);
-		Intent intent = new Intent(RemoteBluetoothDeviceActivity.class
-				.getName());
-		BluetoothUtils.putAddress(intent, entity.getAddress());
-		startActivity(intent);
-	}
-
-	private void addDeviceToList(BluetoothDeviceEntity entity) {
-
-		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-		adapter.addBluetoothDevice(entity);
-		adapter.notifyDataSetChanged();
+		; // nop.
 	}
 
 	@Override
-	protected void onCreateOptionMenuInternal(OptionsMenuHelper helper) {
+	protected void onClearAllDialogAccepted() {
 
-		addDiscoveryMenu(helper);
-		addSettingsMenu(helper);
-		addDeleteMenu(helper);
+		clearList();
+	}
+
+	@Override
+	protected void onClearAllMenuOpened(MenuItem item) {
+
+		; // nop
+	}
+
+	@Override
+	protected void onClearAllMenuSelected(MenuItem item) {
+
+		buildClearAllConfirm().show();
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.droid_sensor);
+		Intent bi = new Intent(IDroidSensorService.class.getName());
+		bindService(bi, _serviceConnection, BIND_AUTO_CREATE);
+
+		BluetoothDeviceAdapter adapter = new BluetoothDeviceAdapter(
+				DroidSensorActivity.this);
+		setListAdapter(adapter);
+		initList();
 	}
 
 	@Override
@@ -391,12 +329,8 @@ public class DroidSensorActivity extends ListActivitySupport {
 		unbindService(_serviceConnection);
 	}
 
-	/**
-	 * Discoverメニューが開かれた時に呼ばれるコールバック.
-	 * 
-	 * @param item
-	 */
-	private void onDiscoveryMenuOpened(MenuItem item) {
+	@Override
+	protected void onDiscoveryMenuOpened(MenuItem item) {
 
 		boolean scanning = isServiceStarted();
 
@@ -412,12 +346,8 @@ public class DroidSensorActivity extends ListActivitySupport {
 		item.setTitle(R.string.menu_discover);
 	}
 
-	/**
-	 * Discoverメニューが押された時に呼ばれるコールバック.
-	 * 
-	 * @param item
-	 */
-	private void onDiscoveryMenuSelected(MenuItem item) {
+	@Override
+	protected void onDiscoveryMenuSelected(MenuItem item) {
 
 		boolean scanning = isServiceStarted();
 
@@ -431,82 +361,28 @@ public class DroidSensorActivity extends ListActivitySupport {
 		startService();
 	}
 
-	/**
-	 * Settingsメニューが開かれた時に呼ばれるコールバック.
-	 * 
-	 * @param item
-	 */
-	private void onSettingsMenuOpened(MenuItem item) {
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		BluetoothDeviceEntity entity = (BluetoothDeviceEntity) adapter
+				.getItem(position);
+		Intent intent = new Intent(RemoteBluetoothDeviceActivity.class
+				.getName());
+		BluetoothUtils.putAddress(intent, entity.getAddress());
+		startActivity(intent);
+	}
+
+	@Override
+	protected void onSettingsMenuOpened(MenuItem item) {
 
 		; // nop
 	}
 
-	/**
-	 * Settingsメニューが押された時に呼ばれるコールバック.
-	 * 
-	 * @param item
-	 */
-	private void onSettingsMenuSelected(MenuItem item) {
+	@Override
+	protected void onSettingsMenuSelected(MenuItem item) {
 
 		Intent intent = new Intent(SettingsActivity.class.getName());
 		startActivity(intent);
 	}
-
-	/**
-	 * Deleteメニューが押された時に呼ばれるコールバック.
-	 * 
-	 * @param item
-	 */
-	private void onDeleteMenuSelected(MenuItem item) {
-
-		buildDeleteConfirm().show();
-	}
-
-	@Override
-	protected void doClearList() {
-
-		clearList();
-	}
-
-	private void showError(String message) {
-
-		// Toast toast = Toast.makeText(DroidSensorActivity.this, message,
-		// Toast.LENGTH_SHORT);
-		// toast.show();
-	}
-
-	private void startService() {
-
-		_progressDialog = createProgressDialog(new OnClickListener() {
-
-			public void onClick(DialogInterface dialog, int which) {
-
-				dialog.cancel();
-			}
-		});
-
-		_progressDialog.show();
-
-		new Thread() {
-
-			public void run() {
-
-				// _handler.post(_bindCallback);
-				_bindCallback.run();
-			};
-		}.start();
-	}
-
-	private void stopService() {
-
-		Log.d("DroidSensorAcivity", "stopService");
-		try {
-
-			_service.stopService();
-		} catch (RemoteException e) {
-
-			; // nop.
-		}
-	}
-
 }

@@ -38,9 +38,9 @@ public class OptionsMenuHelper {
 	 */
 	interface MenuItemCallback {
 
-		void onSelected(MenuItem item);
-
 		void onOpend(MenuItem item);
+
+		void onSelected(MenuItem item);
 	}
 
 	private Context _context;
@@ -56,6 +56,15 @@ public class OptionsMenuHelper {
 		_context = context;
 		_menu = menu;
 		_callbacks = new ArrayList<MenuItemCallback>();
+	}
+
+	public MenuItem addItem(int titleId, int iconId, MenuItemCallback callback) {
+
+		// TODO これ、どうしてOptionsMenuHelperのクラスを渡してるんだっけ,,,という謎を解明する
+		Intent intent = new Intent(OptionsMenuHelper.class.getName());
+		_callbacks.add(callback);
+
+		return addItem(callback, intent, titleId, iconId);
 	}
 
 	public void menuOpened(Menu menu) {
@@ -75,15 +84,6 @@ public class OptionsMenuHelper {
 		int itemId = item.getItemId();
 		MenuItemCallback callback = _callbacks.get(itemId);
 		callback.onSelected(item);
-	}
-
-	public MenuItem addItem(int titleId, int iconId, MenuItemCallback callback) {
-
-		// TODO これ、どうしてOptionsMenuHelperのクラスを渡してるんだっけ,,,という謎を解明する
-		Intent intent = new Intent(OptionsMenuHelper.class.getName());
-		_callbacks.add(callback);
-
-		return addItem(callback, intent, titleId, iconId);
 	}
 
 	private MenuItem addItem(MenuItemCallback callback, Intent intent,

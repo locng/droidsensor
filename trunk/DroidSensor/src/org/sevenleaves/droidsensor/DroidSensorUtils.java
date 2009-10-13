@@ -93,6 +93,72 @@ abstract class DroidSensorUtils {
 		return res;
 	}
 
+	public static String getTwitterIdInternal(String apiUrl, String address,
+			String user) {
+
+		HttpClient client = new DefaultHttpClient();
+
+		// String baseUrl = getString(R.string.property_server_url);
+		String encoded;
+
+		try {
+
+			encoded = DroidSensorUtils.encodeString(address);
+		} catch (Exception e) {
+
+			return null;
+		}
+
+		HttpGet request = new HttpGet(apiUrl + "?a=" + encoded + "&u=@" + user);
+
+		request.setHeader("User-Agent", client.getClass().getSimpleName());
+
+		try {
+			HttpResponse response = client.execute(request);
+			StatusLine status = response.getStatusLine();
+
+			if (status.getStatusCode() != 200 && status.getStatusCode() != 404) {
+
+				return null;
+				// throw new RuntimeException("HTTP_STATUS_CODE is "
+				// + status.getStatusCode());
+			}
+
+			HttpEntity entity = response.getEntity();
+			InputStream inputStream = entity.getContent();
+
+			byte[] buf = new byte[1024];
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+			int len = -1;
+
+			for (; (len = inputStream.read(buf)) != -1;) {
+
+				baos.write(buf, 0, len);
+			}
+
+			String name = new String(baos.toByteArray(), "utf-8");
+
+			if (name == null || name.trim().length() == 0) {
+
+				return null;
+			}
+
+			if (status.getStatusCode() == 404) {
+
+				name = "@" + name;
+			}
+
+			return name;
+		} catch (Exception e) {
+
+			request.abort();
+
+			return null;
+			// throw new RuntimeException(e);
+		}
+
+	}
+
 	public static boolean putTwitterId(String apiUrl, String address, String id) {
 
 		boolean res = false;
@@ -161,72 +227,6 @@ abstract class DroidSensorUtils {
 			request.abort();
 
 			return false;
-		}
-
-	}
-
-	public static String getTwitterIdInternal(String apiUrl, String address,
-			String user) {
-
-		HttpClient client = new DefaultHttpClient();
-
-		// String baseUrl = getString(R.string.property_server_url);
-		String encoded;
-
-		try {
-
-			encoded = DroidSensorUtils.encodeString(address);
-		} catch (Exception e) {
-
-			return null;
-		}
-
-		HttpGet request = new HttpGet(apiUrl + "?a=" + encoded + "&u=@" + user);
-
-		request.setHeader("User-Agent", client.getClass().getSimpleName());
-
-		try {
-			HttpResponse response = client.execute(request);
-			StatusLine status = response.getStatusLine();
-
-			if (status.getStatusCode() != 200 && status.getStatusCode() != 404) {
-
-				return null;
-				// throw new RuntimeException("HTTP_STATUS_CODE is "
-				// + status.getStatusCode());
-			}
-
-			HttpEntity entity = response.getEntity();
-			InputStream inputStream = entity.getContent();
-
-			byte[] buf = new byte[1024];
-			ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-			int len = -1;
-
-			for (; (len = inputStream.read(buf)) != -1;) {
-
-				baos.write(buf, 0, len);
-			}
-
-			String name = new String(baos.toByteArray(), "utf-8");
-
-			if (name == null || name.trim().length() == 0) {
-
-				return null;
-			}
-
-			if (status.getStatusCode() == 404) {
-
-				name = "@" + name;
-			}
-
-			return name;
-		} catch (Exception e) {
-
-			request.abort();
-
-			return null;
-			// throw new RuntimeException(e);
 		}
 
 	}
