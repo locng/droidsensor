@@ -105,36 +105,38 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 		final SettingsManager setting = SettingsManager
 				.getInstance(DroidSensorActivity.this);
-		final HardReference<Boolean> verified = HardReference.create();
+		final HardReference<Boolean> verifiedRef = HardReference.create();
 
 		indeterminate("Starting Service", new Runnable() {
 
 			public void run() {
 
 				boolean basicAccountUses = setting.isBasicAccountUses();
+				boolean verified = true;
 
 				if (basicAccountUses) {
 
-					boolean b = TwitterUtils.verifyCredentials(setting
+					verified = TwitterUtils.verifyCredentials(setting
 							.getTwitterId(), setting.getTwitterPassword());
 
-					verified.put(b);
 				}
 
-				// boolean optionalAccountUses = s.isOptionalAccountUses();
-				//
-				// if (verified && optionalAccountUses) {
-				//
-				// verified =
-				// TwitterUtils.verifyCredentials(s.getOptionalTwitterId(),
-				// s.getOptionalTwitterPassword());
-				// }
+				boolean optionalAccountUses = setting.isOptionalAccountUses();
+
+				if (verified && optionalAccountUses) {
+
+					verified = TwitterUtils.verifyCredentials(setting
+							.getOptionalTwitterId(), setting
+							.getOptionalTwitterPassword());
+				}
+
+				verifiedRef.put(verified);
 			}
 		}, new OnDismissListener() {
 
 			public void onDismiss(DialogInterface dialog) {
 
-				boolean b = verified.get();
+				boolean b = verifiedRef.get();
 
 				if (!b) {
 
