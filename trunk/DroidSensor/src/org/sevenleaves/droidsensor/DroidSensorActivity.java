@@ -21,17 +21,11 @@ import java.util.List;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.DialogInterface.OnClickListener;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
@@ -48,67 +42,6 @@ import android.widget.ListView;
 public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 	private static final String TAG = DroidSensorActivity.class.getSimpleName();
-
-	private static final int CALLBACK_MESSAGE = 1;
-
-	private ProgressDialog _progressDialog;
-
-	private IDroidSensorService _service;
-
-	private Handler _handler = new Handler() {
-
-		@Override
-		public void dispatchMessage(Message msg) {
-
-			if (msg.what != CALLBACK_MESSAGE) {
-
-				super.dispatchMessage(msg);
-
-				return;
-			}
-
-			String address = (String) msg.obj;
-			BluetoothDeviceEntity entity = getRemoteBluetoothDevice(address);
-			addDeviceToList(entity);
-		};
-	};
-
-	private IDroidSensorCallbackListener _listener = new IDroidSensorCallbackListener.Stub() {
-
-		public void deviceFound(String address) throws RemoteException {
-
-			_handler.sendMessage(_handler.obtainMessage(CALLBACK_MESSAGE,
-					address));
-		}
-	};
-
-	private ServiceConnection _serviceConnection = new ServiceConnection() {
-
-		public void onServiceConnected(ComponentName name, IBinder service) {
-
-			_service = IDroidSensorService.Stub.asInterface(service);
-
-			try {
-
-				_service.addListener(_listener);
-			} catch (RemoteException e) {
-
-				Log.e(TAG, e.getLocalizedMessage(), e);
-			}
-		}
-
-		public void onServiceDisconnected(ComponentName name) {
-
-			_service = null;
-		}
-	};
-
-	private void addDeviceToList(BluetoothDeviceEntity entity) {
-
-		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-		adapter.addBluetoothDevice(entity);
-		adapter.notifyDataSetChanged();
-	}
 
 	private void clearList() {
 
@@ -133,29 +66,6 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 		}
 
 		adapter.notifyDataSetChanged();
-	};
-
-	// @Override
-	// protected void onListItemClick(ListView l, View v, int position, long id)
-	// {
-	// super.onListItemClick(l, v, position, id);
-	// Toast.makeText(this,
-	// String.format("l:%s, v:%s, position:%d, id:%d", l.getClass(),
-	// v.getClass(), position, id),
-	// Toast.LENGTH_LONG).show();
-	// }
-
-	private ProgressDialog createProgressDialog(OnClickListener cancelListener) {
-
-		ProgressDialog dialog = new ProgressDialog(DroidSensorActivity.this);
-		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		// dialog.setCancelable(false);
-		// dialog.setCancelable(true);
-		dialog.setTitle("Processing...");
-		dialog.setMessage("Verify Credentials");
-		// dialog.setButton("Cancel", cancelListener);
-
-		return dialog;
 	}
 
 	private BluetoothDeviceEntity getRemoteBluetoothDevice(String address) {
@@ -209,7 +119,7 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 		try {
 
-			return _service.isStarted();
+			return getDroidSensorService().isStarted();
 		} catch (RemoteException e) {
 
 			return false;
@@ -277,23 +187,30 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 		Log.d("DroidSensorAcivity", "stopService");
 		try {
 
-			_service.stopService();
+			getDroidSensorService().stopService();
 		} catch (RemoteException e) {
 
 			; // nop.
 		}
 	}
 
-	@Override
-	protected void onClearAllDialogRejected() {
+	private void addDeviceToList(BluetoothDeviceEntity entity) {
 
-		; // nop.
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		adapter.addBluetoothDevice(entity);
+		adapter.notifyDataSetChanged();
 	}
 
 	@Override
 	protected void onClearAllDialogAccepted() {
 
 		clearList();
+	}
+
+	@Override
+	protected void onClearAllDialogRejected() {
+
+		; // nop.
 	}
 
 	@Override
@@ -313,20 +230,10 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.droid_sensor);
-		Intent bi = new Intent(IDroidSensorService.class.getName());
-		bindService(bi, _serviceConnection, BIND_AUTO_CREATE);
-
 		BluetoothDeviceAdapter adapter = new BluetoothDeviceAdapter(
 				DroidSensorActivity.this);
 		setListAdapter(adapter);
 		initList();
-	}
-
-	@Override
-	protected void onDestroy() {
-
-		super.onDestroy();
-		unbindService(_serviceConnection);
 	}
 
 	@Override
@@ -359,6 +266,14 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 		}
 
 		startService();
+	}
+
+	@Override
+	protected void onMessageDispatched(Message msg) {
+
+		String address = (String) msg.obj;
+		BluetoothDeviceEntity entity = getRemoteBluetoothDevice(address);
+		addDeviceToList(entity);
 	}
 
 	@Override
