@@ -24,6 +24,9 @@ public class BluetoothDevice {
 	@Persistent(defaultFetchGroup = "true")
 	private Long _updated;
 
+	@Persistent(defaultFetchGroup = "true")
+	private Integer _count;
+
 	public BluetoothDevice() {
 
 	}
@@ -84,4 +87,15 @@ public class BluetoothDevice {
 
 		_updated = updated;
 	}
+
+	public Integer getCount() {
+		
+		return _count;
+	}
+
+	public void setCount(Integer count) {
+		
+		_count = count;
+	}
+
 }
