@@ -18,6 +18,7 @@ package org.sevenleaves.droidsensor;
 
 import java.util.List;
 
+import org.sevenleaves.droidsensor.DatabaseManipulation.ManipulationScope;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 
 import android.app.AlertDialog;
@@ -34,7 +35,7 @@ import android.view.View;
 import android.widget.ListView;
 
 /**
- * TODO プログレスのキャンセル処理.
+ * TODO onCreate、onDestroy、onClearAllなどのタイミングでプログレスダイアログを表示.
  * 
  * @author smasui@gmail.com
  * 
@@ -43,76 +44,43 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 	private static final String TAG = DroidSensorActivity.class.getSimpleName();
 
-	private void clearList() {
+	private BluetoothDeviceEntity getRemoteBluetoothDevice(final String address) {
 
-		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-		adapter.clear();
+		final HardReference<BluetoothDeviceEntity> h = HardReference
+				.create();
 
-		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
-				DroidSensorActivity.this);
-		SQLiteDatabase db = null;
+		DatabaseManipulation.manipulate(DroidSensorActivity.this,
 
-		try {
+		new ManipulationScope() {
 
-			db = dbHelper.getWritableDatabase();
-			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
-			dao.deleteAll();
-		} finally {
+			public void execute(SQLiteDatabase db) {
 
-			if (db != null) {
-
-				db.close();
+				BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+				BluetoothDeviceEntity entity = dao.findByAddress(address);
+				h.put(entity);
 			}
-		}
+		});
 
-		adapter.notifyDataSetChanged();
-	}
-
-	private BluetoothDeviceEntity getRemoteBluetoothDevice(String address) {
-
-		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
-				DroidSensorActivity.this);
-		SQLiteDatabase db = null;
-
-		try {
-
-			db = dbHelper.getWritableDatabase();
-			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
-			BluetoothDeviceEntity entity = dao.findByAddress(address);
-
-			return entity;
-		} finally {
-
-			if (db != null) {
-
-				db.close();
-			}
-		}
+		return h.get();
 	}
 
 	private void initList() {
 
-		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
-				DroidSensorActivity.this);
-		SQLiteDatabase db = null;
+		DatabaseManipulation.manipulate(DroidSensorActivity.this,
 
-		try {
+		new ManipulationScope() {
 
-			db = dbHelper.getWritableDatabase();
-			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
-			List<BluetoothDeviceEntity> devices = dao.findAll();
+			public void execute(SQLiteDatabase db) {
 
-			for (BluetoothDeviceEntity e : devices) {
+				BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+				List<BluetoothDeviceEntity> devices = dao.findAll();
 
-				addDeviceToList(e);
+				for (BluetoothDeviceEntity e : devices) {
+
+					addDeviceToList(e);
+				}
 			}
-		} finally {
-
-			if (db != null) {
-
-				db.close();
-			}
-		}
+		});
 	}
 
 	private boolean isServiceStarted() {
@@ -204,7 +172,21 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 	@Override
 	protected void onClearAllDialogAccepted() {
 
-		clearList();
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		adapter.clear();
+
+		DatabaseManipulation.manipulate(DroidSensorActivity.this,
+
+		new ManipulationScope() {
+
+			public void execute(SQLiteDatabase db) {
+
+				BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+				dao.deleteAll();
+			}
+		});
+
+		adapter.notifyDataSetChanged();
 	}
 
 	@Override

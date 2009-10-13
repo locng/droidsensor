@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2009, DroidSensor - http://code.google.com/p/droidsensor/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.sevenleaves.droidsensor;
 
 import java.text.SimpleDateFormat;
@@ -79,7 +95,7 @@ public class RemoteBluetoothDeviceActivity extends Activity {
 		view.setText("Updated: " + formatDate(entity.getUpdated()));
 		// 要望とりこみなう.
 		// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
-		//view = (TextView) findViewById(R.id.remoteDeviceCount);
-		//view.setText("Count: " + Integer.toString(entity.getCount()));
+		// view = (TextView) findViewById(R.id.remoteDeviceCount);
+		// view.setText("Count: " + Integer.toString(entity.getCount()));
 	}
 }
