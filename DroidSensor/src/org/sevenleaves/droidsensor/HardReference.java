@@ -18,17 +18,24 @@ package org.sevenleaves.droidsensor;
 
 public class HardReference<T> {
 
+    public static <T> HardReference<T> create() {
+    	
+        return new HardReference<T>();
+    }
+
+    public static <T> HardReference<T> create(T t) {
+    	
+        HardReference<T> h = new HardReference<T>();
+        h.put(t);
+        return h;
+    }
+
     private T _held;
 
     /**
      * use create() instead.
      */
     private HardReference() {
-    }
-
-    public void put(final T object) {
-    	
-        _held = object;
     }
 
     public T get() {
@@ -41,16 +48,9 @@ public class HardReference<T> {
         return _held != null;
     }
 
-    public static <T> HardReference<T> create() {
+    public void put(final T object) {
     	
-        return new HardReference<T>();
-    }
-
-    public static <T> HardReference<T> create(T t) {
-    	
-        HardReference<T> h = new HardReference<T>();
-        h.put(t);
-        return h;
+        _held = object;
     }
 
 }
