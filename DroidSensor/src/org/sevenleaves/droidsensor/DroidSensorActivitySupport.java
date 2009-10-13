@@ -68,7 +68,7 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	};
 
 	/**
-	 * {@link IDroidSensorCallbackListener}のインスタンス. 
+	 * {@link IDroidSensorCallbackListener}のインスタンス.
 	 */
 	private IDroidSensorCallbackListener _listener = new IDroidSensorCallbackListener.Stub() {
 
@@ -253,12 +253,16 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	 * @param cancelListener
 	 * @return
 	 */
-	protected ProgressDialog createProgressDialog(OnClickListener cancelListener) {
+	protected ProgressDialog createProgressDialog(String message) {
 
 		ProgressDialog dialog = new ProgressDialog(this);
-		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		dialog.setIndeterminate(false);
 		dialog.setTitle("Processing...");
-		// dialog.setMessage("Verify Credentials");
+		
+		if (message != null) {
+			
+			dialog.setMessage(message);
+		}
 
 		return dialog;
 	}
@@ -310,6 +314,36 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 
 		super.onDestroy();
 		unbindService(_serviceConnection);
+	}
+
+	protected void indeterminate(String message, final Runnable runnable) {
+
+		final ProgressDialog dialog = createProgressDialog(message);
+		dialog.show();
+
+		// stolen from - http://d.hatena.ne.jp/minghai/20080614
+
+		new Thread() {
+
+			@Override
+			public void run() {
+
+				_handler.post(new Runnable() {
+
+					public void run() {
+
+						_handler.post(new Runnable() {
+
+							public void run() {
+
+								runnable.run();
+								dialog.dismiss();
+							}
+						});
+					}
+				});
+			};
+		}.start();
 	}
 
 	/**

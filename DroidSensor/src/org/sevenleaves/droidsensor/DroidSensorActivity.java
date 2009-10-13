@@ -46,8 +46,7 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 	private BluetoothDeviceEntity getRemoteBluetoothDevice(final String address) {
 
-		final HardReference<BluetoothDeviceEntity> h = HardReference
-				.create();
+		final HardReference<BluetoothDeviceEntity> h = HardReference.create();
 
 		DatabaseManipulation.manipulate(DroidSensorActivity.this,
 
@@ -153,13 +152,20 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 	private void stopService() {
 
 		Log.d("DroidSensorAcivity", "stopService");
-		try {
 
-			getDroidSensorService().stopService();
-		} catch (RemoteException e) {
+		indeterminate("Stopping service", new Runnable() {
 
-			; // nop.
-		}
+			public void run() {
+
+				try {
+
+					getDroidSensorService().stopService();
+				} catch (RemoteException e) {
+
+					; // nop.
+				}
+			}
+		});
 	}
 
 	private void addDeviceToList(BluetoothDeviceEntity entity) {
@@ -172,21 +178,28 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 	@Override
 	protected void onClearAllDialogAccepted() {
 
-		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-		adapter.clear();
+		indeterminate("Deleting list", new Runnable() {
 
-		DatabaseManipulation.manipulate(DroidSensorActivity.this,
+			public void run() {
 
-		new ManipulationScope() {
+				BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+				adapter.clear();
 
-			public void execute(SQLiteDatabase db) {
+				DatabaseManipulation.manipulate(DroidSensorActivity.this,
 
-				BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
-				dao.deleteAll();
+				new ManipulationScope() {
+
+					public void execute(SQLiteDatabase db) {
+
+						BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(
+								db);
+						dao.deleteAll();
+					}
+				});
+
+				adapter.notifyDataSetChanged();
 			}
 		});
-
-		adapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -215,7 +228,19 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 		BluetoothDeviceAdapter adapter = new BluetoothDeviceAdapter(
 				DroidSensorActivity.this);
 		setListAdapter(adapter);
-		initList();
+		indeterminate("Loading list", new Runnable() {
+
+			public void run() {
+
+				initList();
+			}
+		});
+	}
+
+	@Override
+	protected void onStart() {
+
+		super.onStart();
 	}
 
 	@Override
@@ -253,9 +278,15 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 	@Override
 	protected void onMessageDispatched(Message msg) {
 
-		String address = (String) msg.obj;
-		BluetoothDeviceEntity entity = getRemoteBluetoothDevice(address);
-		addDeviceToList(entity);
+		final String address = (String) msg.obj;
+		indeterminate("Updating list", new Runnable() {
+
+			public void run() {
+
+				BluetoothDeviceEntity entity = getRemoteBluetoothDevice(address);
+				addDeviceToList(entity);
+			}
+		});
 	}
 
 	@Override
