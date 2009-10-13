@@ -300,22 +300,23 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 	protected void onMessageDispatched(Message msg) {
 
 		final String address = (String) msg.obj;
-		indeterminate("Updating list", new Runnable() {
+		// indeterminate("Updating list", new Runnable() {
+		//
+		// public void run() {
 
-			public void run() {
+		BluetoothDeviceEntity entity = getRemoteBluetoothDevice(address);
+		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
+		adapter.addBluetoothDevice(entity);
+		// }
+		// }, new OnDismissListener() {
+		//
+		// public void onDismiss(DialogInterface dialog) {
 
-				BluetoothDeviceEntity entity = getRemoteBluetoothDevice(address);
-				BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-				adapter.addBluetoothDevice(entity);
-			}
-		}, new OnDismissListener() {
-
-			public void onDismiss(DialogInterface dialog) {
-
-				BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
-				adapter.notifyDataSetChanged();
-			}
-		});
+		// BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter)
+		// getListAdapter();
+		adapter.notifyDataSetChanged();
+		// }
+		// });
 	}
 
 	@Override
