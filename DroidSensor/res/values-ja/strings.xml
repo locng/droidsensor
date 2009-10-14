@@ -93,4 +93,10 @@
 	<string name="toggle_bluetooth_title">Toggle Bluetooth</string>
 	<string name="toggle_bluetooth_summary">一定間隔でBluetoothのON/OFFを繰り返します。</string>
 
+	<string name="menu_info">ご注意</string>
+	    <string name="notice_label">ご注意</string>
+	<string name="notice">すれ違い通信をしている間、第三者が以下の情報を閲覧することができる状態になります。
+	\n　このことがプライバシーに関するリスクとなり得る点にご留意の上、ご使用ください。</string>
+	<string name="notice_check_text">使用する</string>
+			
 </resources>

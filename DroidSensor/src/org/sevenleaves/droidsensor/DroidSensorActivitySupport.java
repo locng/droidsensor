@@ -20,7 +20,6 @@ import org.sevenleaves.droidsensor.OptionsMenuHelper.MenuItemCallback;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
 import android.content.ComponentName;
 import android.content.DialogInterface;
@@ -108,6 +107,16 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 
 	@Override
 	public final boolean onCreateOptionsMenu(Menu menu) {
+
+		SettingsManager setting = SettingsManager.getInstance(this);
+
+		if(!setting.isNoticeCheck()){
+		
+			// null渡しちゃったりとか、よくないが、、、。
+			onInfoMenuSelected(null);
+			
+			return false;
+		}
 
 		boolean res = super.onCreateOptionsMenu(menu);
 
@@ -217,6 +226,7 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 		addDiscoveryMenu(helper);
 		addSettingsMenu(helper);
 		addDeleteMenu(helper);
+		addInfoMenu(helper);
 	}
 
 	/**
@@ -249,18 +259,27 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	}
 
 	/**
-	 * Progressダイアログを構成する.
+	 * Settingsメニューを登録する.
 	 * 
-	 * @param cancelListener
-	 * @return
+	 * @param helper
 	 */
-	protected ProgressDialog createProgressDialog(String message) {
+	private void addInfoMenu(OptionsMenuHelper helper) {
 
-		ProgressDialog dialog = new ProgressDialog(this);
-		dialog.setIndeterminate(false);
-		dialog.setMessage(message);
+		helper.addItem(R.string.menu_info,
+				android.R.drawable.ic_menu_info_details,
 
-		return dialog;
+				new MenuItemCallback() {
+
+					public void onOpend(MenuItem item) {
+
+						onInfoMenuOpened(item);
+					}
+
+					public void onSelected(MenuItem item) {
+
+						onInfoMenuSelected(item);
+					}
+				});
 	}
 
 	/**
@@ -276,51 +295,8 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	protected void indeterminate(String message, final Runnable runnable,
 			OnDismissListener dismissListener) {
 
-		try {
-
-			indeterminateInternal(message, runnable, dismissListener);
-		} catch (Exception e) {
-
-			; // nop.
-		}
-	}
-
-	private void indeterminateInternal(String message, final Runnable runnable,
-			OnDismissListener dismissListener) {
-
-		final ProgressDialog dialog = createProgressDialog(message);
-
-		if (dismissListener != null) {
-
-			dialog.setOnDismissListener(dismissListener);
-		}
-
-		dialog.show();
-
-		new Thread() {
-
-			@Override
-			public void run() {
-
-				// 関数オブジェクトつくるのめんどーだった.
-				runnable.run();
-
-				_handler.post(new Runnable() {
-
-					public void run() {
-
-						try {
-							
-							dialog.dismiss();
-						} catch (Exception e) {
-
-							; // nop.
-						}
-
-					}
-				});
-			};
-		}.start();
+		ActivityUtils.indeterminate(this, _handler, message, runnable,
+				dismissListener);
 	}
 
 	/**
@@ -391,10 +367,24 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	protected abstract void onSettingsMenuOpened(MenuItem item);
 
 	/**
-	 * Discoveryメニューが押された時の処理を実装する.
+	 * Settingメニューが押された時の処理を実装する.
 	 * 
 	 * @param item
 	 */
 	protected abstract void onSettingsMenuSelected(MenuItem item);
+
+	/**
+	 * Infoメニューが開かれた時の処理を実装する.
+	 * 
+	 * @param item
+	 */
+	protected abstract void onInfoMenuOpened(MenuItem item);
+
+	/**
+	 * Infoメニューが押された時の処理を実装する.
+	 * 
+	 * @param item
+	 */
+	protected abstract void onInfoMenuSelected(MenuItem item);
 
 }

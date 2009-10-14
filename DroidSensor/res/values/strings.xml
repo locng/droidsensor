@@ -112,4 +112,8 @@
     <string name="post_message_button_text">Leave Message</string>
     <string name="post_message_description">The message can be left for the user that passed each other with this device.</string>
     
+    <string name="menu_info">NOTICE</string>
+    <string name="notice_label">NOTICE</string>
+    <string name="notice">while running the application, third persons can take following informations.</string>
+    <string name="notice_check_text">OK</string>
 </resources>

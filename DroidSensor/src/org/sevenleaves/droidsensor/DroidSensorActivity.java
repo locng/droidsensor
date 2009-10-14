@@ -339,4 +339,17 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 		super.onStart();
 	}
+	
+	@Override
+	protected void onInfoMenuOpened(MenuItem item) {
+	
+		; // nop
+	}
+	
+	@Override
+	protected void onInfoMenuSelected(MenuItem item) {
+	
+		Intent intent = new Intent(LocalDeviceActivity.class.getName());
+		startActivity(intent);
+	}
 }
