@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<ScrollView android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+
+		<LinearLayout android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:orientation="vertical"
+			android:padding="25dip" android:background="#eeeeee">
+
+
+			<LinearLayout android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:orientation="vertical"
+				android:layout_marginBottom="10dip" android:background="#eeeeee">
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:textSize="6pt"
+					android:textColor="#ff0000" android:text="@string/notice" />
+
+			</LinearLayout>
+
+			<LinearLayout android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:orientation="vertical"
+				android:layout_marginBottom="10dip">
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="Name"
+					android:textColor="#888888" />
+
+				<TextView android:id="@+id/local_name"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:textSize="8pt" android:textColor="#000000" />
+			</LinearLayout>
+
+			<LinearLayout android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:orientation="vertical"
+				android:layout_marginBottom="10dip">
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="Address"
+					android:textColor="#888888" />
+
+				<TextView android:id="@+id/local_address"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:textSize="8pt" android:textColor="#000000" />
+			</LinearLayout>
+
+			<!--
+				<LinearLayout android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:orientation="vertical"
+				android:layout_marginBottom="10dip"> <TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Company"
+				android:textColor="#888888" /> <TextView
+				android:id="@+id/local_company" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textSize="8pt"
+				android:textColor="#000000" /> </LinearLayout> <LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:orientation="vertical"
+				android:layout_marginBottom="10dip"> <TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Manufacturer"
+				android:textColor="#888888" /> <TextView
+				android:id="@+id/local_manufacturer"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textSize="8pt"
+				android:textColor="#000000" /> </LinearLayout> <LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:orientation="vertical"
+				android:layout_marginBottom="10dip"> <TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Version"
+				android:textColor="#888888" /> <TextView
+				android:id="@+id/local_version" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textSize="8pt"
+				android:textColor="#000000" /> </LinearLayout> <LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:orientation="vertical"
+				android:layout_marginBottom="10dip"> <TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="Revision"
+				android:textColor="#888888" /> <TextView
+				android:id="@+id/local_revision" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textSize="8pt"
+				android:textColor="#000000" /> </LinearLayout>
+			-->
+
+			<ImageView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:src="@android:drawable/divider_horizontal_bright" />
+
+			<LinearLayout android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:orientation="vertical"
+				android:layout_marginBottom="10dip" android:background="#eeeeee"
+				android:gravity="right">
+
+				<CheckBox android:id="@+id/notice_check"
+					android:layout_width="wrap_content" android:textColor="#000000"
+					android:textSize="8pt" android:layout_height="wrap_content"
+					android:text="@string/notice_check_text" />
+
+			</LinearLayout>
+
+		</LinearLayout>
+
+
+	</ScrollView>
+
+</LinearLayout>
+

@@ -18,6 +18,7 @@ package org.sevenleaves.droidsensor;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
 /**
@@ -55,6 +56,8 @@ public class SettingsManager {
 
 	public static final String DETAIL_PASSED_NO = PREFIX
 			+ "device_detail_passed_no";
+
+	public static final String NOTICE_CHECK = PREFIX + "notice_check";
 
 	private static final SettingsManager SINGLETON = new SettingsManager();
 
@@ -101,6 +104,8 @@ public class SettingsManager {
 
 	private String _tags;
 
+	private boolean _noticeCheck;
+
 	private SettingsManager() {
 
 	}
@@ -114,7 +119,7 @@ public class SettingsManager {
 
 		return _deviceTemplate;
 	}
-	
+
 	public int getDispatchDevice() {
 
 		return _dispatchDevice;
@@ -223,6 +228,22 @@ public class SettingsManager {
 	public boolean isToggleBluetooth() {
 
 		return _toggleBluetooth;
+	}
+
+	public boolean isNoticeCheck() {
+		return _noticeCheck;
+	}
+
+	public void setNoticeCheck(boolean noticeCheck) {
+		_noticeCheck = noticeCheck;
+	}
+
+	public void save(Context context) {
+
+		SharedPreferences prefs = getSharedPreferences(context);
+		Editor editor = prefs.edit();
+		editor.putBoolean(NOTICE_CHECK, _noticeCheck);
+		editor.commit();
 	}
 
 	public synchronized void refresh(Context context) {

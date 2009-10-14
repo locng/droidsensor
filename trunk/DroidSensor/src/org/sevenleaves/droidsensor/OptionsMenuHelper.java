@@ -79,10 +79,24 @@ public class OptionsMenuHelper {
 		}
 	}
 
+	public void menuOpened(int i) {
+
+		MenuItem item = _menu.getItem(i);
+		MenuItemCallback callback = _callbacks.get(i);
+		callback.onOpend(item);
+	}
+
 	public void menuSelected(MenuItem item) {
 
 		int itemId = item.getItemId();
 		MenuItemCallback callback = _callbacks.get(itemId);
+		callback.onSelected(item);
+	}
+
+	public void menuSelected(int i) {
+
+		MenuItem item  = _menu.getItem(i);
+		MenuItemCallback callback = _callbacks.get(i);
 		callback.onSelected(item);
 	}
 
