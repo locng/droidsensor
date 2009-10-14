@@ -38,7 +38,8 @@ public class RemoteBluetoothDeviceActivity extends
 
 		if (s == null || s.trim().length() == 0) {
 
-			return "*unknown*";
+			//return "*unknown*";
+			return "";
 		}
 
 		return s;
@@ -82,19 +83,17 @@ public class RemoteBluetoothDeviceActivity extends
 
 		TextView view;
 		view = (TextView) findViewById(R.id.remoteDeviceTwitterID);
-		view.setText("User: " + emptyToNothing(entity.getTwitterID()));
+		view.setText(emptyToNothing(entity.getTwitterID()));
 		view = (TextView) findViewById(R.id.remoteDeviceFriendlyName);
-		view.setText("Name: " + emptyToNothing(entity.getName()));
+		view.setText(emptyToNothing(entity.getName()));
 		view = (TextView) findViewById(R.id.remoteDeviceAddress);
-		view.setText("Address: "
-				+ BluetoothUtils.getMaskedAddress(entity.getAddress()));
+		view.setText(BluetoothUtils.getMaskedAddress(entity.getAddress()));
 		view = (TextView) findViewById(R.id.remoteDeviceCompany);
-		view.setText("Company: " + emptyToNothing(entity.getCompany()));
+		view.setText(emptyToNothing(entity.getCompany()));
 		view = (TextView) findViewById(R.id.remoteDeviceManufacturer);
-		view.setText("Manufacturer: "
-				+ emptyToNothing(entity.getManufacturer()));
+		view.setText(emptyToNothing(entity.getManufacturer()));
 		view = (TextView) findViewById(R.id.remoteDeviceUpdated);
-		view.setText("Updated: " + formatDate(entity.getUpdated()));
+		view.setText(formatDate(entity.getUpdated()));
 		// 要望とりこみなう.
 		// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
 		// view = (TextView) findViewById(R.id.remoteDeviceCount);
