@@ -28,7 +28,6 @@ public class LocalDeviceActivity extends LocalDeviceActivitySupport {
 				android.R.drawable.ic_dialog_alert);
 		final SettingsManager setting = SettingsManager
 				.getInstance(LocalDeviceActivity.this);
-
 		CheckBox noticeCheck = (CheckBox) findViewById(R.id.notice_check);
 		noticeCheck.setChecked(setting.isNoticeCheck());
 		noticeCheck.setEnabled(!setting.isNoticeCheck());
@@ -89,7 +88,7 @@ public class LocalDeviceActivity extends LocalDeviceActivitySupport {
 				.createBluetoothServiceStub(this);
 		final boolean enabled = stub.isEnabled();
 
-		indeterminate("Checking Bluetooth", new Runnable() {
+		indeterminate("Turning ON Bluetooth", new Runnable() {
 
 			public void run() {
 
