@@ -29,31 +29,6 @@
 		<CheckBoxPreference android:key="droidsensor_discovery_all_bluetooth_devices"
 			android:title="@string/all_devices_title" android:summary="@string/all_devices_summary" />
 
-		<PreferenceScreen android:title="Device Details..."
-			android:summary="@string/device_detail_summary" android:dependency="droidsensor_discovery_all_bluetooth_devices">
-
-
-			<PreferenceCategory android:title="Device Details">
-
-				<CheckBoxPreference android:key="droidsensor_device_detail_passed_user"
-					android:title="@string/device_detail_passed_user_title"
-					android:summary="@string/device_detail_passed_user_summary"
-					android:defaultValue="true" />
-
-				<CheckBoxPreference android:key="droidsensor_device_detail_passed_me"
-					android:title="@string/device_detail_passed_me_title"
-					android:summary="@string/device_detail_passed_me_summary"
-					android:defaultValue="true" />
-
-				<CheckBoxPreference android:key="droidsensor_device_detail_passed_no"
-					android:title="@string/device_detail_passed_no_title"
-					android:summary="@string/device_detail_passed_no_summary"
-					android:defaultValue="true" />
-
-			</PreferenceCategory>
-
-		</PreferenceScreen>
-
 	</PreferenceCategory>
 
 
