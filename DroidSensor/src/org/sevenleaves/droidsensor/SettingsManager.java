@@ -266,8 +266,8 @@ public class SettingsManager {
 				.getString(R.string.template_passed_device_again);
 		_toggleBluetooth = prefs.getBoolean(TOGGLE_BLUETOOTH, false);
 		_detailPassedUser = prefs.getBoolean(DETAIL_PASSED_USER, true);
-		_detailPassedMe = prefs.getBoolean(DETAIL_PASSED_ME, true);
-		_detailPassedNo = prefs.getBoolean(DETAIL_PASSED_NO, true);
+		_detailPassedMe = false;
+		_detailPassedNo = false;
 		_tags = context.getString(R.string.tags);
 	}
 

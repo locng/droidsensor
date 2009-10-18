@@ -21,7 +21,7 @@
     <string name="template_user">Passed by \@$id .$tags</string>
     
 	<string name="template_device">Passed by $id .$tags</string>
-	<string name="template_passed_device">Passed by $device that passed by @$id .$tags</string>
+	<string name="template_passed_device">Passed by @$id indirectly.$tags</string>
 	<string name="template_passed_device_again">Passed by $device again.$tags</string>
 	    
     <!-- new -->
@@ -44,8 +44,8 @@
 	<string name="twitter_password_title">Password</string>
 	<string name="twitter_password_summary">Password for Twitter account</string>
 
-	<string name="all_devices_title">All Bluetooth Devices</string>
-	<string name="all_devices_summary">Tweet all discoverable Bluetooth Device name</string>
+	<string name="all_devices_title">Includes Indirectly</string>
+	<string name="all_devices_summary">Tweet All discoverable Bluetooth Devices that passed by Other</string>
 	
 	<string name="second_twitter_id_title">Twitter Id</string>
 	<string name="second_twitter_id_summary">User ID for second Twitter account</string>
@@ -72,8 +72,8 @@
         -->
     </string-array>
 
-    <string name="device_list_title">Device Name</string>
-    <string name="device_list_summary">Select account that tweet Device name</string>
+    <string name="device_list_title">Devices passed by Other</string>
+    <string name="device_list_summary">Select account that tweet Device passed by Other</string>
     <string name="device_list_dialogtitle">Select Account</string>
     
     <string-array name="device_list_entries">
