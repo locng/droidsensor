@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONObject;
+
 import com.google.appengine.repackaged.com.google.common.labs.misc.ToStringBuilder;
 
 public class ApiServlet extends HttpServlet {
@@ -20,12 +22,23 @@ public class ApiServlet extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 8668774458868358942L;
 
+	private static final String TYPE_JSON = "application/x-json";
+
+	// private static final String TYPE_JSON = "text/plain";
+
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		doGet(req, resp);
+	}
+
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
 		req.setCharacterEncoding("utf-8");
 		String address = req.getParameter("a");
 		String user = req.getParameter("u");
+		String message = req.getParameter("m");
 
 		if (address == null) {
 
@@ -51,12 +64,12 @@ public class ApiServlet extends HttpServlet {
 
 			if (user.startsWith("@")) {
 
-				processGetAndPut(req, resp, address, user);
+				processGetAndPut(req, resp, address, user, message);
 
 				return;
 			}
 
-			processPut(req, resp, address, user);
+			processPut(req, resp, address, user, message);
 
 			return;
 		}
@@ -80,13 +93,15 @@ public class ApiServlet extends HttpServlet {
 	}
 
 	private void processGetAndPut(HttpServletRequest req,
-			HttpServletResponse resp, String address, String user)
-			throws IOException {
+			HttpServletResponse resp, String address, String user,
+			String message) throws IOException {
 
 		PersistenceManager pm = PersistenceManagerFactoryFactory
 				.createManager();
 
 		BluetoothDevice u = null;
+		String prevMessage = null;
+		String prevUser = null;
 
 		boolean json = "json".equalsIgnoreCase(req.getParameter("t"));
 
@@ -96,6 +111,8 @@ public class ApiServlet extends HttpServlet {
 
 			u = pm.getObjectById(BluetoothDevice.class, id);
 			updateCount(u);
+			prevUser = u.getTwitterUser();
+			prevMessage = u.getMessage();
 		} catch (JDOObjectNotFoundException e) {
 
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -116,6 +133,8 @@ public class ApiServlet extends HttpServlet {
 
 						u.setTwitterUser(user);
 					}
+
+					u.setMessage(message);
 				} finally {
 
 					pm.close();
@@ -130,7 +149,7 @@ public class ApiServlet extends HttpServlet {
 
 		if (json) {
 
-			resp.setContentType("application/x-json");
+			resp.setContentType(TYPE_JSON);
 		} else {
 
 			resp.setContentType("text/plain");
@@ -147,19 +166,19 @@ public class ApiServlet extends HttpServlet {
 
 				if (json) {
 
-					writer.write(toJSON(u));
+					writer.write(toJSON(prevUser, u.getCount(), prevMessage));
 				} else {
-					writer.write(u.getTwitterUser().substring(1));
+					writer.write(prevUser.substring(1));
 				}
 
 			} else {
 
 				if (json) {
 
-					writer.write(toJSON(u));
+					writer.write(toJSON(prevUser, u.getCount(), prevMessage));
 				} else {
 
-					writer.write(u.getTwitterUser());
+					writer.write(prevUser);
 				}
 			}
 
@@ -173,20 +192,19 @@ public class ApiServlet extends HttpServlet {
 
 	}
 
-	private String toJSON(BluetoothDevice device) {
+	@SuppressWarnings("unchecked")
+	private String toJSON(String twitterUser, int count, String message) {
 
-		StringBuilder sb = new StringBuilder();
-		sb.append('{');
-		sb.append("twitterUser:");
-		sb.append("'");
-		sb.append(removePrefix(device.getTwitterUser()));
-		sb.append("'");
-		sb.append(',');
-		sb.append("count:");
-		sb.append(device.getCount());
-		sb.append('}');
+		JSONObject obj = new JSONObject();
+		obj.put("twitterUser", removePrefix(twitterUser));
+		obj.put("count", new Integer(count));
+		
+		if (message != null) {
+			
+			obj.put("message", message);
+		}
 
-		return sb.toString();
+		return obj.toJSONString();
 	}
 
 	private String removePrefix(String s) {
@@ -200,7 +218,7 @@ public class ApiServlet extends HttpServlet {
 	}
 
 	private void processPut(HttpServletRequest req, HttpServletResponse resp,
-			String address, String user) {
+			String address, String user, String message) {
 
 		BluetoothDevice u;
 		PersistenceManager pm = PersistenceManagerFactoryFactory
@@ -210,11 +228,12 @@ public class ApiServlet extends HttpServlet {
 		try {
 
 			u = pm.getObjectById(BluetoothDevice.class, id);
-			pm.detachCopy(u);
+			u.setMessage(message);
 
 		} catch (JDOObjectNotFoundException e) {
 
 			u = buildBluetoothDevice(address, user);
+			u.setMessage(message);
 			pm.makePersistent(u);
 
 		} finally {

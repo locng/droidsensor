@@ -2,16 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Developer Tools/gwt-windows-1.7.1/gwt-user.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/Developer%20Tools/gwt-windows-1.7.1/doc/javadoc/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Developer Tools/gwt-windows-1.7.1/gwt-dev-windows.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/Developer%20Tools/gwt-windows-1.7.1/doc/javadoc/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/json_simple-1.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
