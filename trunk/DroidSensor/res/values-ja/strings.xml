@@ -6,10 +6,10 @@
 	<string name="button_bind">すれ違い通信を開始します</string>
 	<string name="button_unbind">すれ違い通信を終了します</string>
 
-	<string name="template_user">. @$id とすれちがったなう$tags</string>
+	<string name="template_user">. @$id とすれちがったなう$message$tags</string>
 
 	<string name="template_device">$id とすれちがったなう$tags</string>
-	<string name="template_passed_device">. @$id と間接的にすれちがったなう$tags</string>
+	<string name="template_passed_device">. @$id がすれ違ったデバイスとすれちがったなう$message$tags</string>
 	<string name="template_passed_device_again">また$deviceとすれちがったなう$tags</string>
 
 	<!-- new  -->
@@ -98,5 +98,8 @@
 	<string name="notice">すれ違い通信をしている間、第三者が以下の情報を閲覧することができる状態になります。
 	\n　このことがプライバシーに関するリスクとなり得る点にご留意の上、ご使用ください。</string>
 	<string name="notice_check_text">使用する</string>
+
+    <string name="default_message_title">メッセージ</string>
+	<string name="default_message_summary">すれちがった相手に送るメッセージを設定</string>
 			
 </resources>

@@ -59,6 +59,8 @@ public class SettingsManager {
 
 	public static final String NOTICE_CHECK = PREFIX + "notice_check";
 
+	public static final String DEFAULT_MESSAGE = PREFIX + "default_message";
+
 	private static final SettingsManager SINGLETON = new SettingsManager();
 
 	public static SettingsManager getInstance(Context context) {
@@ -105,6 +107,8 @@ public class SettingsManager {
 	private String _tags;
 
 	private boolean _noticeCheck;
+
+	private String _defaultMessage;
 
 	private SettingsManager() {
 
@@ -238,6 +242,11 @@ public class SettingsManager {
 		_noticeCheck = noticeCheck;
 	}
 
+	public String getDefaultMessage() {
+
+		return _defaultMessage;
+	}
+
 	public void save(Context context) {
 
 		SharedPreferences prefs = getSharedPreferences(context);
@@ -268,6 +277,8 @@ public class SettingsManager {
 		_detailPassedUser = prefs.getBoolean(DETAIL_PASSED_USER, true);
 		_detailPassedMe = false;
 		_detailPassedNo = false;
+		_noticeCheck = prefs.getBoolean(NOTICE_CHECK, false);
+		_defaultMessage = prefs.getString(DEFAULT_MESSAGE, null);
 		_tags = context.getString(R.string.tags);
 	}
 

@@ -28,8 +28,7 @@ import android.os.Message;
 import android.os.Handler.Callback;
 
 /**
- * TODO スレッドの停止にintrupt()を使用する.
- * <br />
+ * TODO スレッドの停止にintrupt()を使用する. <br />
  * TODO RequestWorkerとRequestThreadをまとめる.
  * 
  * <br />
@@ -50,10 +49,13 @@ public class DroidSensorInquiry {
 
 		private String _user;
 
-		public Inquiry(String address, String user) {
+		private String _message;
+
+		public Inquiry(String address, String user, String message) {
 
 			_address = address;
 			_user = user;
+			_message = message;
 		}
 
 		@Override
@@ -84,6 +86,11 @@ public class DroidSensorInquiry {
 		public String getUser() {
 
 			return _user;
+		}
+
+		public String getMessage() {
+
+			return _message;
 		}
 
 		@Override
@@ -143,8 +150,9 @@ public class DroidSensorInquiry {
 
 		public void run() {
 
-			String result = DroidSensorUtils.getTwitterId(_apiUrl, _inquiry
-					.getAddress(), _inquiry.getUser());
+			APIResuponse result = DroidSensorUtils.getTwitterId(_apiUrl,
+					_inquiry.getAddress(), _inquiry.getUser(), _inquiry
+							.getMessage());
 			Message msg = createMessage(_inquiry, result);
 
 			if (_callback != null) {
@@ -172,6 +180,16 @@ public class DroidSensorInquiry {
 	 * メッセージにバンドルするTwitterユーザー名のキー.
 	 */
 	public static final String TWITTER_USER = "TWITTER_USER";
+
+	/**
+	 * メッセージにバンドルするメッセージのキー.
+	 */
+	public static final String MESSAGE = "MESSAGE";
+
+	/**
+	 * メッセージにバンドルするカウントのキー.
+	 */
+	public static final String COUNT = "COUNT";
 
 	/**
 	 * API呼び出しの同時実行可能数のデフォルト値.
@@ -247,10 +265,10 @@ public class DroidSensorInquiry {
 	 * @param callback
 	 */
 	public synchronized void getTwitterUser(String address, String user,
-			Callback callback) {
+			String message, Callback callback) {
 
 		String apiUrl = getApiUrl();
-		Inquiry inquiry = new Inquiry(address, user);
+		Inquiry inquiry = new Inquiry(address, user, message);
 		boolean success = registerInquiry(inquiry);
 
 		if (!success) {
@@ -269,11 +287,13 @@ public class DroidSensorInquiry {
 	 * @param user
 	 * @return
 	 */
-	private Bundle createBundle(String address, String user) {
+	private Bundle createBundle(String address, APIResuponse resp) {
 
 		Bundle res = new Bundle(2);
 		res.putString(BLUETOOTH_ADDRESS, address);
-		res.putString(TWITTER_USER, user);
+		res.putString(TWITTER_USER, resp.getTwitterUser());
+		res.putInt(COUNT, resp.getCount());
+		res.putString(MESSAGE, resp.getMessage());
 
 		return res;
 	}
@@ -285,7 +305,7 @@ public class DroidSensorInquiry {
 	 * @param result
 	 * @return
 	 */
-	private Message createMessage(Inquiry inquiry, String result) {
+	private Message createMessage(Inquiry inquiry, APIResuponse result) {
 
 		Message res = new Message();
 		Bundle bundle = createBundle(inquiry.getAddress(), result);

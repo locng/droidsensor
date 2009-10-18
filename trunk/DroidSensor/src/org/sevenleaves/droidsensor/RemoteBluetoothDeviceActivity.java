@@ -26,6 +26,8 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class RemoteBluetoothDeviceActivity extends
@@ -38,7 +40,7 @@ public class RemoteBluetoothDeviceActivity extends
 
 		if (s == null || s.trim().length() == 0) {
 
-			//return "*unknown*";
+			// return "*unknown*";
 			return "";
 		}
 
@@ -84,6 +86,20 @@ public class RemoteBluetoothDeviceActivity extends
 		TextView view;
 		view = (TextView) findViewById(R.id.remoteDeviceTwitterID);
 		view.setText(emptyToNothing(entity.getTwitterID()));
+		LinearLayout layout = (LinearLayout) findViewById(R.id.message_layout);
+		view = (TextView) findViewById(R.id.message);
+		
+		if (entity.getMessage() == null) {
+			
+			layout.setVisibility(View.GONE);
+			view.setVisibility(View.GONE);
+		}else{
+		
+			layout.setVisibility(View.VISIBLE);
+			view.setVisibility(View.VISIBLE);
+		}
+
+		view.setText(emptyToNothing(entity.getMessage()));
 		view = (TextView) findViewById(R.id.remoteDeviceFriendlyName);
 		view.setText(emptyToNothing(entity.getName()));
 		view = (TextView) findViewById(R.id.remoteDeviceAddress);

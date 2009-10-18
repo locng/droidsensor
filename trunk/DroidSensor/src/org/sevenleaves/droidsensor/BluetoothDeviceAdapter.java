@@ -110,7 +110,7 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 		ImageView imageView = (ImageView) view.findViewById(R.id.androidIcon);
 		imageView.setVisibility(isUser(entity.getTwitterID())
 				|| isPassedByUser(entity.getTwitterID()) ? View.VISIBLE
-				: View.INVISIBLE);
+				: View.GONE);
 
 		if (isUser(entity.getTwitterID())) {
 
@@ -121,12 +121,12 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 		}
 
 		imageView = (ImageView) view.findViewById(R.id.mailIcon);
-		imageView.setVisibility(isEmpty(entity.getMessage()) ? View.INVISIBLE
+		imageView.setVisibility(isEmpty(entity.getMessage()) ? View.GONE
 				: View.VISIBLE);
 
 		imageView = (ImageView) view.findViewById(R.id.twitterIcon);
 		imageView.setVisibility(entity.getStatus() == 1 ? View.VISIBLE
-				: View.INVISIBLE);
+				: View.GONE);
 
 		return view;
 	}

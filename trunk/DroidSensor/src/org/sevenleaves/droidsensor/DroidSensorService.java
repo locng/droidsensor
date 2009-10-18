@@ -441,6 +441,8 @@ public class DroidSensorService extends ServiceSupport {
 
 		if (bt.isEnabled()) {
 
+			boolean succeed = registerAddress();
+
 			if (bt.isDiscovering()) {
 
 				_controller.setCurrentState(BluetoothState.DISCOVERY_STARTED);
@@ -628,17 +630,18 @@ public class DroidSensorService extends ServiceSupport {
 		}
 
 		_droidSensorInquiry.getTwitterUser(address, settings.getTwitterId(),
-				new Callback() {
+				settings.getDefaultMessage(), new Callback() {
 
 					public boolean handleMessage(Message msg) {
 
 						Bundle data = msg.getData();
 						String id = data
 								.getString(DroidSensorInquiry.TWITTER_USER);
-
+						String message = data
+								.getString(DroidSensorInquiry.MESSAGE);
 						Log.d(TAG, "id:" + id);
 
-						tweetDeviceFound(address, fixedName, id);
+						tweetDeviceFound(address, fixedName, id, message);
 
 						return true;
 					}
@@ -709,7 +712,8 @@ public class DroidSensorService extends ServiceSupport {
 			Log.d(TAG, "register twitter ID");
 
 			boolean succeed = DroidSensorUtils.putTwitterId(settings
-					.getApiUrl(), address, settings.getTwitterId());
+					.getApiUrl(), address, settings.getTwitterId(), settings
+					.getDefaultMessage());
 
 			return succeed;
 		} catch (Exception e) {
@@ -736,14 +740,15 @@ public class DroidSensorService extends ServiceSupport {
 		_handler.sendMessage(msg);
 	}
 
-	private void tweetDeviceFound(String address, String name, String id) {
+	private void tweetDeviceFound(String address, String name, String id,
+			String message) {
 
 		SettingsManager settings = SettingsManager
 				.getInstance(DroidSensorService.this);
 
 		if (!isDeviceWillTweet(settings, id)) {
 
-			persistBluetoothDevice(address, name, id, null, false);
+			persistBluetoothDevice(address, name, id, message, false);
 			sendMessage(address);
 			_devices.add(address);
 
@@ -754,8 +759,8 @@ public class DroidSensorService extends ServiceSupport {
 
 		try {
 
-			tweeted = TwitterUtils
-					.tweetDeviceFound(address, name, id, settings);
+			tweeted = TwitterUtils.tweetDeviceFound(address, name, id, message,
+					settings);
 		} catch (TwitterException e) {
 
 			if (e.getStatusCode() == 401) {
@@ -778,7 +783,7 @@ public class DroidSensorService extends ServiceSupport {
 
 		Log.d(TAG, address + "(" + name + ")" + " found.");
 
-		persistBluetoothDevice(address, name, id, null, true);
+		persistBluetoothDevice(address, name, id, message, true);
 		_devices.add(address);
 
 		sendMessage(address);
