@@ -5,9 +5,9 @@
     <string name="tags">#droidsensor</string>
     
     
-    
+
 	<string name="property_server_url">http://droidsensor.appspot.com/api</string>
-	
+
 	<!-- 
 	<string name="property_server_url">http://192.168.0.1:8080/api</string>
     -->
@@ -18,10 +18,10 @@
     <string name="button_bind">Start Service</string>
     <string name="button_unbind">Stop Service</string>
     
-    <string name="template_user">Passed by \@$id .$tags</string>
+    <string name="template_user">Passed by \@$id .$message$tags</string>
     
 	<string name="template_device">Passed by $id .$tags</string>
-	<string name="template_passed_device">Passed by @$id indirectly.$tags</string>
+	<string name="template_passed_device">Passed by @$id indirectly.$message$tags</string>
 	<string name="template_passed_device_again">Passed by $device again.$tags</string>
 	    
     <!-- new -->
@@ -116,4 +116,8 @@
     <string name="notice_label">NOTICE</string>
     <string name="notice">while running the application, third persons can take following informations.</string>
     <string name="notice_check_text">OK</string>
+    
+    <string name="default_message_title">Message</string>
+	<string name="default_message_summary">Message for User passed by</string>
+    
 </resources>

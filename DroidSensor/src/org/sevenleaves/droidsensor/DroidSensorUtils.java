@@ -18,20 +18,28 @@ package org.sevenleaves.droidsensor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
 
 import android.util.Log;
 
 /**
  * @author esmasui@gmail.com
- *
+ * 
  */
 abstract class DroidSensorUtils {
 
@@ -66,15 +74,19 @@ abstract class DroidSensorUtils {
 		return res;
 	}
 
-	public static String getTwitterId(String apiUrl, String address, String user) {
+	public static APIResuponse getTwitterId(String apiUrl, String address,
+			String user, String message) {
 
-		String res = null;
+		Log.d("DroidSensorUtils", "address=" + address + ",user=" + user
+				+ ",message=" + message);
+
+		APIResuponse res = null;
 
 		for (int i = 0; i < RETRY_COUNT; ++i) {
 
 			try {
 
-				res = getTwitterIdInternal(apiUrl, address, user);
+				res = getTwitterIdInternal(apiUrl, address, user, message);
 
 				break;
 			} catch (Exception e) {
@@ -93,8 +105,8 @@ abstract class DroidSensorUtils {
 		return res;
 	}
 
-	public static String getTwitterIdInternal(String apiUrl, String address,
-			String user) {
+	public static APIResuponse getTwitterIdInternal(String apiUrl,
+			String address, String user, String message) {
 
 		HttpClient client = new DefaultHttpClient();
 
@@ -106,20 +118,29 @@ abstract class DroidSensorUtils {
 			encoded = DroidSensorUtils.encodeString(address);
 		} catch (Exception e) {
 
-			return null;
+			return new APIResuponse();
 		}
 
-		HttpGet request = new HttpGet(apiUrl + "?a=" + encoded + "&u=@" + user);
-
-		request.setHeader("User-Agent", client.getClass().getSimpleName());
+		HttpPost request = new HttpPost(apiUrl);
 
 		try {
+			
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+			nameValuePairs.add(new BasicNameValuePair("a", encoded));
+			nameValuePairs.add(new BasicNameValuePair("u", "@" + user));
+			if (message != null) {
+				nameValuePairs.add(new BasicNameValuePair("m", message));
+			}
+			nameValuePairs.add(new BasicNameValuePair("t", "json"));
+			request.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
+			request.setHeader("User-Agent", client.getClass().getSimpleName());
+
 			HttpResponse response = client.execute(request);
 			StatusLine status = response.getStatusLine();
 
 			if (status.getStatusCode() != 200 && status.getStatusCode() != 404) {
 
-				return null;
+				return new APIResuponse();
 				// throw new RuntimeException("HTTP_STATUS_CODE is "
 				// + status.getStatusCode());
 			}
@@ -136,30 +157,43 @@ abstract class DroidSensorUtils {
 				baos.write(buf, 0, len);
 			}
 
-			String name = new String(baos.toByteArray(), "utf-8");
+			JSONObject json = new JSONObject(new String(baos.toByteArray(),
+					"utf-8"));
+			String resName = json.getString("twitterUser");
+			int resCount = json.getInt("count");
+			String resMessage = json.getString("message");
 
-			if (name == null || name.trim().length() == 0) {
+			if (resName == null || resName.trim().length() == 0) {
 
-				return null;
+				return new APIResuponse();
 			}
 
 			if (status.getStatusCode() == 404) {
 
-				name = "@" + name;
+				resName = "@" + resName;
 			}
 
-			return name;
+			APIResuponse res = new APIResuponse();
+			res.setTwitterUser(resName);
+			res.setCount(resCount);
+			res.setMessage(resMessage);
+
+			return res;
 		} catch (Exception e) {
 
 			request.abort();
 
-			return null;
+			return new APIResuponse();
 			// throw new RuntimeException(e);
 		}
 
 	}
 
-	public static boolean putTwitterId(String apiUrl, String address, String id) {
+	public static boolean putTwitterId(String apiUrl, String address,
+			String id, String message) {
+
+		Log.d("DroidSensorUtils", "address=" + address + ",id=" + id
+				+ ",message=" + message);
 
 		boolean res = false;
 
@@ -167,7 +201,7 @@ abstract class DroidSensorUtils {
 
 			try {
 
-				putTwitterIdInternal(apiUrl, address, id);
+				putTwitterIdInternal(apiUrl, address, id, message);
 				res = true;
 
 				break;
@@ -188,7 +222,7 @@ abstract class DroidSensorUtils {
 	}
 
 	public static boolean putTwitterIdInternal(String apiUrl, String address,
-			String id) {
+			String id, String message) {
 
 		HttpClient client = new DefaultHttpClient();
 
@@ -203,11 +237,19 @@ abstract class DroidSensorUtils {
 			return false;
 		}
 
-		HttpGet request = new HttpGet(apiUrl + "?a=" + encoded + "&u=" + id);
-
-		request.setHeader("User-Agent", client.getClass().getSimpleName());
+		HttpPost request = new HttpPost(apiUrl);
 
 		try {
+
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+			nameValuePairs.add(new BasicNameValuePair("a", encoded));
+			nameValuePairs.add(new BasicNameValuePair("u", id));
+			if (message != null) {
+
+				nameValuePairs.add(new BasicNameValuePair("m", message));
+			}
+			request.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
+			request.setHeader("User-Agent", client.getClass().getSimpleName());
 			HttpResponse response = client.execute(request);
 			StatusLine status = response.getStatusLine();
 
@@ -229,6 +271,17 @@ abstract class DroidSensorUtils {
 			return false;
 		}
 
+	}
+
+	private static final String encodeUri(String s) {
+
+		try {
+
+			return URLEncoder.encode(s, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+
+			return s;
+		}
 	}
 
 }

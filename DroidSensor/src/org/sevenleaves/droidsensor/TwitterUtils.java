@@ -35,7 +35,8 @@ abstract class TwitterUtils {
 	 * @throws TwitterException
 	 */
 	public static String tweetDeviceFound(String address, String name,
-			String id, SettingsManager settings) throws TwitterException {
+			String id, String message, SettingsManager settings)
+			throws TwitterException {
 
 		String template = settings.getUserTemplate();
 
@@ -84,7 +85,21 @@ abstract class TwitterUtils {
 			text = text.replace("$device", name);
 		}
 
-		forNotify = text;
+		if (text.contains("$message")) {
+
+			if (name == null) {
+
+				return null;
+			}
+
+			forNotify = text.replace("$message", "");
+			text = text.replace("$message", " - " + message + " - ");
+		} else {
+		
+			forNotify = text;
+		}
+
+		
 
 		if (text.contains("$tags")) {
 

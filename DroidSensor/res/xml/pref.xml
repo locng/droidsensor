@@ -13,6 +13,10 @@
 			android:title="@string/twitter_password_title" android:summary="@string/twitter_password_summary"
 			android:inputType="textPassword" />
 
+		<EditTextPreference android:key="droidsensor_default_message"
+			android:title="@string/default_message_title" android:summary="@string/default_message_summary"
+			android:inputType="textAutoCorrect" android:maxLength="50" />
+
 	</PreferenceCategory>
 
 	<!--
