@@ -134,7 +134,13 @@ public class ApiServlet extends HttpServlet {
 						u.setTwitterUser(user);
 					}
 
-					u.setMessage(message);
+					if (isEmpty(message)) {
+
+						u.setMessage(null);
+					} else {
+
+						u.setMessage(message);
+					}
 				} finally {
 
 					pm.close();
@@ -198,9 +204,9 @@ public class ApiServlet extends HttpServlet {
 		JSONObject obj = new JSONObject();
 		obj.put("twitterUser", removePrefix(twitterUser));
 		obj.put("count", new Integer(count));
-		
-		if (message != null) {
-			
+
+		if (!isEmpty(message)) {
+
 			obj.put("message", message);
 		}
 
@@ -217,6 +223,16 @@ public class ApiServlet extends HttpServlet {
 		return s;
 	}
 
+	private boolean isEmpty(String s) {
+
+		if (s == null) {
+
+			return true;
+		}
+
+		return s.trim().length() == 0;
+	}
+
 	private void processPut(HttpServletRequest req, HttpServletResponse resp,
 			String address, String user, String message) {
 
@@ -228,8 +244,14 @@ public class ApiServlet extends HttpServlet {
 		try {
 
 			u = pm.getObjectById(BluetoothDevice.class, id);
-			u.setMessage(message);
 
+			if (isEmpty(message)) {
+
+				u.setMessage(null);
+			} else {
+
+				u.setMessage(message);
+			}
 		} catch (JDOObjectNotFoundException e) {
 
 			u = buildBluetoothDevice(address, user);
