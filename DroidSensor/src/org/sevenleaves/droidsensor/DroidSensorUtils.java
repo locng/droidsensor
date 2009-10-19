@@ -121,25 +121,26 @@ abstract class DroidSensorUtils {
 			return new APIResuponse();
 		}
 
-		HttpPost request = new HttpPost(apiUrl);
+		HttpPost request = new HttpPost(buildRequestUri(apiUrl, "@" + user));
 
 		try {
-			
+
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 			nameValuePairs.add(new BasicNameValuePair("a", encoded));
-			nameValuePairs.add(new BasicNameValuePair("u", "@" + user));
+
 			if (message != null) {
 				nameValuePairs.add(new BasicNameValuePair("m", message));
 			}
 			nameValuePairs.add(new BasicNameValuePair("t", "json"));
-			request.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
+			request
+					.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 			request.setHeader("User-Agent", client.getClass().getSimpleName());
 
 			HttpResponse response = client.execute(request);
 			StatusLine status = response.getStatusLine();
 
 			if (status.getStatusCode() != 200 && status.getStatusCode() != 404) {
-
+				Log.d("@Utils", "abnormal");
 				return new APIResuponse();
 				// throw new RuntimeException("HTTP_STATUS_CODE is "
 				// + status.getStatusCode());
@@ -156,15 +157,42 @@ abstract class DroidSensorUtils {
 
 				baos.write(buf, 0, len);
 			}
-
+			Log.d("@Utils", "bofore json");
 			JSONObject json = new JSONObject(new String(baos.toByteArray(),
 					"utf-8"));
-			String resName = json.getString("twitterUser");
-			int resCount = json.getInt("count");
-			String resMessage = json.getString("message");
+			String resName;
 
+			if (json.has("twitterUser")) {
+
+				resName = json.getString("twitterUser");
+			} else {
+
+				resName = null;
+			}
+
+			int resCount;
+
+			if (json.has("count")) {
+
+				resCount = json.getInt("count");
+			} else {
+
+				resCount = 0;
+			}
+
+			String resMessage;
+
+			if (json.has("message")) {
+
+				resMessage = json.getString("message");
+			} else {
+
+				resMessage = null;
+			}
+
+			Log.d("@Utils", "after json");
 			if (resName == null || resName.trim().length() == 0) {
-
+				Log.d("@Utils", "resName is null");
 				return new APIResuponse();
 			}
 
@@ -237,18 +265,18 @@ abstract class DroidSensorUtils {
 			return false;
 		}
 
-		HttpPost request = new HttpPost(apiUrl);
+		HttpPost request = new HttpPost(buildRequestUri(apiUrl, id));
 
 		try {
 
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 			nameValuePairs.add(new BasicNameValuePair("a", encoded));
-			nameValuePairs.add(new BasicNameValuePair("u", id));
 			if (message != null) {
 
 				nameValuePairs.add(new BasicNameValuePair("m", message));
 			}
-			request.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
+			request
+					.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 			request.setHeader("User-Agent", client.getClass().getSimpleName());
 			HttpResponse response = client.execute(request);
 			StatusLine status = response.getStatusLine();
@@ -271,6 +299,18 @@ abstract class DroidSensorUtils {
 			return false;
 		}
 
+	}
+
+	private static final String buildRequestUri(String api, String user) {
+
+		StringBuilder b = new StringBuilder();
+		b.append(api);
+		b.append('?');
+		b.append('u');
+		b.append('=');
+		b.append(user);
+
+		return b.toString();
 	}
 
 	private static final String encodeUri(String s) {

@@ -22,7 +22,7 @@ import android.provider.Settings.SettingNotFoundException;
 
 /**
  * @author esmasui@gmail.com
- *
+ * 
  */
 public abstract class BluetoothSettings {
 
@@ -58,10 +58,26 @@ public abstract class BluetoothSettings {
 		// System.setProperty(SYSTEM_PROPERTIES_BLUETOOTH_ENABLE, null);
 	}
 
+	private static final boolean isEmpty(String s) {
+
+		if (s == null) {
+
+			return true;
+		}
+
+		return s.trim().length() == 0;
+	}
+
 	private static void loadBluetoothOn(ContentResolver resolver,
 			BluetoothDeviceStub stub) throws SettingNotFoundException {
 
 		String str = System.getProperty(SYSTEM_PROPERTIES_BLUETOOTH_ENABLE);
+
+		if (isEmpty(str)) {
+
+			return;
+		}
+
 		boolean v = (str == null ? false : Boolean.valueOf(str));
 
 		if (stub.isEnabled()) {
