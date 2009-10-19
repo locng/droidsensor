@@ -293,7 +293,11 @@ public class DroidSensorInquiry {
 		res.putString(BLUETOOTH_ADDRESS, address);
 		res.putString(TWITTER_USER, resp.getTwitterUser());
 		res.putInt(COUNT, resp.getCount());
-		res.putString(MESSAGE, resp.getMessage());
+
+		if (resp.getMessage() != null) {
+
+			res.putString(MESSAGE, resp.getMessage());
+		}
 
 		return res;
 	}

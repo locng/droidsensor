@@ -93,13 +93,18 @@ abstract class TwitterUtils {
 			}
 
 			forNotify = text.replace("$message", "");
-			text = text.replace("$message", " - " + message + " - ");
+			
+			if (isEmpty(message)) {
+
+				text = text.replace("$message", "");
+			} else {
+				
+				text = text.replace("$message", " - " + message + " - ");
+			}
 		} else {
-		
+
 			forNotify = text;
 		}
-
-		
 
 		if (text.contains("$tags")) {
 

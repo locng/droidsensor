@@ -21,7 +21,6 @@ import java.util.Calendar;
 
 import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -45,6 +44,21 @@ public class RemoteBluetoothDeviceActivity extends
 		}
 
 		return s;
+	}
+
+	private static boolean isEmpty(String s) {
+
+		if (s == null) {
+
+			return true;
+		}
+
+		if (s.trim().length() == 0) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private String formatDate(long time) {
@@ -88,13 +102,13 @@ public class RemoteBluetoothDeviceActivity extends
 		view.setText(emptyToNothing(entity.getTwitterID()));
 		LinearLayout layout = (LinearLayout) findViewById(R.id.message_layout);
 		view = (TextView) findViewById(R.id.message);
-		
-		if (entity.getMessage() == null) {
-			
+
+		if (isEmpty(entity.getMessage())) {
+
 			layout.setVisibility(View.GONE);
 			view.setVisibility(View.GONE);
-		}else{
-		
+		} else {
+
 			layout.setVisibility(View.VISIBLE);
 			view.setVisibility(View.VISIBLE);
 		}

@@ -108,15 +108,15 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	@Override
 	public final boolean onCreateOptionsMenu(Menu menu) {
 
-//		SettingsManager setting = SettingsManager.getInstance(this);
-//
-//		if(!setting.isNoticeCheck()){
-//		
-//			// null渡しちゃったりとか、よくないが、、、。
-//			onInfoMenuSelected(null);
-//			
-//			return false;
-//		}
+		SettingsManager setting = SettingsManager.getInstance(this);
+
+		if (!setting.isNoticeCheck()) {
+
+			// null渡しちゃったりとか、よくないが、、、。
+			onInfoMenuSelected(null);
+
+			return false;
+		}
 
 		boolean res = super.onCreateOptionsMenu(menu);
 
@@ -226,7 +226,7 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 		addDiscoveryMenu(helper);
 		addSettingsMenu(helper);
 		addDeleteMenu(helper);
-		//addInfoMenu(helper);
+		addInfoMenu(helper);
 	}
 
 	/**

@@ -6,7 +6,7 @@
     
     
 
-	<string name="property_server_url">http://droidsensor.appspot.com/api</string>
+	<string name="property_server_url">https://droidsensor.appspot.com/api</string>
 
 	<!-- 
 	<string name="property_server_url">http://192.168.0.1:8080/api</string>
