@@ -74,13 +74,13 @@ abstract class DroidSensorUtils {
 		return res;
 	}
 
-	public static APIResuponse getTwitterId(String apiUrl, String address,
+	public static APIResponse getTwitterId(String apiUrl, String address,
 			String user, String message) {
 
 		Log.d("DroidSensorUtils", "address=" + address + ",user=" + user
 				+ ",message=" + message);
 
-		APIResuponse res = null;
+		APIResponse res = null;
 
 		for (int i = 0; i < RETRY_COUNT; ++i) {
 
@@ -105,7 +105,7 @@ abstract class DroidSensorUtils {
 		return res;
 	}
 
-	public static APIResuponse getTwitterIdInternal(String apiUrl,
+	public static APIResponse getTwitterIdInternal(String apiUrl,
 			String address, String user, String message) {
 
 		HttpClient client = new DefaultHttpClient();
@@ -118,7 +118,7 @@ abstract class DroidSensorUtils {
 			encoded = DroidSensorUtils.encodeString(address);
 		} catch (Exception e) {
 
-			return new APIResuponse();
+			return new APIResponse();
 		}
 
 		HttpPost request = new HttpPost(buildRequestUri(apiUrl, "@" + user));
@@ -141,7 +141,7 @@ abstract class DroidSensorUtils {
 
 			if (status.getStatusCode() != 200 && status.getStatusCode() != 404) {
 				Log.d("@Utils", "abnormal");
-				return new APIResuponse();
+				return new APIResponse();
 				// throw new RuntimeException("HTTP_STATUS_CODE is "
 				// + status.getStatusCode());
 			}
@@ -193,7 +193,7 @@ abstract class DroidSensorUtils {
 			Log.d("@Utils", "after json");
 			if (resName == null || resName.trim().length() == 0) {
 				Log.d("@Utils", "resName is null");
-				return new APIResuponse();
+				return new APIResponse();
 			}
 
 			if (status.getStatusCode() == 404) {
@@ -201,7 +201,7 @@ abstract class DroidSensorUtils {
 				resName = "@" + resName;
 			}
 
-			APIResuponse res = new APIResuponse();
+			APIResponse res = new APIResponse();
 			res.setTwitterUser(resName);
 			res.setCount(resCount);
 			res.setMessage(resMessage);
@@ -211,7 +211,7 @@ abstract class DroidSensorUtils {
 
 			request.abort();
 
-			return new APIResuponse();
+			return new APIResponse();
 			// throw new RuntimeException(e);
 		}
 
