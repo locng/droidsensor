@@ -10,6 +10,10 @@ import android.widget.Toast;
 
 public class BluetoothASyncActivity extends Activity {
 
+	private static final String BLUETOOTH_STATE = "android.bluetooth.intent.BLUETOOTH_STATE";
+
+	private static final int BLUETOOTH_STATE_ON = 0x2;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -21,6 +25,13 @@ public class BluetoothASyncActivity extends Activity {
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
+
+				int state = intent.getIntExtra(BLUETOOTH_STATE, 0x0);
+
+				if (state != BLUETOOTH_STATE_ON) {
+
+					return;
+				}
 
 				String name = bluetooth.getName();
 				Toast.makeText(BluetoothASyncActivity.this, name,
