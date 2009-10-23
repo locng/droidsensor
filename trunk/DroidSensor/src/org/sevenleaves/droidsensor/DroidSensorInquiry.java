@@ -150,7 +150,7 @@ public class DroidSensorInquiry {
 
 		public void run() {
 
-			APIResuponse result = DroidSensorUtils.getTwitterId(_apiUrl,
+			APIResponse result = DroidSensorUtils.getTwitterId(_apiUrl,
 					_inquiry.getAddress(), _inquiry.getUser(), _inquiry
 							.getMessage());
 			Message msg = createMessage(_inquiry, result);
@@ -287,7 +287,7 @@ public class DroidSensorInquiry {
 	 * @param user
 	 * @return
 	 */
-	private Bundle createBundle(String address, APIResuponse resp) {
+	private Bundle createBundle(String address, APIResponse resp) {
 
 		Bundle res = new Bundle(2);
 		res.putString(BLUETOOTH_ADDRESS, address);
@@ -309,7 +309,7 @@ public class DroidSensorInquiry {
 	 * @param result
 	 * @return
 	 */
-	private Message createMessage(Inquiry inquiry, APIResuponse result) {
+	private Message createMessage(Inquiry inquiry, APIResponse result) {
 
 		Message res = new Message();
 		Bundle bundle = createBundle(inquiry.getAddress(), result);

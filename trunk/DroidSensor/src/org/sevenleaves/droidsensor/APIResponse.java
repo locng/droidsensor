@@ -1,6 +1,6 @@
 package org.sevenleaves.droidsensor;
 
-public class APIResuponse {
+public class APIResponse {
 
 	private String _twitterUser;
 
