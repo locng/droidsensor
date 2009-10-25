@@ -121,6 +121,8 @@ public class RemoteBluetoothDeviceActivity extends
 		view.setText(emptyToNothing(entity.getMessage()));
 		view = (TextView) findViewById(R.id.remoteDeviceFriendlyName);
 		view.setText(emptyToNothing(entity.getName()));
+		view = (TextView) findViewById(R.id.remoteDeviceClass);
+		view.setText(BluetoothUtils.getMajorDeviceClassName(this, entity.getDeviceClass()));
 		view = (TextView) findViewById(R.id.remoteDeviceAddress);
 		view.setText(BluetoothUtils.getMaskedAddress(_address));
 		view = (TextView) findViewById(R.id.remoteDeviceCompany);

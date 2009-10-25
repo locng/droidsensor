@@ -21,7 +21,7 @@
     <string name="template_user">Passed by \@$id .$message$tags</string>
     
 	<string name="template_device">Passed by $id .$tags</string>
-	<string name="template_passed_device">Passed by @$id indirectly.$message$tags</string>
+	<string name="template_passed_device">Passed by @$id via $device.$message$tags</string>
 	<string name="template_passed_device_again">Passed by $device again.$tags</string>
 	    
     <!-- new -->
@@ -122,5 +122,28 @@
     
     <string name="menu_view_text">Show profile</string>
     <string name="menu_search_text">Search OUI Database</string>
+
+
+	<string name="bt_major_misc">device</string>
+
+	<string name="bt_major_computer">computer</string>
+
+	<string name="bt_major_phone">phone</string>
+
+	<string name="bt_major_networking">networking device</string>
+
+	<string name="bt_major_audio_video">audio/video</string>
+
+	<string name="bt_major_peripheral">peripheral device</string>
+
+	<string name="bt_major_imaging">imaging device</string>
+
+	<string name="bt_major_wearable">wearable device</string>
+
+	<string name="bt_major_toy">toy</string>
+
+	<string name="bt_major_health">health device</string>
+
+	<string name="bt_major_uncategorized">uncategorized device</string>
 
 </resources>

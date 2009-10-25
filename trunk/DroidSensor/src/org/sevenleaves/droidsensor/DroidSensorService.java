@@ -29,6 +29,7 @@ import java.util.Set;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStubFactory;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothSettings;
+import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 import org.sevenleaves.droidsensor.handlers.BluetoothEventControllerImpl;
 import org.sevenleaves.droidsensor.handlers.BluetoothState;
 import org.sevenleaves.droidsensor.handlers.BluetoothStateListenerAdapter;
@@ -756,10 +757,14 @@ public class DroidSensorService extends ServiceSupport {
 		}
 
 		String tweeted;
-
+		BluetoothDeviceStub bluetooth = BluetoothDeviceStubFactory
+				.createBluetoothServiceStub(this);
+		int btClass = bluetooth.getRemoteClass(address);
+		
 		try {
 
 			tweeted = TwitterUtils.tweetDeviceFound(address, name, id, message,
+					BluetoothUtils.getMajorDeviceClassName(this, btClass),
 					settings);
 		} catch (TwitterException e) {
 
@@ -789,5 +794,4 @@ public class DroidSensorService extends ServiceSupport {
 		sendMessage(address);
 		showDeviceFound(tweeted);
 	}
-
 }
