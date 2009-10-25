@@ -120,4 +120,7 @@
     <string name="default_message_title">Message</string>
 	<string name="default_message_summary">Message for User passed by</string>
     
+    <string name="menu_view_text">Show profile</string>
+    <string name="menu_search_text">Search OUI Database</string>
+
 </resources>
