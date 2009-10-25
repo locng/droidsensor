@@ -16,8 +16,18 @@
 
 package org.sevenleaves.droidsensor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpService;
+
+import android.webkit.WebView;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -28,6 +38,18 @@ import twitter4j.TwitterException;
  */
 abstract class TwitterUtils {
 
+	public static String getProfileUri(String user){
+
+		Twitter twitter = new Twitter();
+		StringBuilder b = new StringBuilder();
+		b.append(twitter.getBaseURL());
+		b.append('/');
+		b.append(user);
+		
+		return b.toString();
+	}
+
+	
 	/**
 	 * @param device
 	 * @param settings

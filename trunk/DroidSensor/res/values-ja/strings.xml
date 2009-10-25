@@ -101,5 +101,8 @@
 
     <string name="default_message_title">メッセージ</string>
 	<string name="default_message_summary">すれちがった相手に送るメッセージを設定</string>
+
+    <string name="menu_view_text">プロファイルを見る</string>
+    <string name="menu_search_text">OUIデータベースを見る</string>
 			
 </resources>

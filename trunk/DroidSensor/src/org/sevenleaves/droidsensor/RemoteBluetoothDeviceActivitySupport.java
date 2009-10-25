@@ -25,7 +25,7 @@ import android.view.MenuItem;
 public abstract class RemoteBluetoothDeviceActivitySupport extends Activity {
 
 	private static final String TAG = RemoteBluetoothDeviceActivitySupport.class
-	.getSimpleName();
+			.getSimpleName();
 
 	private OptionsMenuHelper _menuHelper;
 
@@ -84,16 +84,73 @@ public abstract class RemoteBluetoothDeviceActivitySupport extends Activity {
 	}
 
 	/**
+	 * Profileメニューを登録する.
+	 * 
+	 * @param helper
+	 */
+	private void addProfileMenu(OptionsMenuHelper helper) {
+
+		helper.addItem(R.string.menu_view_text, android.R.drawable.ic_menu_view,
+
+		new MenuItemCallback() {
+
+			public void onOpend(MenuItem item) {
+
+				onProfileMenuOpened(item);
+			}
+
+			public void onSelected(MenuItem item) {
+
+				onProfileMenuSelected(item);
+			}
+		});
+	}
+
+	/**
+	 * OUICodeメニューを登録する.
+	 * 
+	 * @param helper
+	 */
+	private void addOUICodeMenu(OptionsMenuHelper helper) {
+
+		helper.addItem(R.string.menu_search_text, android.R.drawable.ic_menu_search,
+
+		new MenuItemCallback() {
+
+			public void onOpend(MenuItem item) {
+
+				onOUICodeMenuOpened(item);
+			}
+
+			public void onSelected(MenuItem item) {
+
+				onOUICodeMenuSelected(item);
+			}
+		});
+	}
+
+	/**
 	 * OptionsMenuを登録する.
 	 * 
 	 * @param helper
 	 */
 	private void registerOptionsMenu(OptionsMenuHelper helper) {
 
-		//addPostMessageMenu(helper);
+		// addPostMessageMenu(helper);
+		addProfileMenu(helper);
+		addOUICodeMenu(helper);
 	}
 
 	protected abstract void onPostMessageMenuSelected(MenuItem item);
 
 	protected abstract void onPostMessageMenuOpened(MenuItem item);
+
+	protected abstract void onProfileMenuSelected(MenuItem item);
+
+	protected abstract void onProfileMenuOpened(MenuItem item);
+
+	protected abstract void onOUICodeMenuSelected(MenuItem item);
+
+	protected abstract void onOUICodeMenuOpened(MenuItem item);
+
 }

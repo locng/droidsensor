@@ -23,6 +23,7 @@ import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,8 +33,9 @@ import android.widget.TextView;
 public class RemoteBluetoothDeviceActivity extends
 		RemoteBluetoothDeviceActivitySupport {
 
-	private static final String TAG = RemoteBluetoothDeviceActivity.class
-			.getSimpleName();
+	private String _twitterID;
+
+	private String _address;
 
 	private String emptyToNothing(String s) {
 
@@ -97,9 +99,12 @@ public class RemoteBluetoothDeviceActivity extends
 			}
 		}
 
+		_twitterID = entity.getTwitterID();
+		_address = entity.getAddress();
+
 		TextView view;
 		view = (TextView) findViewById(R.id.remoteDeviceTwitterID);
-		view.setText(emptyToNothing(entity.getTwitterID()));
+		view.setText(emptyToNothing(_twitterID));
 		LinearLayout layout = (LinearLayout) findViewById(R.id.message_layout);
 		view = (TextView) findViewById(R.id.message);
 
@@ -117,7 +122,7 @@ public class RemoteBluetoothDeviceActivity extends
 		view = (TextView) findViewById(R.id.remoteDeviceFriendlyName);
 		view.setText(emptyToNothing(entity.getName()));
 		view = (TextView) findViewById(R.id.remoteDeviceAddress);
-		view.setText(BluetoothUtils.getMaskedAddress(entity.getAddress()));
+		view.setText(BluetoothUtils.getMaskedAddress(_address));
 		view = (TextView) findViewById(R.id.remoteDeviceCompany);
 		view.setText(emptyToNothing(entity.getCompany()));
 		view = (TextView) findViewById(R.id.remoteDeviceManufacturer);
@@ -139,6 +144,46 @@ public class RemoteBluetoothDeviceActivity extends
 	protected void onPostMessageMenuSelected(MenuItem item) {
 
 		Intent intent = new Intent(PostMessageActivity.class.getName());
+		startActivity(intent);
+	}
+
+	@Override
+	protected void onOUICodeMenuOpened(MenuItem item) {
+
+		; // nop
+	}
+
+	@Override
+	protected void onOUICodeMenuSelected(MenuItem item) {
+
+		Intent intent = new Intent(OUISearchActivity.class.getName());
+		BluetoothUtils.putAddress(intent, _address);
+		startActivity(intent);
+	}
+
+	@Override
+	protected void onProfileMenuOpened(MenuItem item) {
+
+		item.setEnabled(!isEmpty(_twitterID));
+	}
+
+	private String stripPrefix(String s) {
+
+		if (!s.startsWith("@")) {
+
+			return s;
+		}
+
+		return s.substring(1);
+	}
+
+	@Override
+	protected void onProfileMenuSelected(MenuItem item) {
+
+		String id = stripPrefix(_twitterID);
+		String path = TwitterUtils.getProfileUri(id);
+		Uri uri = Uri.parse(path);
+		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		startActivity(intent);
 	}
 }
