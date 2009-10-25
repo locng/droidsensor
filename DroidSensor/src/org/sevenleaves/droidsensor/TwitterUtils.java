@@ -38,18 +38,17 @@ import twitter4j.TwitterException;
  */
 abstract class TwitterUtils {
 
-	public static String getProfileUri(String user){
+	public static String getProfileUri(String user) {
 
 		Twitter twitter = new Twitter();
 		StringBuilder b = new StringBuilder();
 		b.append(twitter.getBaseURL());
 		b.append('/');
 		b.append(user);
-		
+
 		return b.toString();
 	}
 
-	
 	/**
 	 * @param device
 	 * @param settings
@@ -57,8 +56,8 @@ abstract class TwitterUtils {
 	 * @throws TwitterException
 	 */
 	public static String tweetDeviceFound(String address, String name,
-			String id, String message, SettingsManager settings)
-			throws TwitterException {
+			String id, String message, String deviceClass,
+			SettingsManager settings) throws TwitterException {
 
 		String template = settings.getUserTemplate();
 
@@ -104,7 +103,7 @@ abstract class TwitterUtils {
 				return null;
 			}
 
-			text = text.replace("$device", name);
+			text = text.replace("$device", deviceClass);
 		}
 
 		if (text.contains("$message")) {
@@ -115,12 +114,12 @@ abstract class TwitterUtils {
 			}
 
 			forNotify = text.replace("$message", "");
-			
+
 			if (isEmpty(message)) {
 
 				text = text.replace("$message", "");
 			} else {
-				
+
 				text = text.replace("$message", " - " + message + " - ");
 			}
 		} else {

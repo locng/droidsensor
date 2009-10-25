@@ -9,7 +9,7 @@
 	<string name="template_user">. @$id とすれちがったなう$message$tags</string>
 
 	<string name="template_device">$id とすれちがったなう$tags</string>
-	<string name="template_passed_device">. @$id がすれ違ったデバイスとすれちがったなう$message$tags</string>
+	<string name="template_passed_device">. @$id がすれ違った$deviceとすれちがったなう$message$tags</string>
 	<string name="template_passed_device_again">また$deviceとすれちがったなう$tags</string>
 
 	<!-- new  -->
@@ -80,7 +80,7 @@
 	</string-array>
 
 	<string name="device_detail_summary">デバイスをつぶやく時の詳細設定</string>
-    
+
 	<string name="device_detail_passed_user_title">Passed by Twitter user</string>
 	<string name="device_detail_passed_user_summary">他のユーザーとすれちがったデバイスをつぶやく</string>
 
@@ -94,15 +94,37 @@
 	<string name="toggle_bluetooth_summary">一定間隔でBluetoothのON/OFFを繰り返します。</string>
 
 	<string name="menu_info">ご注意</string>
-	    <string name="notice_label">ご注意</string>
+	<string name="notice_label">ご注意</string>
 	<string name="notice">すれ違い通信をしている間、第三者が以下の情報を閲覧することができる状態になります。
-	\n　このことがプライバシーに関するリスクとなり得る点にご留意の上、ご使用ください。</string>
+		\n このことがプライバシーに関するリスクとなり得る点にご留意の上、ご使用ください。</string>
 	<string name="notice_check_text">使用する</string>
 
-    <string name="default_message_title">メッセージ</string>
+	<string name="default_message_title">メッセージ</string>
 	<string name="default_message_summary">すれちがった相手に送るメッセージを設定</string>
 
-    <string name="menu_view_text">プロファイルを見る</string>
-    <string name="menu_search_text">OUIデータベースを見る</string>
-			
+	<string name="menu_view_text">プロファイルを見る</string>
+	<string name="menu_search_text">OUIデータベースを見る</string>
+
+	<string name="bt_major_misc">デバイス</string>
+
+	<string name="bt_major_computer">コンピューター</string>
+
+	<string name="bt_major_phone">電話</string>
+
+	<string name="bt_major_networking">ネットワーキングデバイス</string>
+
+	<string name="bt_major_audio_video">AV機器</string>
+
+	<string name="bt_major_peripheral">周辺機器</string>
+
+	<string name="bt_major_imaging">画像処理デバイス</string>
+
+	<string name="bt_major_wearable">ウェアラブルデバイス</string>
+
+	<string name="bt_major_toy">おもちゃ</string>
+
+	<string name="bt_major_health">保険機器</string>
+
+	<string name="bt_major_uncategorized">なにか</string>
+
 </resources>

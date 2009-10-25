@@ -16,8 +16,11 @@
 
 package org.sevenleaves.droidsensor.bluetooth;
 
+import org.sevenleaves.droidsensor.R;
+
+import android.bluetooth.BluetoothClass;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 
 public abstract class BluetoothUtils {
 
@@ -82,11 +85,56 @@ public abstract class BluetoothUtils {
 
 		return res;
 	}
-	
-	public static String getMaskedAddress(String address){
-		
+
+	public static String getMaskedAddress(String address) {
+
 		String vendor = address.substring(0, 8);
-		
+
 		return vendor + ":--:--:--";
 	}
+
+	public static String getMajorDeviceClassName(Context context, int deviceClass) {
+
+		int i = BluetoothClass.Device.Major.getDeviceMajor(deviceClass);
+		int res;
+
+		switch (i) {
+		case BluetoothClass.Device.Major.MISC:
+			res = R.string.bt_major_misc;
+			break;
+		case BluetoothClass.Device.Major.COMPUTER:
+			res = R.string.bt_major_computer;
+			break;
+		case BluetoothClass.Device.Major.PHONE:
+			res = R.string.bt_major_phone;
+			break;
+		case BluetoothClass.Device.Major.NETWORKING:
+			res = R.string.bt_major_networking;
+			break;
+		case BluetoothClass.Device.Major.AUDIO_VIDEO:
+			res = R.string.bt_major_audio_video;
+			break;
+		case BluetoothClass.Device.Major.PERIPHERAL:
+			res = R.string.bt_major_peripheral;
+			break;
+		case BluetoothClass.Device.Major.IMAGING:
+			res = R.string.bt_major_imaging;
+			break;
+		case BluetoothClass.Device.Major.WEARABLE:
+			res = R.string.bt_major_wearable;
+			break;
+		case BluetoothClass.Device.Major.TOY:
+			res = R.string.bt_major_toy;
+			break;
+		case BluetoothClass.Device.Major.HEALTH:
+			res = R.string.bt_major_health;
+			break;
+		default:
+			res = R.string.bt_major_uncategorized;
+			break;
+		}
+
+		return context.getString(res);
+	}
+
 }
