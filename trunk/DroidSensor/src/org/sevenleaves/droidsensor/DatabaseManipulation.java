@@ -26,7 +26,8 @@ public abstract class DatabaseManipulation {
 		void execute(SQLiteDatabase db);
 	}
 
-	public static void manipulate(Context context, ManipulationScope scope) {
+	public synchronized static void manipulate(Context context,
+			ManipulationScope scope) {
 
 		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
 				context);
