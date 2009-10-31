@@ -1,42 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
-   	
-    <string name="tags">#droidsensor</string>
-    
-    
+
+
+	<string name="tags">#droidsensor</string>
+
+
 
 	<string name="property_server_url">https://droidsensor.appspot.com/api</string>
 
-	<!-- 
-	<string name="property_server_url">http://192.168.0.1:8080/api</string>
-    -->
-    
-    <!-- i18n -->
-    <string name="app_name">Droid Sensor</string>
-    <string name="service_name">Droid Sensor</string>
-    <string name="button_bind">Start Service</string>
-    <string name="button_unbind">Stop Service</string>
-    
-    <string name="template_user">Passed by \@$id .$message$tags</string>
-    
+	<!--
+		<string
+		name="property_server_url">http://192.168.0.1:8080/api</string>
+	-->
+
+	<!-- i18n -->
+	<string name="app_name">Droid Sensor</string>
+	<string name="service_name">Droid Sensor</string>
+	<string name="button_bind">Start Service</string>
+	<string name="button_unbind">Stop Service</string>
+
+	<string name="template_user">Passed by \@$id .$message$tags</string>
+
 	<string name="template_device">Passed by $id .$tags</string>
 	<string name="template_passed_device">Passed by @$id via $device.$message$tags</string>
 	<string name="template_passed_device_again">Passed by $device again.$tags</string>
-	    
-    <!-- new -->
-    <string name="menu_discover">Start Discover</string>
-    <string name="menu_stop_discover">Stop Discover</string>
-    <string name="menu_settings">Settings</string>
-    <string name="default_message">MENU &gt; Start Discover</string>
-    <string name="menu_delete">Clear List</string>
+
+	<!-- new -->
+	<string name="menu_discover">Start Discover</string>
+	<string name="menu_stop_discover">Stop Discover</string>
+	<string name="menu_settings">Settings</string>
+	<string name="default_message">MENU &gt; Start Discover</string>
+	<string name="menu_delete">Clear List</string>
 
 	<string name="delete_confirm_title">Procced to clear list</string>
 	<string name="delete_confirm_yes">OK</string>
 	<string name="delete_confirm_no">Cancel</string>
-	    
-    <!-- deplicate -->
-    <string name="advanced_menu_settings">Advanced Settings</string>
+
+	<!-- deplicate -->
+	<string name="advanced_menu_settings">Advanced Settings</string>
 
 	<string name="twitter_id_title">Twitter ID</string>
 	<string name="twitter_id_summary">User ID for Twitter account</string>
@@ -45,57 +46,58 @@
 	<string name="twitter_password_summary">Password for Twitter account</string>
 
 	<string name="all_devices_title">Includes Indirectly</string>
-	<string name="all_devices_summary">Tweet All discoverable Bluetooth Devices that passed by Other</string>
-	
+	<string name="all_devices_summary">Tweet All discoverable Bluetooth Devices that
+		passed by Other</string>
+
 	<string name="second_twitter_id_title">Twitter Id</string>
 	<string name="second_twitter_id_summary">User ID for second Twitter account</string>
 
 	<string name="second_twitter_password_title">Password</string>
 	<string name="second_twitter_password_summary">Password for second Twitter account</string>
 
-    <string name="twitter_list_title">Twitter User</string>
-    <string name="twitter_list_summary">Select account that tweet Twitter user</string>
-    <string name="twitter_list_dialogtitle">Select Account</string>
-    
-    <string-array name="twitter_list_entries">
-        <item>Basic Account</item>
-        <item>Optional Account</item>
-        <!-- 
-        <item>Both</item>
-        -->
-    </string-array>
-    <string-array name="twitter_list_entryvalues">
-        <item>1</item>
-        <item>2</item>
-        <!-- 
-        <item>2</item>
-        -->
-    </string-array>
+	<string name="twitter_list_title">Twitter User</string>
+	<string name="twitter_list_summary">Select account that tweet Twitter user</string>
+	<string name="twitter_list_dialogtitle">Select Account</string>
 
-    <string name="device_list_title">Devices passed by Other</string>
-    <string name="device_list_summary">Select account that tweet Device passed by Other</string>
-    <string name="device_list_dialogtitle">Select Account</string>
-    
-    <string-array name="device_list_entries">
-        <item>Basic Account</item>
-        <item>Optional Account</item>
-        <!-- 
+	<string-array name="twitter_list_entries">
+		<item>Basic Account</item>
+		<item>Optional Account</item>
+		<!-- 
         <item>Both</item>
-        <item>Only Notification</item>
         -->
-    </string-array>
-    <string-array name="device_list_entryvalues">
-        <item>1</item>
+	</string-array>
+	<string-array name="twitter_list_entryvalues">
+		<item>1</item>
+		<item>2</item>
+		<!-- 
         <item>2</item>
-        <!-- 
+        -->
+	</string-array>
+
+	<string name="device_list_title">Devices passed by Other</string>
+	<string name="device_list_summary">Select account that tweet Device passed by Other
+	</string>
+	<string name="device_list_dialogtitle">Select Account</string>
+
+	<string-array name="device_list_entries">
+		<item>Basic Account</item>
+		<item>Optional Account</item>
+		<!--
+			<item>Both</item> <item>Only Notification</item>
+		-->
+	</string-array>
+	<string-array name="device_list_entryvalues">
+		<item>1</item>
+		<item>2</item>
+		<!-- 
         <item>2</item>
         <item>3</item>
         -->
-    </string-array>
+	</string-array>
 
 
 	<string name="device_detail_summary">Details for Device Discovery Settings</string>
-    
+
 	<string name="device_detail_passed_user_title">Passed by Twitter user</string>
 	<string name="device_detail_passed_user_summary">Include that passed by Twitter user</string>
 
@@ -104,46 +106,91 @@
 
 	<string name="device_detail_passed_no_title">Passed by No one</string>
 	<string name="device_detail_passed_no_summary">Include that passed by No one</string>
-     
-    
+
+
 	<string name="toggle_bluetooth_title">Toggle Bluetooth</string>
 	<string name="toggle_bluetooth_summary">Toggle bluetooth at constant intervals</string>
-    
-    <string name="post_message_button_text">Leave Message</string>
-    <string name="post_message_description">The message can be left for the user that passed each other with this device.</string>
-    
-    <string name="menu_info">NOTICE</string>
-    <string name="notice_label">NOTICE</string>
-    <string name="notice">while running the application, third persons can take following informations.</string>
-    <string name="notice_check_text">OK</string>
-    
-    <string name="default_message_title">Message</string>
+
+	<string name="post_message_button_text">Leave Message</string>
+	<string name="post_message_description">The message can be left for the user that passed
+		each other with this device.</string>
+
+	<string name="menu_info">NOTICE</string>
+	<string name="notice_label">NOTICE</string>
+	<string name="notice">while running the application, third persons can
+		take following informations.</string>
+	<string name="notice_check_text">OK</string>
+
+	<string name="default_message_title">Message</string>
 	<string name="default_message_summary">Message for User passed by</string>
-    
-    <string name="menu_view_text">Show profile</string>
-    <string name="menu_search_text">Search OUI Database</string>
+
+	<string name="menu_view_text">Show profile</string>
+	<string name="menu_search_text">Search OUI Database</string>
+
+	<string name="class_UNCATEGORIZED">uncategorized device</string>
 
 
-	<string name="bt_major_misc">device</string>
+	<string name="class_COMPUTER_UNCATEGORIZED">Computer</string>
+	<string name="class_COMPUTER_DESKTOP">Desktop computer</string>
+	<string name="class_COMPUTER_SERVER">Server</string>
+	<string name="class_COMPUTER_LAPTOP">Laptop computer</string>
+	<string name="class_COMPUTER_HANDHELD_PC_PDA">Handheld computer</string>
+	<string name="class_COMPUTER_PALM_SIZE_PC_PDA">Palm size computer</string>
+	<string name="class_COMPUTER_WEARABLE">Wearable computer</string>
 
-	<string name="bt_major_computer">computer</string>
 
-	<string name="bt_major_phone">phone</string>
+	<string name="class_PHONE_UNCATEGORIZED">Phone</string>
+	<string name="class_PHONE_CELLULAR">Cellular phone</string>
+	<string name="class_PHONE_CORDLESS">Cordless phone</string>
+	<string name="class_PHONE_SMART">Smart phone</string>
+	<string name="class_PHONE_MODEM_OR_GATEWAY">Modem/Gateway</string>
+	<string name="class_PHONE_ISDN">ISDN</string>
 
-	<string name="bt_major_networking">networking device</string>
 
-	<string name="bt_major_audio_video">audio/video</string>
+	<string name="class_AUDIO_VIDEO_UNCATEGORIZED">Audio/Video</string>
+	<string name="class_AUDIO_VIDEO_WEARABLE_HEADSET">Headset</string>
+	<string name="class_AUDIO_VIDEO_HANDSFREE">Handsfree</string>
 
-	<string name="bt_major_peripheral">peripheral device</string>
+	<string name="class_AUDIO_VIDEO_RESERVED">Audio/Video</string>
+	<string name="class_AUDIO_VIDEO_MICROPHONE">Microphone</string>
+	<string name="class_AUDIO_VIDEO_LOUDSPEAKER">Speaker</string>
+	<string name="class_AUDIO_VIDEO_HEADPHONES">Headphones</string>
+	<string name="class_AUDIO_VIDEO_PORTABLE_AUDIO">Portable audio</string>
+	<string name="class_AUDIO_VIDEO_CAR_AUDIO">Car audio</string>
+	<string name="class_AUDIO_VIDEO_SET_TOP_BOX">Set top box</string>
+	<string name="class_AUDIO_VIDEO_HIFI_AUDIO">Hifi audio</string>
+	<string name="class_AUDIO_VIDEO_VCR">VCR</string>
+	<string name="class_AUDIO_VIDEO_VIDEO_CAMERA">Video camera</string>
+	<string name="class_AUDIO_VIDEO_CAMCORDER">Camcorder</string>
+	<string name="class_AUDIO_VIDEO_VIDEO_MONITOR">Video monitor</string>
+	<string name="class_AUDIO_VIDEO_VIDEO_DISPLAY_AND_LOUDSPEAKER">Video display and Speaker</string>
+	<string name="class_AUDIO_VIDEO_VIDEO_CONFERENCING">Video conferencing</string>
+	<!-- string name="class_AUDIO_VIDEO_RESERVED"></string-->
+	<string name="class_AUDIO_VIDEO_VIDEO_GAMING_TOY">Video game</string>
 
-	<string name="bt_major_imaging">imaging device</string>
 
-	<string name="bt_major_wearable">wearable device</string>
+	<string name="class_WEARABLE_UNCATEGORIZED">Wearable</string>
+	<string name="class_WEARABLE_WRIST_WATCH">Wrist watch</string>
+	<string name="class_WEARABLE_PAGER">Pager</string>
+	<string name="class_WEARABLE_JACKET">Jacket</string>
+	<string name="class_WEARABLE_HELMET">Helmet</string>
+	<string name="class_WEARABLE_GLASSES">Glasses</string>
 
-	<string name="bt_major_toy">toy</string>
+	
+	<string name="class_TOY_UNCATEGORIZED">Toy</string>
+	<string name="class_TOY_ROBOT">Robot</string>
+	<string name="class_TOY_VEHICLE">Vehicle</string>
+	<string name="class_TOY_DOLL_ACTION_FIGURE">Doll action figure</string>
+	<string name="class_TOY_CONTROLLER">Controller</string>
+	<string name="class_TOY_GAME">Game</string>
 
-	<string name="bt_major_health">health device</string>
-
-	<string name="bt_major_uncategorized">uncategorized device</string>
-
+	
+	<string name="class_HEALTH_UNCATEGORIZED">Health</string>
+	<string name="class_HEALTH_BLOOD_PRESSURE">Blood pressure</string>
+	<string name="class_HEALTH_THERMOMETER">Thermometer</string>
+	<string name="class_HEALTH_WEIGHING">Weighing</string>
+	<string name="class_HEALTH_GLUCOSE">Glucose</string>
+	<string name="class_HEALTH_PULSE_OXIMETER">Pulse oximeter</string>
+	<string name="class_HEALTH_PULSE_RATE">Pulse rate</string>
+	<string name="class_HEALTH_DATA_DISPLAY">Data display</string>
 </resources>

@@ -105,26 +105,70 @@
 	<string name="menu_view_text">プロファイルを見る</string>
 	<string name="menu_search_text">OUIデータベースを見る</string>
 
-	<string name="bt_major_misc">デバイス</string>
+	<string name="class_UNCATEGORIZED">なにか</string>
 
-	<string name="bt_major_computer">コンピューター</string>
+	<string name="class_COMPUTER_UNCATEGORIZED">コンピューター</string>
+	<string name="class_COMPUTER_DESKTOP">デスクトップ・コンピューター</string>
+	<string name="class_COMPUTER_SERVER">サーバー</string>
+	<string name="class_COMPUTER_LAPTOP">ラップトップ・コンピューター</string>
+	<string name="class_COMPUTER_HANDHELD_PC_PDA">ハンドヘルド・コンピューター</string>
+	<string name="class_COMPUTER_PALM_SIZE_PC_PDA">パームサイズ・コンピューター</string>
+	<string name="class_COMPUTER_WEARABLE">ウェアラブル・コンピューター</string>
 
-	<string name="bt_major_phone">電話</string>
 
-	<string name="bt_major_networking">ネットワーキングデバイス</string>
+	<string name="class_PHONE_UNCATEGORIZED">電話</string>
+	<string name="class_PHONE_CELLULAR">携帯電話</string>
+	<string name="class_PHONE_CORDLESS">コードレスフォン</string>
+	<string name="class_PHONE_SMART">スマートフォン</string>
+	<string name="class_PHONE_MODEM_OR_GATEWAY">モデム</string>
+	<string name="class_PHONE_ISDN">ISDN</string>
 
-	<string name="bt_major_audio_video">AV機器</string>
 
-	<string name="bt_major_peripheral">周辺機器</string>
+	<string name="class_AUDIO_VIDEO_UNCATEGORIZED">オーディオ・ビデオ</string>
+	<string name="class_AUDIO_VIDEO_WEARABLE_HEADSET">ヘッドセット</string>
+	<string name="class_AUDIO_VIDEO_HANDSFREE">ハンズフリー</string>
 
-	<string name="bt_major_imaging">画像処理デバイス</string>
+	<string name="class_AUDIO_VIDEO_RESERVED">オーディオ・ビデオ</string>
+	<string name="class_AUDIO_VIDEO_MICROPHONE">マイクロフォン</string>
+	<string name="class_AUDIO_VIDEO_LOUDSPEAKER">スピーカー</string>
+	<string name="class_AUDIO_VIDEO_HEADPHONES">ヘッドフォン</string>
+	<string name="class_AUDIO_VIDEO_PORTABLE_AUDIO">ポータブル・オーディオ</string>
+	<string name="class_AUDIO_VIDEO_CAR_AUDIO">カー・オーディオ</string>
+	<string name="class_AUDIO_VIDEO_SET_TOP_BOX">セット・トップ・ボックス</string>
+	<string name="class_AUDIO_VIDEO_HIFI_AUDIO">Hifiオーディオ</string>
+	<string name="class_AUDIO_VIDEO_VCR">VCR</string>
+	<string name="class_AUDIO_VIDEO_VIDEO_CAMERA">ビデオカメラ</string>
+	<string name="class_AUDIO_VIDEO_CAMCORDER">カムコーダー</string>
+	<string name="class_AUDIO_VIDEO_VIDEO_MONITOR">ビデオモニター</string>
+	<string name="class_AUDIO_VIDEO_VIDEO_DISPLAY_AND_LOUDSPEAKER">スピーカー付ディスプレイ</string>
+	<string name="class_AUDIO_VIDEO_VIDEO_CONFERENCING">ビデオ会議システム</string>
+	<!-- string name="class_AUDIO_VIDEO_RESERVED"></string-->
+	<string name="class_AUDIO_VIDEO_VIDEO_GAMING_TOY">ビデオゲーム</string>
 
-	<string name="bt_major_wearable">ウェアラブルデバイス</string>
 
-	<string name="bt_major_toy">おもちゃ</string>
+	<string name="class_WEARABLE_UNCATEGORIZED">ウェアラブル・コンピューター</string>
+	<string name="class_WEARABLE_WRIST_WATCH">腕時計</string>
+	<string name="class_WEARABLE_PAGER">ページャー</string>
+	<string name="class_WEARABLE_JACKET">ジャケット</string>
+	<string name="class_WEARABLE_HELMET">ヘルメット</string>
+	<string name="class_WEARABLE_GLASSES">眼鏡</string>
 
-	<string name="bt_major_health">保険機器</string>
+	
+	<string name="class_TOY_UNCATEGORIZED">おもちゃ</string>
+	<string name="class_TOY_ROBOT">ロボット</string>
+	<string name="class_TOY_VEHICLE">のりもの</string>
+	<string name="class_TOY_DOLL_ACTION_FIGURE">フィギュア</string>
+	<string name="class_TOY_CONTROLLER">コントローラー</string>
+	<string name="class_TOY_GAME">ゲーム</string>
 
-	<string name="bt_major_uncategorized">なにか</string>
+	
+	<string name="class_HEALTH_UNCATEGORIZED">保険器具</string>
+	<string name="class_HEALTH_BLOOD_PRESSURE">血圧計</string>
+	<string name="class_HEALTH_THERMOMETER">温度計</string>
+	<string name="class_HEALTH_WEIGHING">計量装置</string>
+	<string name="class_HEALTH_GLUCOSE">ブドウ糖？</string>
+	<string name="class_HEALTH_PULSE_OXIMETER">パルス酸素濃度計</string>
+	<string name="class_HEALTH_PULSE_RATE">心拍計</string>
+	<string name="class_HEALTH_DATA_DISPLAY">データ・ディスプレイ</string>
 
 </resources>
