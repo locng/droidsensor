@@ -16,18 +16,8 @@
 
 package org.sevenleaves.droidsensor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpService;
-
-import android.webkit.WebView;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -134,9 +124,9 @@ abstract class TwitterUtils {
 							+ settings.getTags());
 			forNotify = forNotify.replace("$tags", "");
 		}
-
+		
 		List<Twitter> twitters = createTwitters(settings, isUser);
-
+		
 		for (int i = 0; i < twitters.size(); ++i) {
 
 			Twitter t = twitters.get(i);
