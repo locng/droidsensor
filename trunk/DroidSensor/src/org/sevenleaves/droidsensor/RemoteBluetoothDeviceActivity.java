@@ -83,14 +83,15 @@ public class RemoteBluetoothDeviceActivity extends
 				RemoteBluetoothDeviceActivity.this);
 		SQLiteDatabase db = null;
 		Intent intent = getIntent();
-		String address = BluetoothUtils.getAddress(intent);
+		int rowId = intent.getExtras().getInt("ROW_ID");
+		// String address = BluetoothUtils.getAddress(intent);
 		BluetoothDeviceEntity entity;
 
 		try {
 
 			db = dbHelper.getWritableDatabase();
 			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
-			entity = dao.findByAddress(address);
+			entity = dao.findById(rowId);
 		} finally {
 
 			if (db != null) {
@@ -122,7 +123,8 @@ public class RemoteBluetoothDeviceActivity extends
 		view = (TextView) findViewById(R.id.remoteDeviceFriendlyName);
 		view.setText(emptyToNothing(entity.getName()));
 		view = (TextView) findViewById(R.id.remoteDeviceClass);
-		view.setText(BluetoothUtils.getMajorDeviceClassName(this, entity.getDeviceClass()));
+		view.setText(BluetoothUtils.getMajorDeviceClassName(this, entity
+				.getDeviceClass()));
 		view = (TextView) findViewById(R.id.remoteDeviceAddress);
 		view.setText(BluetoothUtils.getMaskedAddress(_address));
 		view = (TextView) findViewById(R.id.remoteDeviceCompany);

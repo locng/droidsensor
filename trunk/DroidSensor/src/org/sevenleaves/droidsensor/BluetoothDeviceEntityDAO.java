@@ -139,6 +139,40 @@ public class BluetoothDeviceEntityDAO {
 		return null;
 	}
 
+	public BluetoothDeviceEntity findById(int rowId) {
+
+		String selection = "ROW_ID=" + rowId + "";
+		Cursor c = _db.query(TABLE_NAME, COLUMNS, selection, null, null, null,
+				UPDATED + " desc");
+
+		while (c.moveToNext()) {
+
+			BluetoothDeviceEntity res = new BluetoothDeviceEntity();
+			res.setRowID(c.getInt(0));
+			res.setAddress(c.getString(1));
+			res.setRSSI(c.getInt(2));
+			res.setName(c.getString(3));
+			res.setDeviceClass(c.getInt(4));
+			res.setCompany(c.getString(5));
+			res.setManufacturer(c.getString(6));
+			res.setTwitterID(c.getString(7));
+			res.setMessage(c.getString(8));
+			res.setLongitude(c.getDouble(9));
+			res.setLatitude(c.getDouble(10));
+			res.setCount(c.getInt(11));
+			res.setStatus(c.getInt(12));
+			res.setUpdated(c.getLong(13));
+
+			c.close();
+
+			return res;
+		}
+
+		c.close();
+
+		return null;
+	}
+
 	public long insert(BluetoothDeviceEntity entity) {
 
 		ContentValues values = new ContentValues();
