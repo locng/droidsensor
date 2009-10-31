@@ -16,11 +16,11 @@
 
 package org.sevenleaves.droidsensor.bluetooth;
 
-
 /**
  * http://wiki.bluez.org/wiki/Adapter
+ * 
  * @author esmasui@gmail.com
- *
+ * 
  */
 public interface BluetoothDeviceStub {
 
@@ -64,9 +64,6 @@ public interface BluetoothDeviceStub {
 	String getRemoteName(String arg0);
 
 	String getRemoteRevision(String arg0);
-
-	boolean getRemoteServiceChannel(String arg0, short arg1,
-			android.bluetooth.IBluetoothDeviceCallback arg2);
 
 	String getRemoteVersion(String address);
 

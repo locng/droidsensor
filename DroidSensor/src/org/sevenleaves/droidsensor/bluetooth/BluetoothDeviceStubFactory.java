@@ -20,7 +20,7 @@ import android.content.Context;
 
 /**
  * @author esmasui@gmail.com
- *
+ * 
  */
 public abstract class BluetoothDeviceStubFactory {
 
@@ -36,9 +36,9 @@ public abstract class BluetoothDeviceStubFactory {
 			return CACHED_INSTANCE;
 		}
 
-		Object bluetoothService = context.getSystemService(SERVICE_NAME);
+		Object bluetooth = context.getSystemService(SERVICE_NAME);
 		BluetoothDeviceStub res = DelegatingProxyFactory.createProxy(
-				BluetoothDeviceStub.class, bluetoothService);
+				BluetoothDeviceStub.class, bluetooth);
 
 		if (CACHED_INSTANCE == null) {
 
