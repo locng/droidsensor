@@ -741,6 +741,28 @@ public class DroidSensorService extends ServiceSupport {
 		_handler.sendMessage(msg);
 	}
 
+	private String convertSpecialDevice(String name, String device) {
+
+		if (name == null) {
+
+			return device;
+		}
+
+		String lower = name.toLowerCase();
+
+		if (lower.contains("iphone")) {
+
+			return "iPhone";
+		}
+
+		if (lower.contains("ipod")) {
+
+			return "iPod";
+		}
+
+		return device;
+	}
+
 	private void tweetDeviceFound(String address, String name, String id,
 			String message) {
 
@@ -760,12 +782,12 @@ public class DroidSensorService extends ServiceSupport {
 		BluetoothDeviceStub bluetooth = BluetoothDeviceStubFactory
 				.createBluetoothServiceStub(this);
 		int btClass = bluetooth.getRemoteClass(address);
-		
+
 		try {
 
 			tweeted = TwitterUtils.tweetDeviceFound(address, name, id, message,
-					BluetoothUtils.getMajorDeviceClassName(this, btClass),
-					settings);
+					convertSpecialDevice(name, BluetoothUtils
+							.getMajorDeviceClassName(this, btClass)), settings);
 		} catch (TwitterException e) {
 
 			if (e.getStatusCode() == 401) {
