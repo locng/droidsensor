@@ -294,7 +294,7 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 				.getItem(position);
 		Intent intent = new Intent(RemoteBluetoothDeviceActivity.class
 				.getName());
-		BluetoothUtils.putAddress(intent, entity.getAddress());
+		intent.putExtra("ROW_ID", entity.getRowID());
 		startActivity(intent);
 	}
 
@@ -339,16 +339,16 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 		super.onStart();
 	}
-	
+
 	@Override
 	protected void onInfoMenuOpened(MenuItem item) {
-	
+
 		; // nop
 	}
-	
+
 	@Override
 	protected void onInfoMenuSelected(MenuItem item) {
-	
+
 		Intent intent = new Intent(LocalDeviceActivity.class.getName());
 		startActivity(intent);
 	}
