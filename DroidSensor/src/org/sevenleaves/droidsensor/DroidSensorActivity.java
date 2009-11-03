@@ -87,7 +87,14 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 		try {
 
-			return getDroidSensorService().isStarted();
+			IDroidSensorService service = getDroidSensorService();
+
+			if (service == null) {
+
+				return false;
+			}
+
+			return service.isStarted();
 		} catch (RemoteException e) {
 
 			return false;

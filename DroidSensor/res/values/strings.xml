@@ -110,6 +110,15 @@
 
 	<string name="toggle_bluetooth_title">Toggle Bluetooth</string>
 	<string name="toggle_bluetooth_summary">Toggle bluetooth at constant intervals</string>
+	
+	<string name="notification_vibration_title">Vibration</string>
+	<string name="notification_vibration_summary">Vibration</string>
+
+	<string name="notification_led_flash_title">LED Flash</string>
+	<string name="notification_led_flash_summary">LED Flash</string>
+
+	<string name="notification_ringtone_title">Ringtone</string>
+	<string name="notification_ringtone_summary">Ringtone</string>
 
 	<string name="post_message_button_text">Leave Message</string>
 	<string name="post_message_description">The message can be left for the user that passed
