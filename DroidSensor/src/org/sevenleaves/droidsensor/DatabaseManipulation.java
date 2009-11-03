@@ -16,8 +16,11 @@
 
 package org.sevenleaves.droidsensor;
 
+import java.io.File;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 
 public abstract class DatabaseManipulation {
 
@@ -36,6 +39,18 @@ public abstract class DatabaseManipulation {
 		try {
 
 			db = dbHelper.getWritableDatabase();
+
+		} catch (SQLiteException e) {
+
+			File file = context
+					.getDatabasePath(DroidSensorDatabaseOpenHelper.DATABASE_NAME);
+			file.delete();
+
+			db = dbHelper.getWritableDatabase();
+		}
+
+		try {
+
 			scope.execute(db);
 		} finally {
 
