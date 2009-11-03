@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.sevenleaves.droidsensor.DatabaseManipulation.ManipulationScope;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStub;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothDeviceStubFactory;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothSettings;
@@ -650,48 +651,43 @@ public class DroidSensorService extends ServiceSupport {
 
 	}
 
-	private void persistBluetoothDevice(String address, String name,
-			String twitterID, String message, boolean tweeted) {
+	private void persistBluetoothDevice(final String address,
+			final String name, final String twitterID, final String message,
+			final boolean tweeted) {
 
-		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
-				DroidSensorService.this);
-		SQLiteDatabase db = null;
+		DatabaseManipulation.manipulate(this, new ManipulationScope() {
 
-		try {
+			@Override
+			public void execute(SQLiteDatabase db) {
 
-			BluetoothDeviceStub stub = BluetoothDeviceStubFactory
-					.createBluetoothServiceStub(DroidSensorService.this);
-			db = dbHelper.getWritableDatabase();
-			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+				BluetoothDeviceStub stub = BluetoothDeviceStubFactory
+						.createBluetoothServiceStub(DroidSensorService.this);
 
-			BluetoothDeviceEntity e;
+				BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
 
-			// 要望とりこみなう.
-			// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
-			e = new BluetoothDeviceEntity();
-			e.setAddress(address);
-			// e.setRSSI();
-			e.setName(name);
-			e.setDeviceClass(stub.getRemoteClass(address));
-			e.setCompany(stub.getRemoteCompany(address));
-			e.setManufacturer(stub.getRemoteManufacturer(address));
-			e.setTwitterID(twitterID);
-			e.setMessage(message);
-			// e.setLongitude();
-			// e.setLatitude();
-			e.setCount(1);
-			// e.setStatus();
-			e.setStatus(tweeted ? 1 : 0);
-			e.setUpdated(Calendar.getInstance().getTimeInMillis());
-			dao.insert(e);
-			// }
-		} finally {
+				BluetoothDeviceEntity e;
 
-			if (db != null) {
+				// 要望とりこみなう.
+				// ohgro:現状の表示形式の方がお手間だったとは思いますが、個別ログ表示の方が前回がいつか？とか解って良いかもです　つぶやいたかつぶやいてないかも解りますし〜　#droidsensor
+				e = new BluetoothDeviceEntity();
+				e.setAddress(address);
+				// e.setRSSI();
+				e.setName(name);
+				e.setDeviceClass(stub.getRemoteClass(address));
+				e.setCompany(stub.getRemoteCompany(address));
+				e.setManufacturer(stub.getRemoteManufacturer(address));
+				e.setTwitterID(twitterID);
+				e.setMessage(message);
+				// e.setLongitude();
+				// e.setLatitude();
+				e.setCount(1);
+				// e.setStatus();
+				e.setStatus(tweeted ? 1 : 0);
+				e.setUpdated(Calendar.getInstance().getTimeInMillis());
+				dao.insert(e);
 
-				db.close();
 			}
-		}
+		});
 	}
 
 	/**
