@@ -19,6 +19,7 @@ package org.sevenleaves.droidsensor;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import org.sevenleaves.droidsensor.DatabaseManipulation.ManipulationScope;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 
 import android.content.Intent;
@@ -79,27 +80,24 @@ public class RemoteBluetoothDeviceActivity extends
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.bluetooth_device_info);
-		DroidSensorDatabaseOpenHelper dbHelper = new DroidSensorDatabaseOpenHelper(
-				RemoteBluetoothDeviceActivity.this);
-		SQLiteDatabase db = null;
-		Intent intent = getIntent();
-		int rowId = intent.getExtras().getInt("ROW_ID");
-		// String address = BluetoothUtils.getAddress(intent);
-		BluetoothDeviceEntity entity;
 
-		try {
+		final HardReference<BluetoothDeviceEntity> ref = HardReference.create();
 
-			db = dbHelper.getWritableDatabase();
-			BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
-			entity = dao.findById(rowId);
-		} finally {
+		DatabaseManipulation.manipulate(this, new ManipulationScope() {
 
-			if (db != null) {
+			@Override
+			public void execute(SQLiteDatabase db) {
 
-				db.close();
+				Intent intent = getIntent();
+				int rowId = intent.getExtras().getInt("ROW_ID");
+				// String address = BluetoothUtils.getAddress(intent);
+
+				BluetoothDeviceEntityDAO dao = new BluetoothDeviceEntityDAO(db);
+				ref.put(dao.findById(rowId));
 			}
-		}
+		});
 
+		BluetoothDeviceEntity entity = ref.get();
 		_twitterID = entity.getTwitterID();
 		_address = entity.getAddress();
 
