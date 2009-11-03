@@ -35,6 +35,28 @@
 
 	</PreferenceCategory>
 
+	<PreferenceCategory android:title="Notification Settings">
+
+		<PreferenceScreen android:title="Notification Settings...">
+		
+			<PreferenceCategory android:title="Notification Settings">
+
+				<CheckBoxPreference android:key="droidsensor_notification_vibration"
+					android:title="@string/notification_vibration_title" android:summary="@string/notification_vibration_summary" />
+
+				<CheckBoxPreference android:key="droidsensor_notification_led_flash"
+					android:title="@string/notification_led_flash_title" android:summary="@string/notification_led_flash_summary" />
+
+				<RingtonePreference android:key="droidsensor_notification_ringtone"
+					android:ringtoneType="notification"
+					android:showDefault="true"
+					android:showSilent="true"
+					android:title="@string/notification_ringtone_title" android:summary="@string/notification_ringtone_summary" />
+			</PreferenceCategory>
+		</PreferenceScreen>
+
+	</PreferenceCategory>
+
 
 	<PreferenceCategory android:title="Advanced Settings">
 

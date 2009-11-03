@@ -19,6 +19,7 @@ package org.sevenleaves.droidsensor;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 
 /**
@@ -60,6 +61,12 @@ public class SettingsManager {
 	public static final String NOTICE_CHECK = PREFIX + "notice_check";
 
 	public static final String DEFAULT_MESSAGE = PREFIX + "default_message";
+
+	public static final String NOTIFICATION_VIBRATION = PREFIX + "notification_vibration";
+	
+	public static final String NOTIFICATION_LED_FLASH = PREFIX + "notification_led_flash";
+	
+	public static final String NOTIFICATION_RINGTONE = PREFIX + "notification_ringtone";
 
 	private static final SettingsManager SINGLETON = new SettingsManager();
 
@@ -107,9 +114,15 @@ public class SettingsManager {
 	private String _tags;
 
 	private boolean _noticeCheck;
-
+	
 	private String _defaultMessage;
 
+	private boolean _notificationVibration;
+	
+	private boolean _notificationLedFlash;
+	
+	private Uri _notificationRingtone;
+	
 	private SettingsManager() {
 
 	}
@@ -246,6 +259,18 @@ public class SettingsManager {
 
 		return _defaultMessage;
 	}
+	
+	public boolean isNotificationVibration() {
+		return _notificationVibration;
+	}
+
+	public boolean isNotificationLedFlash() {
+		return _notificationLedFlash;
+	}
+
+	public Uri getNotificationRingtone() {
+		return _notificationRingtone;
+	}
 
 	public void save(Context context) {
 
@@ -279,6 +304,15 @@ public class SettingsManager {
 		_detailPassedNo = false;
 		_noticeCheck = prefs.getBoolean(NOTICE_CHECK, false);
 		_defaultMessage = prefs.getString(DEFAULT_MESSAGE, null);
+		_notificationVibration = prefs.getBoolean(NOTIFICATION_VIBRATION, false);
+		_notificationLedFlash = prefs.getBoolean(NOTIFICATION_LED_FLASH, false);
+		String ringtone = prefs.getString(NOTIFICATION_RINGTONE, null);
+		
+		if(ringtone!=null){
+		
+			_notificationRingtone = Uri.parse(ringtone);
+		}
+		
 		_tags = context.getString(R.string.tags);
 	}
 

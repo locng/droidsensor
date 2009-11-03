@@ -157,7 +157,7 @@ abstract class DroidSensorUtils {
 
 				baos.write(buf, 0, len);
 			}
-			Log.d("@Utils", "bofore json");
+			
 			JSONObject json = new JSONObject(new String(baos.toByteArray(),
 					"utf-8"));
 			String resName;
@@ -190,7 +190,6 @@ abstract class DroidSensorUtils {
 				resMessage = null;
 			}
 
-			Log.d("@Utils", "after json");
 			if (resName == null || resName.trim().length() == 0) {
 				Log.d("@Utils", "resName is null");
 				return new APIResponse();

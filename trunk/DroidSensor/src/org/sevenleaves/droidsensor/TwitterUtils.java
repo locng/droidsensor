@@ -124,9 +124,9 @@ abstract class TwitterUtils {
 							+ settings.getTags());
 			forNotify = forNotify.replace("$tags", "");
 		}
-		
+
 		List<Twitter> twitters = createTwitters(settings, isUser);
-		
+
 		for (int i = 0; i < twitters.size(); ++i) {
 
 			Twitter t = twitters.get(i);
