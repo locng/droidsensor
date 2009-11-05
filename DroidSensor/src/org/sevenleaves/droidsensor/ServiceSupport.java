@@ -55,11 +55,11 @@ public abstract class ServiceSupport extends Service {
 	protected void setVibrationIfNeccesary(SettingsManager settings,
 			Notification notification) {
 
-		if(!settings.isNotificationVibration()){
-			
+		if (!settings.isNotificationVibration()) {
+
 			return;
 		}
-		
+
 		notification.defaults |= Notification.DEFAULT_VIBRATE;
 		// notification.vibrate = new long[] { 0, 200, 100, 200 };
 	}
@@ -67,11 +67,11 @@ public abstract class ServiceSupport extends Service {
 	protected void setLEDFlashIfNeccesary(SettingsManager settings,
 			Notification notification) {
 
-		if(settings.isNotificationLedFlash()){
-			
+		if (!settings.isNotificationLedFlash()) {
+
 			return;
 		}
-		
+
 		notification.flags |= Notification.FLAG_SHOW_LIGHTS;
 		notification.defaults |= Notification.DEFAULT_LIGHTS;
 		notification.ledARGB = 0xff0000FF;
@@ -82,12 +82,12 @@ public abstract class ServiceSupport extends Service {
 	protected void setRingToneIfNeccesary(SettingsManager settings,
 			Notification notification) {
 
-		if(settings.getNotificationRingtone() == null){
-			
+		if (settings.getNotificationRingtone() == null) {
+
 			return;
 		}
-		
-		//notification.defaults |= Notification.DEFAULT_SOUND;
+
+		// notification.defaults |= Notification.DEFAULT_SOUND;
 		notification.sound = settings.getNotificationRingtone();
 	}
 
