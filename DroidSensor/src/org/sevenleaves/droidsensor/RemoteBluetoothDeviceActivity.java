@@ -85,7 +85,6 @@ public class RemoteBluetoothDeviceActivity extends
 
 		DatabaseManipulation.manipulate(this, new ManipulationScope() {
 
-			@Override
 			public void execute(SQLiteDatabase db) {
 
 				Intent intent = getIntent();

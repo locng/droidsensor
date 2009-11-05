@@ -657,7 +657,6 @@ public class DroidSensorService extends ServiceSupport {
 
 		DatabaseManipulation.manipulate(this, new ManipulationScope() {
 
-			@Override
 			public void execute(SQLiteDatabase db) {
 
 				BluetoothDeviceStub stub = BluetoothDeviceStubFactory
