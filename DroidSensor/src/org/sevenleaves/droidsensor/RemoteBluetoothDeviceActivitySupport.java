@@ -129,6 +129,24 @@ public abstract class RemoteBluetoothDeviceActivitySupport extends Activity {
 		});
 	}
 
+	private void addScreenshotMenu(OptionsMenuHelper helper) {
+		helper.addItem(R.string.menu_screenshot,
+				android.R.drawable.ic_menu_camera,
+
+				new MenuItemCallback() {
+
+					public void onOpend(MenuItem item) {
+
+						onScreenshotMenuOpened(item);
+					}
+
+					public void onSelected(MenuItem item) {
+
+						onScreenshotMenuSelected(item);
+					}
+				});
+	}
+
 	/**
 	 * OptionsMenuを登録する.
 	 * 
@@ -139,6 +157,7 @@ public abstract class RemoteBluetoothDeviceActivitySupport extends Activity {
 		// addPostMessageMenu(helper);
 		addProfileMenu(helper);
 		addOUICodeMenu(helper);
+		addScreenshotMenu(helper);
 	}
 
 	protected abstract void onPostMessageMenuSelected(MenuItem item);
@@ -152,5 +171,19 @@ public abstract class RemoteBluetoothDeviceActivitySupport extends Activity {
 	protected abstract void onOUICodeMenuSelected(MenuItem item);
 
 	protected abstract void onOUICodeMenuOpened(MenuItem item);
+
+	/**
+	 * Screenshotメニューが開かれた時の処理を実装する.
+	 * 
+	 * @param item
+	 */
+	protected abstract void onScreenshotMenuOpened(MenuItem item);
+
+	/**
+	 * Screenshotメニューが押された時の処理を実装する.
+	 * 
+	 * @param item
+	 */
+	protected abstract void onScreenshotMenuSelected(MenuItem item);
 
 }

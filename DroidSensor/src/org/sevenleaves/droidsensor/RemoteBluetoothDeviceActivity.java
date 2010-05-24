@@ -187,4 +187,17 @@ public class RemoteBluetoothDeviceActivity extends
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		startActivity(intent);
 	}
+	
+	@Override
+	protected void onScreenshotMenuOpened(MenuItem item) {
+		
+		; // nop
+	}
+
+	@Override
+	protected void onScreenshotMenuSelected(MenuItem item) {
+
+		ActivityUtils.takeScreenshot(this);
+	}
+	
 }
