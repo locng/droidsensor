@@ -227,6 +227,7 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 		addSettingsMenu(helper);
 		addDeleteMenu(helper);
 		addInfoMenu(helper);
+		addScreenshotMenu(helper);
 	}
 
 	/**
@@ -278,6 +279,24 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 					public void onSelected(MenuItem item) {
 
 						onInfoMenuSelected(item);
+					}
+				});
+	}
+
+	private void addScreenshotMenu(OptionsMenuHelper helper) {
+		helper.addItem(R.string.menu_screenshot,
+				android.R.drawable.ic_menu_camera,
+
+				new MenuItemCallback() {
+
+					public void onOpend(MenuItem item) {
+
+						onScreenshotMenuOpened(item);
+					}
+
+					public void onSelected(MenuItem item) {
+
+						onScreenshotMenuSelected(item);
 					}
 				});
 	}
@@ -386,5 +405,19 @@ public abstract class DroidSensorActivitySupport extends ListActivity {
 	 * @param item
 	 */
 	protected abstract void onInfoMenuSelected(MenuItem item);
+
+	/**
+	 * Screenshotメニューが開かれた時の処理を実装する.
+	 * 
+	 * @param item
+	 */
+	protected abstract void onScreenshotMenuOpened(MenuItem item);
+
+	/**
+	 * Screenshotメニューが押された時の処理を実装する.
+	 * 
+	 * @param item
+	 */
+	protected abstract void onScreenshotMenuSelected(MenuItem item);
 
 }

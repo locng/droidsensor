@@ -359,4 +359,16 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 		Intent intent = new Intent(LocalDeviceActivity.class.getName());
 		startActivity(intent);
 	}
+
+	@Override
+	protected void onScreenshotMenuOpened(MenuItem item) {
+		
+		; // nop
+	}
+
+	@Override
+	protected void onScreenshotMenuSelected(MenuItem item) {
+
+		ActivityUtils.takeScreenshot(this);
+	}
 }
