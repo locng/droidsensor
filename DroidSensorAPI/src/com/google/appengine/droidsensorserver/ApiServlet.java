@@ -13,8 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
 
-import com.google.appengine.repackaged.com.google.common.labs.misc.ToStringBuilder;
-
 public class ApiServlet extends HttpServlet {
 
 	/**
@@ -106,10 +104,22 @@ public class ApiServlet extends HttpServlet {
 		boolean json = "json".equalsIgnoreCase(req.getParameter("t"));
 
 		Long id = addressToId(address);
+		boolean ignore = false;
 
 		try {
 
 			u = pm.getObjectById(BluetoothDevice.class, id);
+
+			Calendar cal = Calendar.getInstance();
+			int month = cal.get(Calendar.MONTH);
+			cal.set(Calendar.MONTH, month - 1);
+			long time = cal.getTime().getTime();
+			if (u.getUpdated() < time) {
+				ignore = true;
+				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+
 			updateCount(u);
 			prevUser = u.getTwitterUser();
 			prevMessage = u.getMessage();
@@ -120,6 +130,10 @@ public class ApiServlet extends HttpServlet {
 			return;
 		} finally {
 
+			if (ignore) {
+				pm.close();
+				return;
+			}
 			if (u == null || u.getTwitterUser().startsWith("@")) {
 
 				try {
@@ -301,6 +315,16 @@ public class ApiServlet extends HttpServlet {
 		try {
 
 			u = pm.getObjectById(BluetoothDevice.class, id);
+
+			Calendar cal = Calendar.getInstance();
+			int month = cal.get(Calendar.MONTH);
+			cal.set(Calendar.MONTH, month - 1);
+			long time = cal.getTime().getTime();
+			if (u.getUpdated() < time) {
+				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+
 			updateCount(u);
 
 			if (u.getTwitterUser().startsWith("@")) {
@@ -353,13 +377,4 @@ public class ApiServlet extends HttpServlet {
 		return i.intValue();
 	}
 
-	private String deviceToString(BluetoothDevice device) {
-
-		ToStringBuilder builder = new ToStringBuilder(BluetoothDevice.class);
-		builder.add("address", device.getBluetoothAddress());
-		builder.add("twitterUser", device.getTwitterUser());
-		builder.add("count", device.getCount());
-
-		return builder.toString();
-	}
 }

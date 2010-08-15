@@ -11,6 +11,11 @@
     <servlet-class>com.google.appengine.droidsensorserver.ApiServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>removeServlet</servlet-name>
+    <servlet-class>com.google.appengine.droidsensorserver.RemoveServlet</servlet-class>
+  </servlet>
+
   <!-- 
   <servlet>
     <servlet-name>migrateServlet</servlet-name>
@@ -21,6 +26,11 @@
   <servlet-mapping>
     <servlet-name>apiServlet</servlet-name>
     <url-pattern>/api</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>removeServlet</servlet-name>
+    <url-pattern>/remove</url-pattern>
   </servlet-mapping>
 
   <!-- 
