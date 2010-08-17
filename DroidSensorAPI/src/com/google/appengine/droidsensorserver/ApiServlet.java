@@ -111,8 +111,8 @@ public class ApiServlet extends HttpServlet {
 			u = pm.getObjectById(BluetoothDevice.class, id);
 
 			Calendar cal = Calendar.getInstance();
-			int month = cal.get(Calendar.MONTH);
-			cal.set(Calendar.MONTH, month - 1);
+			int day = cal.get(Calendar.DAY_OF_MONTH);
+			cal.set(Calendar.DAY_OF_MONTH, day - 3);
 			long time = cal.getTime().getTime();
 			if (u.getUpdated() < time) {
 				ignore = true;
@@ -131,6 +131,16 @@ public class ApiServlet extends HttpServlet {
 		} finally {
 
 			if (ignore) {
+
+				u.setTwitterUser(user);
+				u.setCount(0);
+				if (isEmpty(message)) {
+					u.setMessage(null);
+				} else {
+					u.setMessage(message);
+				}
+				updateCount(u);
+
 				pm.close();
 				return;
 			}
@@ -317,8 +327,8 @@ public class ApiServlet extends HttpServlet {
 			u = pm.getObjectById(BluetoothDevice.class, id);
 
 			Calendar cal = Calendar.getInstance();
-			int month = cal.get(Calendar.MONTH);
-			cal.set(Calendar.MONTH, month - 1);
+			int day = cal.get(Calendar.DAY_OF_MONTH);
+			cal.set(Calendar.DAY_OF_MONTH, day - 3);
 			long time = cal.getTime().getTime();
 			if (u.getUpdated() < time) {
 				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);

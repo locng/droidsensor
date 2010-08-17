@@ -23,8 +23,8 @@ public class RemoveServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
 		Calendar cal = Calendar.getInstance();
-		int month = cal.get(Calendar.MONTH);
-		cal.set(Calendar.MONTH, month - 1);
+		int day = cal.get(Calendar.DAY_OF_MONTH);
+		cal.set(Calendar.DAY_OF_MONTH, day - 3);
 		long time = cal.getTime().getTime();
 		PersistenceManager pm = PersistenceManagerFactoryFactory
 				.createManager();
