@@ -22,6 +22,7 @@ import org.sevenleaves.droidsensor.DatabaseManipulation.ManipulationScope;
 import org.sevenleaves.droidsensor.bluetooth.BluetoothUtils;
 
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
@@ -123,8 +124,9 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 				if (basicAccountUses) {
 
-					verified = TwitterUtils.verifyCredentials(setting
-							.getTwitterId(), setting.getTwitterPassword());
+					verified = TwitterUtils.verifyCredentials(
+							setting.getTwitterId(),
+							setting.getTwitterPassword());
 
 				}
 
@@ -132,9 +134,9 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 				if (verified && optionalAccountUses) {
 
-					verified = TwitterUtils.verifyCredentials(setting
-							.getOptionalTwitterId(), setting
-							.getOptionalTwitterPassword());
+					verified = TwitterUtils.verifyCredentials(
+							setting.getOptionalTwitterId(),
+							setting.getOptionalTwitterPassword());
 				}
 
 				verifiedRef.put(verified);
@@ -148,18 +150,21 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 				if (!b) {
 
 					AlertDialog alertDialog = new AlertDialog.Builder(
-							DroidSensorActivity.this).setTitle(
-							"Authentication failed.").setPositiveButton(
-							"Open Settings", new OnClickListener() {
+							DroidSensorActivity.this)
+							.setTitle("Authentication failed.")
+							.setPositiveButton("Open Settings",
+									new OnClickListener() {
 
-								public void onClick(DialogInterface dialog,
-										int which) {
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
 
-									Intent settings = new Intent(
-											SettingsActivity.class.getName());
-									startActivity(settings);
-								}
-							}).create();
+											Intent settings = new Intent(
+													SettingsActivity.class
+															.getName());
+											startActivity(settings);
+										}
+									}).create();
 					alertDialog.show();
 
 					return;
@@ -257,6 +262,24 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 				final BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
 				adapter.notifyDataSetChanged();
+				Builder builder = new AlertDialog.Builder(
+						DroidSensorActivity.this);
+				StringBuilder b = new StringBuilder();
+				b.append("本アプリケーションのサポートは2010年8月末で終了します。\n\n");
+				b.append("8月末以降は使用できなくなりますのでアンインストールしてください。");
+
+				builder.setPositiveButton(android.R.string.ok,
+						new OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								dialog.dismiss();
+							}
+						});
+				builder.setMessage(b.toString());
+
+				builder.show();
 			}
 		});
 	}
@@ -299,8 +322,8 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 		BluetoothDeviceAdapter adapter = (BluetoothDeviceAdapter) getListAdapter();
 		BluetoothDeviceEntity entity = (BluetoothDeviceEntity) adapter
 				.getItem(position);
-		Intent intent = new Intent(RemoteBluetoothDeviceActivity.class
-				.getName());
+		Intent intent = new Intent(
+				RemoteBluetoothDeviceActivity.class.getName());
 		intent.putExtra("ROW_ID", entity.getRowID());
 		startActivity(intent);
 	}
@@ -362,7 +385,7 @@ public class DroidSensorActivity extends DroidSensorActivitySupport {
 
 	@Override
 	protected void onScreenshotMenuOpened(MenuItem item) {
-		
+
 		; // nop
 	}
 
